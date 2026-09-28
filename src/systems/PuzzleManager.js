@@ -347,8 +347,8 @@ class PuzzleManager {
         id:    FORK_CONFIG.PUZZLES.SERVER_SEQUENCE,
         type:  'sequence',
         requires: { log07_deleted: true },
-        // Pista visual: LEDs representam 1, 2, 3 e 4 pulsos → ordem crescente = A B C D
-        validator: (answer) => JSON.stringify(answer) === JSON.stringify(['A', 'B', 'C', 'D']),
+        // Pista visual: os painéis pulsam em 4, 3, 2 e 1 ciclos → ordem decrescente = D C B A
+        validator: (answer) => JSON.stringify(answer) === JSON.stringify(['D', 'C', 'B', 'A']),
         consequences: [
           { key: 'server_rebooted', value: true },
           { butterfly: 'reboot_server' },
