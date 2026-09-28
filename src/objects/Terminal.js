@@ -168,7 +168,6 @@ class Terminal extends InteractiveObject {
       // Caracteres imprimíveis
       if (e.key.length === 1) {
         this._inputBuf += e.key;
-        if (window.AudioManagerInstance) window.AudioManagerInstance.playType();
         this._updateInputDisplay();
       }
     });
