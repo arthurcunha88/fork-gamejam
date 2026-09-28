@@ -450,8 +450,8 @@ class GameScene extends Phaser.Scene {
       if (ending) { this.finalManager.trigger(ending); }
       else {
         this.dialogManager.show([
-          'ACCESS GRANTED.',
-          'Mas algo te segura.',
+          'ACESSO CONCEDIDO.',
+          'Mas algo te impede.',
           'Ainda não é hora.',
         ], { title: 'SECURITY DOOR' });
       }
@@ -467,11 +467,11 @@ class GameScene extends Phaser.Scene {
     this.dialogManager.show([
       ...NARRATIVE.door.locked_has_clue,
       '',
-      'SYSTEM WARNING:',
-      'DO NOT OPEN THE DOOR.',
-      'The simulation is not ready for what is behind it.',
+      'AVISO DO SISTEMA:',
+      'NÃO ABRA A PORTA.',
+      'A simulação ainda não está pronta para o que existe além dela.',
     ], {
-      title: 'SECURITY DOOR // WARNING',
+      title: 'PORTA DE SEGURANÇA // AVISO',
       onClose: () => this._showCodeInput(),
     });
   }
@@ -487,7 +487,7 @@ class GameScene extends Phaser.Scene {
         this._setSystemMessage('DOOR UNLOCKED — proceed with caution');
         this.time.delayedCall(450, () => {
           this.dialogManager.show([
-            'ACCESS GRANTED.',
+            'ACESSO CONCEDIDO.',
             'A porta abriu porque você alterou um loop anterior.',
             'O sistema registrou a mudança.',
             'Há algo além desta porta que ele não quer que você veja.',
@@ -531,8 +531,8 @@ class GameScene extends Phaser.Scene {
         this._spawnSecretFile();
         this._setSystemMessage('SERVER — REBOOTED // PROJECT_B DETECTED');
         this.dialogManager.show([
-          'SEQUENCE ACCEPTED.',
-          'SERVER A REBOOTING...',
+          'SEQUÊNCIA ACEITA.',
+          'SERVIDOR A REINICIANDO...',
           'A pasta /restricted agora existe.',
           'No próximo loop, algo novo estará esperando.',
         ], { title: 'SERVER A' });
