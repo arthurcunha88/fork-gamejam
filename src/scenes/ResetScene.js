@@ -7,12 +7,14 @@ class ResetScene extends Phaser.Scene {
 
   constructor() { super({ key: 'ResetScene' }); }
 
-  create() {
+  create(data = {}) {
     const W = FORK_CONFIG.WIDTH;
     const H = FORK_CONFIG.HEIGHT;
     const C = FORK_CONFIG.COLORS;
 
     const loopNum = GameState.get('loop_count');
+    const reason = data.reason || 'CRITICAL_ERROR';
+    const errorCount = GameState.get('loop_error_count') || 0;
 
     // Verifica condição de final ANTES do reset
     const ending = GameState.checkEndingConditions();
@@ -27,10 +29,12 @@ class ResetScene extends Phaser.Scene {
     // Sequência de reset
     const sequence = [
       { delay: 0,    text: 'SYSTEM RESETTING...',              color: FORK_CONFIG.FONT.COLOR_DANGER, size: '28px' },
-      { delay: 600,  text: `LOOP ${loopNum} COMPLETE`,         color: FORK_CONFIG.FONT.COLOR_DIM, size: '16px' },
-      { delay: 1400, text: 'Clearing volatile memory...',      color: FORK_CONFIG.FONT.COLOR_DIM, size: '15px' },
-      { delay: 1800, text: 'Session state: preserved in memory.', color: FORK_CONFIG.FONT.COLOR_MID, size: '15px' },
-      { delay: 2300, text: `LOOP ${loopNum + 1} INITIALIZING...`, color: FORK_CONFIG.FONT.COLOR_PRIMARY, size: '22px' },
+      { delay: 600,  text: `LOOP ${loopNum} COLLAPSED`,        color: FORK_CONFIG.FONT.COLOR_DIM, size: '16px' },
+      { delay: 1100, text: `ERROR // ${reason}`,                  color: FORK_CONFIG.FONT.COLOR_DANGER, size: '13px' },
+      { delay: 1450, text: 'Clearing volatile memory...',           color: FORK_CONFIG.FONT.COLOR_DIM, size: '15px' },
+      { delay: 1900, text: `Critical errors this session: ${errorCount}`, color: FORK_CONFIG.FONT.COLOR_MID, size: '14px' },
+      { delay: 2250, text: 'Persistent consequences: preserved.', color: FORK_CONFIG.FONT.COLOR_MID, size: '15px' },
+      { delay: 2700, text: `LOOP ${loopNum + 1} INITIALIZING...`, color: FORK_CONFIG.FONT.COLOR_PRIMARY, size: '22px' },
     ];
 
     // Mensagem especial se sistema está consciente
@@ -61,7 +65,7 @@ class ResetScene extends Phaser.Scene {
     this._runGlitch();
 
     // Avança para próximo loop
-    const totalDelay = awareness >= 3 ? 3800 : 3200;
+    const totalDelay = awareness >= 3 ? 4200 : 3400;
     this.time.delayedCall(totalDelay, () => {
       GameState.nextLoop();
       GameState.save();
