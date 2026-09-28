@@ -39,7 +39,7 @@ class Player {
   get y() { return this._sprite.y; }
 
   update(objects = []) {
-    const blocked = GameState.volatile.dialog_open || GameState.volatile.terminal_open;
+    const blocked = GameState.volatile.dialog_open || GameState.volatile.terminal_open || GameState.volatile.modal_open;
 
     if (!blocked) {
       this._handleMovement();
