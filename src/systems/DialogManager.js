@@ -47,26 +47,26 @@ class DialogManager {
       .setOrigin(0, 0);
 
     this._titleText = this.scene.add.text(18, boxY + 3, 'SYSTEM', {
-      fontFamily: 'monospace',
+      fontFamily: FORK_CONFIG.FONT.FAMILY,
       fontSize: '11px',
-      color: '#00ffe0',
+      color: FORK_CONFIG.FONT.COLOR_PRIMARY,
       alpha: 0.8,
     });
 
     // Texto principal
     this._text = this.scene.add.text(18, boxY + 26, '', {
-      fontFamily: 'monospace',
+      fontFamily: FORK_CONFIG.FONT.FAMILY,
       fontSize: '13px',
-      color: '#88ffdd',
+      color: FORK_CONFIG.FONT.COLOR_SYSTEM,
       wordWrap: { width: W - 40 },
       lineSpacing: 4,
     });
 
     // Prompt "[ PRESSIONE E PARA CONTINUAR ]"
     this._prompt = this.scene.add.text(W - 20, boxY + boxH - 18, '[ E / CLICK TO CONTINUE ]', {
-      fontFamily: 'monospace',
+      fontFamily: FORK_CONFIG.FONT.FAMILY,
       fontSize: '10px',
-      color: '#446655',
+      color: FORK_CONFIG.FONT.COLOR_DIM,
     }).setOrigin(1, 0);
 
     // Piscar do prompt

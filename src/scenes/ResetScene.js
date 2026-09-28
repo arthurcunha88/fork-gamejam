@@ -26,12 +26,12 @@ class ResetScene extends Phaser.Scene {
 
     // Sequência de reset
     const sequence = [
-      { delay: 0,    text: 'SYSTEM RESETTING...',              color: '#ff2244', size: '20px' },
-      { delay: 600,  text: `LOOP ${loopNum} COMPLETE`,         color: '#446655', size: '13px' },
-      { delay: 1200, text: 'Saving state...',                  color: '#446655', size: '12px' },
-      { delay: 1600, text: 'Clearing volatile memory...',      color: '#446655', size: '12px' },
-      { delay: 2000, text: 'Persistent variables: preserved.', color: '#00886a', size: '12px' },
-      { delay: 2500, text: `LOOP ${loopNum + 1} INITIALIZING...`, color: '#00ffe0', size: '16px' },
+      { delay: 0,    text: 'SYSTEM RESETTING...',              color: FORK_CONFIG.FONT.COLOR_DANGER, size: '20px' },
+      { delay: 600,  text: `LOOP ${loopNum} COMPLETE`,         color: FORK_CONFIG.FONT.COLOR_DIM, size: '13px' },
+      { delay: 1200, text: 'Saving state...',                  color: FORK_CONFIG.FONT.COLOR_DIM, size: '12px' },
+      { delay: 1600, text: 'Clearing volatile memory...',      color: FORK_CONFIG.FONT.COLOR_DIM, size: '12px' },
+      { delay: 2000, text: 'Persistent variables: preserved.', color: FORK_CONFIG.FONT.COLOR_MID, size: '12px' },
+      { delay: 2500, text: `LOOP ${loopNum + 1} INITIALIZING...`, color: FORK_CONFIG.FONT.COLOR_PRIMARY, size: '16px' },
     ];
 
     // Mensagem especial se sistema está consciente
@@ -40,7 +40,7 @@ class ResetScene extends Phaser.Scene {
       sequence.push({
         delay: 3000,
         text:  'I REMEMBER WHAT YOU DID.',
-        color: '#ff2244',
+        color: FORK_CONFIG.FONT.COLOR_DANGER,
         size:  '14px',
       });
     }
@@ -50,7 +50,7 @@ class ResetScene extends Phaser.Scene {
     sequence.forEach(({ delay, text, color, size }) => {
       this.time.delayedCall(delay, () => {
         this.add.text(W / 2, y, text, {
-          fontFamily: 'monospace',
+          fontFamily: FORK_CONFIG.FONT.FAMILY,
           fontSize:   size,
           color,
         }).setOrigin(0.5, 0);
