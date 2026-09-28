@@ -13,6 +13,9 @@ class GameScene extends Phaser.Scene {
     this.puzzleManager = new PuzzleManager();
     this.dialogManager = new DialogManager(this);
     this.finalManager  = new FinalManager(this);
+    this.uiManager     = new UIManager(this, this.loopManager);
+    this.animationManager = new AnimationManager(this);
+    window.AnimationManagerInstance = this.animationManager;
 
     this._wallRects = [];
     this._buildMap();
@@ -41,6 +44,9 @@ class GameScene extends Phaser.Scene {
   update(time, delta) {
     if (!this.player) return;
     this.loopManager.update(delta);
+    if (this.loopManager.isCritical()) {
+      this.animationManager.flash('critical');
+    }
     this.dialogManager.update();
     this.finalManager.check();
     this.player.update(this._objects);
@@ -203,6 +209,25 @@ class GameScene extends Phaser.Scene {
       });
       this._objects.push(secret);
     }
+
+    // Fase 4 — o espaço do Observador aparece somente após a memória ser desbloqueada.
+    if (GameState.get('observer_unlocked')) {
+      const memory = new InteractiveObject(this, 500, 480, {
+        id: 'memory_panel', type: FORK_CONFIG.OBJECT_TYPES.PANEL,
+        label: 'MEMORY PANEL', width: 30, height: 30,
+        color: FORK_CONFIG.COLORS.WARNING,
+        onInteract: () => this._interactMemoryPanel(),
+      });
+      this._objects.push(memory);
+
+      const observer = new InteractiveObject(this, 720, 350, {
+        id: 'observer_terminal', type: FORK_CONFIG.OBJECT_TYPES.TERMINAL,
+        label: 'OBSERVER', width: 34, height: 30,
+        color: FORK_CONFIG.COLORS.ACCENT_BRIGHT,
+        onInteract: () => this._interactObserver(),
+      });
+      this._objects.push(observer);
+    }
   }
 
   // ── Interações ────────────────────────────────────────────
@@ -249,49 +274,23 @@ class GameScene extends Phaser.Scene {
   }
 
   _showCodeInput() {
-    const W = FORK_CONFIG.WIDTH;
-    const H = FORK_CONFIG.HEIGHT;
-    const C = FORK_CONFIG.COLORS;
-    const F = FORK_CONFIG.FONT;
-
-    this.loopManager.pause();
-    const container = this.add.container(0, 0).setDepth(150).setScrollFactor(0);
-
-    const overlay  = this.add.rectangle(0, 0, W, H, 0x000000, 0.8).setOrigin(0, 0);
-    const box      = this.add.rectangle(W/2, H/2, 340, 210, C.TERMINAL_BG, 0.98).setStrokeStyle(1, C.ACCENT_DIM);
-    const titleLbl = this.add.text(W/2, H/2 - 82, '// SECURITY DOOR — ACCESS CODE', { fontFamily: F.FAMILY_TITLE, fontSize: '18px', color: F.COLOR_DIM }).setOrigin(0.5, 0);
-    const prompt   = this.add.text(W/2, H/2 - 56, 'Enter 4-digit access code:', { fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: F.COLOR_SYSTEM }).setOrigin(0.5, 0);
-
-    let code = '';
-    const codeDisplay = this.add.text(W/2, H/2 - 18, '_ _ _ _', { fontFamily: F.FAMILY_TITLE, fontSize: '52px', color: F.COLOR_PRIMARY, letterSpacing: 8 }).setOrigin(0.5, 0);
-    const feedback    = this.add.text(W/2, H/2 + 42, '', { fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_DANGER }).setOrigin(0.5, 0);
-    const hint        = this.add.text(W/2, H/2 + 66, '[ ESC ] Cancel', { fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM }).setOrigin(0.5, 0);
-
-    container.add([overlay, box, titleLbl, prompt, codeDisplay, feedback, hint]);
-
-    const updateDisplay = () => {
-      codeDisplay.setText(code.padEnd(4, '_').split('').join(' '));
-    };
-    const closeUI = () => { container.destroy(true); keyHandler.remove(); this.loopManager.resume(); };
-
-    const keyHandler = this.input.keyboard.on('keydown', (e) => {
-      if (e.keyCode === Phaser.Input.Keyboard.KeyCodes.ESC) { closeUI(); return; }
-      if (e.keyCode === Phaser.Input.Keyboard.KeyCodes.BACKSPACE) { code = code.slice(0, -1); updateDisplay(); return; }
-      if (e.key >= '0' && e.key <= '9' && code.length < 4) { code += e.key; updateDisplay(); }
-      if (e.keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER && code.length === 4) {
-        const correct = this.puzzleManager.checkAnswer(FORK_CONFIG.PUZZLES.DOOR_CODE, code);
-        if (correct) {
-          feedback.setColor(F.COLOR_PRIMARY).setText('// ACCESS GRANTED');
-          this.time.delayedCall(700, () => {
-            closeUI();
-            this.dialogManager.show(['DOOR UNLOCKED.', 'Uma ação anterior abriu esta porta.', 'O sistema notou.'], { title: 'SECURITY DOOR' });
-          });
-        } else {
-          feedback.setText('// ACCESS DENIED — INCORRECT CODE');
-          code = ''; updateDisplay();
-          GameState.increaseSystemAwareness(1);
-        }
-      }
+    this.uiManager.openCodeInput({
+      title: '// SECURITY DOOR — ACCESS CODE',
+      length: 4,
+      validator: value => this.puzzleManager.checkAnswer(FORK_CONFIG.PUZZLES.DOOR_CODE, value),
+      onSuccess: () => {
+        if (window.AudioManagerInstance) window.AudioManagerInstance.playDoor();
+        this.animationManager.doorOpen(878, 300);
+        this._setSystemMessage('DOOR UNLOCKED — proceed with caution');
+        this.time.delayedCall(450, () => {
+          this.dialogManager.show([
+            'ACCESS GRANTED.',
+            'A porta abriu porque você alterou um loop anterior.',
+            'O sistema registrou a mudança.',
+            'Há algo além desta porta que ele não quer que você veja.',
+          ], { title: 'SECURITY DOOR' });
+        });
+      },
     });
   }
 
@@ -317,60 +316,24 @@ class GameScene extends Phaser.Scene {
   }
 
   _showSequencePuzzle() {
-    const W = FORK_CONFIG.WIDTH;
-    const H = FORK_CONFIG.HEIGHT;
-    const C = FORK_CONFIG.COLORS;
-    const F = FORK_CONFIG.FONT;
-
-    this.loopManager.pause();
-    const container = this.add.container(0, 0).setDepth(150).setScrollFactor(0);
-
-    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.8).setOrigin(0, 0);
-    const box     = this.add.rectangle(W/2, H/2, 420, 290, C.TERMINAL_BG, 0.98).setStrokeStyle(1, C.ACCENT_DIM);
-
-    this.add.text(W/2, H/2 - 120, '// SERVER SEQUENCE', { fontFamily: F.FAMILY_TITLE, fontSize: '18px', color: F.COLOR_DIM }).setOrigin(0.5, 0);
-    this.add.text(W/2, H/2 - 96,  'Activate panels in the correct order:', { fontFamily: F.FAMILY_TITLE, fontSize: '18px', color: F.COLOR_SYSTEM }).setOrigin(0.5, 0);
-    container.add([overlay, box]);
-
-    const panels   = ['A', 'B', 'C', 'D'];
-    const selected = [];
-
-    const seqDisplay = this.add.text(W/2, H/2 + 52, 'sequence: []', { fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_MID }).setOrigin(0.5, 0);
-    const feedback   = this.add.text(W/2, H/2 + 78, '', { fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_DANGER }).setOrigin(0.5, 0);
-    container.add([seqDisplay, feedback]);
-
-    panels.forEach((p, i) => {
-      const bx = W/2 - 90 + i * 60;
-      const by = H/2 - 22;
-      const btn = this.add.rectangle(bx, by, 44, 44, C.ACCENT_DIM, 0.3).setStrokeStyle(1, C.ACCENT_DIM).setInteractive({ useHandCursor: true });
-      const lbl = this.add.text(bx, by, p, { fontFamily: F.FAMILY_TITLE, fontSize: '30px', color: F.COLOR_PRIMARY }).setOrigin(0.5, 0.5);
-      container.add([btn, lbl]);
-
-      btn.on('pointerover',  () => { if (!selected.includes(p)) btn.setFillStyle(C.ACCENT, 0.2); });
-      btn.on('pointerout',   () => { if (!selected.includes(p)) btn.setFillStyle(C.ACCENT_DIM, 0.3); });
-      btn.on('pointerdown',  () => {
-        if (selected.includes(p)) return;
-        selected.push(p);
-        btn.setFillStyle(C.ACCENT, 0.5);
-        lbl.setColor(FORK_CONFIG.FONT.COLOR_BRIGHT);
-        seqDisplay.setText(`sequence: [${selected.join(' > ')}]`);
-        if (selected.length === 4) {
-          const correct = this.puzzleManager.checkAnswer(FORK_CONFIG.PUZZLES.SERVER_SEQUENCE, [...selected]);
-          this.time.delayedCall(300, () => {
-            container.destroy(true); this.loopManager.resume();
-            if (correct) {
-              this.dialogManager.show(['SEQUENCE ACCEPTED.', 'Server rebooting...', 'Algo vai mudar no próximo loop.'], { title: 'SERVER A' });
-            } else {
-              this.dialogManager.show(['SEQUENCE REJECTED.', 'Tente novamente.'], { title: 'SERVER A' });
-            }
-          });
-        }
-      });
+    this.uiManager.openSequence({
+      title: '// SERVER SEQUENCE',
+      items: ['A', 'B', 'C', 'D'],
+      validator: answer => this.puzzleManager.checkAnswer(
+        FORK_CONFIG.PUZZLES.SERVER_SEQUENCE,
+        answer
+      ),
+      onSuccess: () => {
+        this.animationManager.flash('success');
+        this._setSystemMessage('SERVER — REBOOTED');
+        this.dialogManager.show([
+          'SEQUENCE ACCEPTED.',
+          'SERVER A REBOOTING...',
+          'A pasta /restricted agora existe.',
+          'No próximo loop, algo novo estará esperando.',
+        ], { title: 'SERVER A' });
+      },
     });
-
-    this.add.text(W/2, H/2 + 112, '[ ESC ] Cancel', { fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM }).setOrigin(0.5, 0);
-    const escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-    escKey.once('down', () => { container.destroy(true); this.loopManager.resume(); });
   }
 
   _interactPanel() {
@@ -432,42 +395,112 @@ class GameScene extends Phaser.Scene {
 
   _interactSecretFile() {
     if (GameState.isPuzzleSolved(FORK_CONFIG.PUZZLES.HIDDEN_FILE)) {
-      this.dialogManager.show(['PROJECT_B.enc — Already accessed.', 'You know what this is.'], { title: 'SECRET FILE' });
+      this.dialogManager.show([
+        'PROJECT_B.enc — ALREADY DECRYPTED.',
+        'Você encontrou o experimento.',
+        'Mas ainda não encontrou quem o observa.',
+      ], { title: 'PROJECT_B.enc' });
       return;
     }
-    const W = FORK_CONFIG.WIDTH; const H = FORK_CONFIG.HEIGHT;
-    const C = FORK_CONFIG.COLORS; const F = FORK_CONFIG.FONT;
 
-    this.dialogManager.show(['PROJECT_B.enc — ENCRYPTED', 'Decryption key required.', 'Hint: the name of this project. (All caps, one word)'], {
+    this.dialogManager.show([
+      'PROJECT_B.enc — ENCRYPTED',
+      'Decryption key required.',
+      'Hint: the codename of the project.',
+    ], {
       title: 'SECRET FILE',
-      onClose: () => {
-        this.loopManager.pause();
-        const container = this.add.container(0, 0).setDepth(150).setScrollFactor(0);
-        const overlay   = this.add.rectangle(0, 0, W, H, 0x000000, 0.8).setOrigin(0, 0);
-        const box       = this.add.rectangle(W/2, H/2, 380, 190, C.TERMINAL_BG, 0.98).setStrokeStyle(1, C.ACCENT_DIM);
-        const title     = this.add.text(W/2, H/2 - 72, '// DECRYPTION KEY:', { fontFamily: F.FAMILY, fontSize: '12px', color: F.COLOR_SYSTEM }).setOrigin(0.5, 0);
-        container.add([overlay, box, title]);
+      onClose: () => this.uiManager.openWordInput({
+        title: '// DECRYPTION KEY',
+        maxLength: 20,
+        validator: value => this.puzzleManager.checkAnswer(
+          FORK_CONFIG.PUZZLES.HIDDEN_FILE,
+          value
+        ),
+        onSuccess: () => {
+          this.animationManager.flash('success');
+          this._setSystemMessage('PROJECT BUTTERFLY — FILE DECRYPTED');
+          this.dialogManager.show([
+            'DECRYPTION SUCCESSFUL.',
+            'PROJECT BUTTERFLY',
+            'The simulation was built to study consequences.',
+            'A new directory appeared: /observer/',
+          ], { title: 'PROJECT_B.enc' });
+        },
+      }),
+    });
+  }
 
-        let input = '';
-        const display  = this.add.text(W/2, H/2 - 30, '_', { fontFamily: F.FAMILY, fontSize: '20px', color: F.COLOR_PRIMARY }).setOrigin(0.5, 0);
-        const feedback = this.add.text(W/2, H/2 + 22, '', { fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_DANGER }).setOrigin(0.5, 0);
-        container.add([display, feedback]);
+  _interactMemoryPanel() {
+    if (GameState.get('memory_code_found')) {
+      this.dialogManager.show([
+        'MEMORY PANEL — UNLOCKED.',
+        'The observer room is accessible.',
+        '// Someone has been watching every loop.',
+      ], { title: 'MEMORY PANEL' });
+      return;
+    }
 
-        const closeUI = () => { container.destroy(true); keyH.remove(); this.loopManager.resume(); };
-        const keyH = this.input.keyboard.on('keydown', (e) => {
-          if (e.keyCode === 27) { closeUI(); return; }
-          if (e.keyCode === 8)  { input = input.slice(0, -1); }
-          else if (e.key.length === 1 && input.length < 20) { input += e.key.toUpperCase(); }
-          display.setText(input || '_');
-          if (e.keyCode === 13) {
-            const ok = this.puzzleManager.checkAnswer(FORK_CONFIG.PUZZLES.HIDDEN_FILE, input);
-            if (ok) {
-              closeUI();
-              this.dialogManager.show(['DECRYPTION SUCCESSFUL.', 'PROJECT BUTTERFLY', 'Objective: simulate butterfly effect in controlled loop environment.', '', 'Variable: subject behavior.', 'Expected iterations: unlimited.'], { title: 'PROJECT_B.enc' });
-            } else { feedback.setText('// INCORRECT KEY'); input = ''; display.setText('_'); }
+    this.dialogManager.show([
+      'MEMORY PANEL',
+      'A four-digit fragment is burned into the display.',
+      '4217',
+      '// It is not a password. It is a memory.',
+    ], {
+      title: 'MEMORY PANEL',
+      onClose: () => this.uiManager.openCodeInput({
+        title: '// MEMORY FRAGMENT',
+        length: 4,
+        validator: value => this.puzzleManager.checkAnswer(
+          FORK_CONFIG.PUZZLES.MEMORY_CODE,
+          value
+        ),
+        onSuccess: () => {
+          this._setSystemMessage('OBSERVER ROOM — ACCESS GRANTED');
+          this.dialogManager.show([
+            'MEMORY ACCEPTED.',
+            'The system did not generate this memory.',
+            'Something else left it for you.',
+          ], { title: 'OBSERVER ACCESS' });
+        },
+      }),
+    });
+  }
+
+  _interactObserver() {
+    if (GameState.isPuzzleSolved(FORK_CONFIG.PUZZLES.OBSERVER_SEQUENCE)) {
+      this.dialogManager.show([
+        'OBSERVER — COMPLETE.',
+        'The sequence has already been executed.',
+        'One final fragment remains.',
+      ], { title: 'OBSERVER' });
+      return;
+    }
+
+    this.dialogManager.show([
+      'OBSERVER ROOM',
+      'Three controls appear on the console:',
+      'PAUSE / WATCH / RELEASE',
+      '// Do not choose them in the order the system suggests.',
+    ], {
+      title: 'OBSERVER',
+      onClose: () => this.uiManager.openSequence({
+        title: '// OBSERVER PROTOCOL',
+        items: ['PAUSE', 'WATCH', 'RELEASE'],
+        validator: answer => this.puzzleManager.checkAnswer(
+          FORK_CONFIG.PUZZLES.OBSERVER_SEQUENCE,
+          answer
+        ),
+        onSuccess: () => {
+          this.dialogManager.show([
+            'OBSERVER PROTOCOL ACCEPTED.',
+            'The system was not watching the player.',
+            'It was watching its own predictions.',
+          ], { title: 'OBSERVER' });
+          if (!GameState.isPuzzleSolved(FORK_CONFIG.PUZZLES.BUTTERFLY)) {
+            this.puzzleManager.checkAnswer(FORK_CONFIG.PUZZLES.BUTTERFLY, []);
           }
-        });
-      },
+        },
+      }),
     });
   }
 
