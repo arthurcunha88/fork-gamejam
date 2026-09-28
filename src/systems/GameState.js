@@ -159,7 +159,8 @@ const GameState = {
   /** Aumenta consciência do sistema */
   increaseSystemAwareness(amount = 1) {
     this.persistent.system_awareness = Math.min(5, this.persistent.system_awareness + amount);
-    console.log(`[FORK] System awareness: ${this.persistent.system_awareness}`);
+    console.log('[FORK] System awareness: ' + this.persistent.system_awareness);
+    this.save();
   },
 
   /** Reseta estado volátil (chamado no início de cada loop) */
