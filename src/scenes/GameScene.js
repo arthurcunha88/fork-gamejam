@@ -128,7 +128,7 @@ class GameScene extends Phaser.Scene {
     this.add.text(780, 286, '↓  PORTA FECHADA // CÓDIGO NECESSÁRIO', {
       fontFamily: F.FAMILY,
       fontSize: '10px',
-      color: '#6d9aaa';
+      color: '#6d9aaa',
     }).setOrigin(0.5, 0).setDepth(2);
 
     this.tweens.add({
