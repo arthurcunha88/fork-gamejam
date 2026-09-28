@@ -7,7 +7,7 @@ const config = {
   type: Phaser.AUTO,
   width: FORK_CONFIG.WIDTH,
   height: FORK_CONFIG.HEIGHT,
-  backgroundColor: '#030a03',
+  backgroundColor: '#070b10',
   pixelArt: false,
   parent: document.body,
   // FIX 404: desabilita loader de textura padrão
