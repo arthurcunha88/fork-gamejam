@@ -269,36 +269,85 @@ class GameScene extends Phaser.Scene {
     this._objects.push(cam);
 
     if (GameState.get('server_rebooted') && GameState.get('log07_deleted')) {
-      const secret = new InteractiveObject(this, 700, 490, {
-        id: 'secret_file', type: FORK_CONFIG.OBJECT_TYPES.FILE,
-        label: 'PROJECT_B.enc', width: 22, height: 26,
-        color: 0x004422,
-        onInteract: () => this._interactSecretFile(),
-      });
-      this._objects.push(secret);
+      this._spawnSecretFile();
     }
 
-    // Fase 4 — o espaço do Observador aparece somente após a memória ser desbloqueada.
-    if (GameState.get('observer_unlocked')) {
-      const memory = new InteractiveObject(this, 500, 480, {
-        id: 'memory_panel', type: FORK_CONFIG.OBJECT_TYPES.PANEL,
-        label: 'MEMORY PANEL', width: 30, height: 30,
-        color: FORK_CONFIG.COLORS.WARNING,
-        onInteract: () => this._interactMemoryPanel(),
-      });
-      this._objects.push(memory);
+    // O painel de memória é a entrada da fase Observer.
+    // Ele aparece após PROJECT_B ser encontrado e desbloqueia o Observer.
+    if (GameState.get('secret_area_found')) {
+      this._spawnMemoryPanel();
+    }
 
+    if (GameState.get('observer_unlocked')) {
+      this._spawnObserverObjects();
+    }
+  }
+
+  _spawnSecretFile() {
+    if (this._objects.some(o => o.id === 'secret_file')) return;
+    if (!GameState.get('server_rebooted') || !GameState.get('log07_deleted')) return;
+
+    const secret = new InteractiveObject(this, 700, 490, {
+      id: 'secret_file',
+      type: FORK_CONFIG.OBJECT_TYPES.FILE,
+      label: 'PROJECT_B.enc',
+      width: 22,
+      height: 26,
+      color: 0x004422,
+      onInteract: () => this._interactSecretFile(),
+    });
+
+    this._objects.push(secret);
+
+    [secret._body, secret._label, secret._icon].forEach(target => {
+      target.setAlpha(0);
+      this.tweens.add({
+        targets: target,
+        alpha: 1,
+        scale: { from: 0.55, to: 1 },
+        duration: 360,
+        ease: 'Back.easeOut',
+      });
+    });
+  }
+
+  _spawnMemoryPanel() {
+    if (this._objects.some(o => o.id === 'memory_panel')) return;
+
+    const memory = new InteractiveObject(this, 500, 480, {
+      id: 'memory_panel',
+      type: FORK_CONFIG.OBJECT_TYPES.PANEL,
+      label: 'MEMORY PANEL',
+      width: 30,
+      height: 30,
+      color: FORK_CONFIG.COLORS.WARNING,
+      onInteract: () => this._interactMemoryPanel(),
+    });
+
+    this._objects.push(memory);
+  }
+
+  _spawnObserverObjects() {
+    if (!this._objects.some(o => o.id === 'observer_terminal')) {
       const observer = new InteractiveObject(this, 720, 350, {
-        id: 'observer_terminal', type: FORK_CONFIG.OBJECT_TYPES.TERMINAL,
-        label: 'OBSERVER', width: 34, height: 30,
+        id: 'observer_terminal',
+        type: FORK_CONFIG.OBJECT_TYPES.TERMINAL,
+        label: 'OBSERVER',
+        width: 34,
+        height: 30,
         color: FORK_CONFIG.COLORS.ACCENT_BRIGHT,
         onInteract: () => this._interactObserver(),
       });
       this._objects.push(observer);
+    }
 
+    if (!this._objects.some(o => o.id === 'identity_terminal')) {
       const identity = new InteractiveObject(this, 620, 350, {
-        id: 'identity_terminal', type: FORK_CONFIG.OBJECT_TYPES.FILE,
-        label: 'IDENTITY', width: 30, height: 26,
+        id: 'identity_terminal',
+        type: FORK_CONFIG.OBJECT_TYPES.FILE,
+        label: 'IDENTITY',
+        width: 30,
+        height: 26,
         color: FORK_CONFIG.COLORS.WARNING,
         onInteract: () => this._interactIdentity(),
       });
@@ -401,7 +450,8 @@ class GameScene extends Phaser.Scene {
       ),
       onSuccess: () => {
         this.animationManager.flash('success');
-        this._setSystemMessage('SERVER — REBOOTED');
+        this._spawnSecretFile();
+        this._setSystemMessage('SERVER — REBOOTED // PROJECT_B DETECTED');
         this.dialogManager.show([
           'SEQUENCE ACCEPTED.',
           'SERVER A REBOOTING...',
