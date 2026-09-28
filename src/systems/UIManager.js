@@ -223,8 +223,6 @@ class UIManager {
 
         value += config.uppercase ? e.key.toUpperCase() : e.key;
         update();
-
-        if (window.AudioManagerInstance) window.AudioManagerInstance.playType();
       }
     };
 
