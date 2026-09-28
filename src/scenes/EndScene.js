@@ -169,6 +169,9 @@ class EndScene extends Phaser.Scene {
         commands_executed: [],
         puzzles_solved: [],
         ending_flags: {},
+        clear_count: 0,
+        corruption_level: 0,
+        filesystem_wiped: false,
       };
       GameState.clearSave();
       this.scene.start('MenuScene');
