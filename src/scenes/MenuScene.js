@@ -48,9 +48,34 @@ class MenuScene extends Phaser.Scene {
     this._makeButton(W / 2, menuY + 48, hasSave ? '> CONTINUAR' : '> CONTINUAR  [NO SAVE]', () => this._continueGame(), hasSave);
     this._makeButton(W / 2, menuY + 96, '> SOBRE', () => this._showAbout(), true);
 
-    this._selectionHint = this.add.text(W / 2, menuY + 146, '[ ↑ / ↓ ] SELECIONAR    [ ENTER ] CONFIRMAR', {
+    this._selectionArrow = this.add.text(W / 2 - 142, menuY + 2, '▶', {
+      fontFamily: F.FAMILY_TITLE,
+      fontSize: '24px',
+      color: F.COLOR_BRIGHT,
+    }).setOrigin(0.5);
+
+    this._selectionPulse = this.add.text(W / 2 + 142, menuY + 2, '◀', {
+      fontFamily: F.FAMILY_TITLE,
+      fontSize: '24px',
+      color: F.COLOR_BRIGHT,
+    }).setOrigin(0.5);
+
+    this._selectionHint = this.add.text(W / 2, menuY + 146, '[ ↑ / ↓ ] NAVEGAR    [ ENTER ] EXECUTAR    [ MOUSE ] ALTERNATIVA', {
       fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM,
     }).setOrigin(0.5);
+
+    this.add.text(W / 2, menuY + 172, 'KEY INPUT // ONLINE', {
+      fontFamily: F.FAMILY, fontSize: '9px', color: F.COLOR_MID,
+    }).setOrigin(0.5);
+
+    this.tweens.add({
+      targets: [this._selectionArrow, this._selectionPulse],
+      alpha: { from: 1, to: 0.25 },
+      duration: 420,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
 
     const saveDate = GameState.getSaveDate();
     const saveText = hasSave
@@ -65,10 +90,24 @@ class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5, 1);
 
     this._updateSelection();
+    this.input.keyboard.addCapture([
+      Phaser.Input.Keyboard.KeyCodes.UP,
+      Phaser.Input.Keyboard.KeyCodes.DOWN,
+      Phaser.Input.Keyboard.KeyCodes.ENTER,
+      Phaser.Input.Keyboard.KeyCodes.ESC,
+    ]);
+
     this._keyHandler = (event) => {
-      if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.UP) this._moveSelection(-1);
-      else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN) this._moveSelection(1);
-      else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER) this._activateSelection();
+      if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.UP) {
+        event.preventDefault();
+        this._moveSelection(-1);
+      } else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN) {
+        event.preventDefault();
+        this._moveSelection(1);
+      } else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER) {
+        event.preventDefault();
+        this._activateSelection();
+      }
     };
     this.input.keyboard.on('keydown', this._keyHandler);
     this.events.once('shutdown', () => this.input.keyboard.off('keydown', this._keyHandler));
@@ -94,7 +133,11 @@ class MenuScene extends Phaser.Scene {
     let next = this._selectedIndex;
     for (let i = 0; i < this._menuItems.length; i++) {
       next = (next + direction + this._menuItems.length) % this._menuItems.length;
-      if (this._menuItems[next].enabled) { this._selectedIndex = next; this._updateSelection(); return; }
+      if (this._menuItems[next].enabled) {
+        this._selectedIndex = next;
+        this._updateSelection();
+        return;
+      }
     }
   }
 
@@ -106,6 +149,12 @@ class MenuScene extends Phaser.Scene {
       item.btn.setShadow(0, 0, selected ? FORK_CONFIG.FONT.COLOR_BRIGHT : FORK_CONFIG.FONT.COLOR_PRIMARY, selected ? 16 : 7, true, true);
       item.btn.setScale(selected ? 1.04 : 1);
     });
+
+    if (this._selectionArrow && this._menuItems[this._selectedIndex]) {
+      const targetY = this._menuItems[this._selectedIndex].btn.y + 9;
+      this._selectionArrow.y = targetY;
+      this._selectionPulse.y = targetY;
+    }
   }
 
   _activateSelection() {
