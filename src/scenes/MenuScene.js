@@ -42,18 +42,10 @@ class MenuScene extends Phaser.Scene {
 
     this.add.rectangle(W / 2, titleY + 124, 420, 1, C.ACCENT, 0.5).setOrigin(0.5, 0);
 
-    const hasSave = GameState.hasSave();
     const menuY = H / 2 + 2;
 
     this._makeButton(W / 2, menuY, '> NOVO JOGO', () => this._startGame(), true);
-    this._makeButton(
-      W / 2,
-      menuY + 42,
-      hasSave ? '> CONTINUAR' : '> CONTINUAR  [NO SAVE]',
-      () => this._continueGame(),
-      hasSave
-    );
-    this._makeButton(W / 2, menuY + 84, '> CONFIGURAÇÕES', () => this._showSettings(), true);
+    this._makeButton(W / 2, menuY + 42, '> CONFIGURAÇÕES', () => this._showSettings(), true);
 
     this._selectionArrow = this.add.text(W / 2 - 156, menuY + 2, '▶', {
       fontFamily: F.FAMILY_TITLE,
@@ -84,13 +76,8 @@ class MenuScene extends Phaser.Scene {
       ease: 'Sine.easeInOut',
     });
 
-    const saveDate = GameState.getSaveDate();
-    const saveText = hasSave
-      ? 'SAVE: LOCAL // LOOP ' + String(GameState.get('loop_count')).padStart(2, '0') + ' // ' + (saveDate ? saveDate.slice(0, 19).replace('T', ' ') : 'AVAILABLE')
-      : 'SAVE: NO LOCAL DATA // START A NEW SIMULATION';
-
-    this._saveStatus = this.add.text(W / 2, H - 52, saveText, {
-      fontFamily: F.FAMILY, fontSize: '10px', color: hasSave ? F.COLOR_MID : F.COLOR_DIM,
+    this._saveStatus = this.add.text(W / 2, H - 52, 'PROGRESSO: APENAS NA SESSÃO ATUAL // SEM SAVE', {
+      fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM,
     }).setOrigin(0.5);
 
     this.add.text(W / 2, H - 14, 'NPCboPe  //  GAME JAM  //  LOCAL SAVE', {
@@ -383,6 +370,7 @@ class MenuScene extends Phaser.Scene {
   }
 
   _startGame() {
+    GameState.clearSave();
     GameState.persistent = {
       loop_count: 0, log07_deleted: false, server_rebooted: false,
       door_unlocked: false, secret_area_found: false, entity_trust: 0,
@@ -397,11 +385,6 @@ class MenuScene extends Phaser.Scene {
 
     GameState.nextLoop();
     GameState.save();
-    this.scene.start('GameScene');
-  }
-
-  _continueGame() {
-    if (!GameState.load()) return;
     this.scene.start('GameScene');
   }
 
