@@ -449,7 +449,7 @@ class MenuScene extends Phaser.Scene {
       .setOrigin(0, 0.5)
       .setDepth(53);
 
-    const volumeHint = this.add.text(W / 2, H / 2 - 60, '[ ← / → ] VOLUME     [ M ] MUTE / UNMUTE', {
+    const volumeHint = this.add.text(W / 2, H / 2 - 60, '[ ← / → ] AJUSTAR VOLUME     [ M ] MUTE / UNMUTE', {
       fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM
     }).setOrigin(0.5).setDepth(52);
 
@@ -458,10 +458,33 @@ class MenuScene extends Phaser.Scene {
       updateVolume();
     });
 
-    const tutorialButton = this._panelButton(W / 2, H / 2 + 38, '> TUTORIAL', () => this._showTutorial());
-    const creditsButton = this._panelButton(W / 2, H / 2 + 82, '> CRÉDITOS', () => this._showCredits());
-    const aboutButton = this._panelButton(W / 2, H / 2 + 126, '> SOBRE O JOGO', () => this._showAbout());
+    const tutorialButton = this._panelButton(W / 2, H / 2 + 38, '> TUTORIAL', () => {
+      close();
+      this._showTutorial();
+    });
+
+    const creditsButton = this._panelButton(W / 2, H / 2 + 82, '> CRÉDITOS', () => {
+      close();
+      this._showCredits();
+    });
+
+    const aboutButton = this._panelButton(W / 2, H / 2 + 126, '> SOBRE O JOGO', () => {
+      close();
+      this._showAbout();
+    });
+
     const closeButton = this._panelButton(W / 2, H / 2 + 180, '> VOLTAR', () => close());
+
+    const selectable = [
+      { type: 'volume', target: volumeLabel },
+      { type: 'button', target: muteButton },
+      { type: 'button', target: tutorialButton },
+      { type: 'button', target: creditsButton },
+      { type: 'button', target: aboutButton },
+      { type: 'button', target: closeButton },
+    ];
+
+    let selectedIndex = 0;
 
     const close = () => {
       overlay.destroy();
@@ -483,32 +506,110 @@ class MenuScene extends Phaser.Scene {
       volumeFill.setFillStyle(A.isMuted() ? C.DANGER : C.ACCENT);
     };
 
+    const updateSelection = () => {
+      selectable.forEach((item, index) => {
+        const selected = index === selectedIndex;
+
+        if (item.type === 'volume') {
+          item.target.setColor(selected ? F.COLOR_WHITE : F.COLOR_SYSTEM);
+          item.target.setShadow(
+            0, 0,
+            selected ? F.COLOR_BRIGHT : F.COLOR_PRIMARY,
+            selected ? 16 : 8,
+            true, true
+          );
+          item.target.setScale(selected ? 1.04 : 1);
+        } else {
+          item.target.setColor(selected ? F.COLOR_WHITE : F.COLOR_PRIMARY);
+          item.target.setShadow(
+            0, 0,
+            selected ? F.COLOR_BRIGHT : F.COLOR_PRIMARY,
+            selected ? 16 : 8,
+            true, true
+          );
+          item.target.setScale(selected ? 1.04 : 1);
+        }
+      });
+
+      const selected = selectable[selectedIndex];
+      const arrowX = W / 2 - 205;
+      const arrowY = selected.type === 'volume'
+        ? H / 2 - 132
+        : selected.target.y;
+
+      if (!this._settingsSelectionArrow) {
+        this._settingsSelectionArrow = this.add.text(arrowX, arrowY, '▶', {
+          fontFamily: F.FAMILY_TITLE,
+          fontSize: '18px',
+          color: F.COLOR_BRIGHT,
+        }).setOrigin(0.5).setDepth(54);
+      } else {
+        this._settingsSelectionArrow.setPosition(arrowX, arrowY);
+        this._settingsSelectionArrow.setVisible(true);
+      }
+    };
+
+    const moveSelection = (direction) => {
+      selectedIndex = (selectedIndex + direction + selectable.length) % selectable.length;
+      updateSelection();
+    };
+
+    const activateSelection = () => {
+      const selected = selectable[selectedIndex];
+
+      if (selected.type === 'volume') {
+        A.playBeep();
+        return;
+      }
+
+      selected.target.emit('pointerdown');
+    };
+
     const keyHandler = (event) => {
-      if (event.key === 'ArrowLeft') {
+      if (event.key === 'ArrowUp') {
         event.preventDefault();
-        A.changeVolume(-0.1);
-        updateVolume();
+        moveSelection(-1);
+      } else if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        moveSelection(1);
+      } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        if (selectable[selectedIndex].type === 'volume') {
+          A.changeVolume(-0.1);
+          updateVolume();
+        }
       } else if (event.key === 'ArrowRight') {
         event.preventDefault();
-        A.changeVolume(0.1);
-        updateVolume();
-        A.playBeep();
+        if (selectable[selectedIndex].type === 'volume') {
+          A.changeVolume(0.1);
+          updateVolume();
+          A.playBeep();
+        }
       } else if (event.key.toLowerCase() === 'm') {
+        event.preventDefault();
         A.toggleMute();
         updateVolume();
+      } else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER) {
+        event.preventDefault();
+        activateSelection();
       } else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ESC) {
+        event.preventDefault();
         close();
       }
     };
 
+    overlay.on('pointerdown', close);
+
     updateVolume();
+    updateSelection();
     this.input.keyboard.on('keydown', keyHandler);
 
     [overlay, box, title, volumeLabel, volumeBar, volumeFill, volumeHint].forEach(o => o.setAlpha(0));
     [muteButton, tutorialButton, creditsButton, aboutButton, closeButton].forEach(b => b.setAlpha(0));
+    if (this._settingsSelectionArrow) this._settingsSelectionArrow.setAlpha(0);
 
     this.tweens.add({
-      targets: [overlay, box, title, volumeLabel, volumeBar, volumeFill, volumeHint, muteButton, tutorialButton, creditsButton, aboutButton, closeButton],
+      targets: [overlay, box, title, volumeLabel, volumeBar, volumeFill, volumeHint, muteButton, tutorialButton, creditsButton, aboutButton, closeButton, this._settingsSelectionArrow],
       alpha: 1, duration: 180, ease: 'Quad.easeOut'
     });
   }
