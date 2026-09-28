@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FORK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323:wght@400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #030a03;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Share Tech Mono', monospace;
+    }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
+  <script src="src/config/GameConfig.js"></script>
+  <script src="src/systems/GameState.js"></script>
+  <script src="src/systems/LoopManager.js"></script>
+  <script src="src/systems/PuzzleManager.js"></script>
+  <script src="src/systems/DialogManager.js"></script>
+  <script src="src/systems/FinalManager.js"></script>
+  <script src="src/objects/InteractiveObject.js"></script>
+  <script src="src/objects/Terminal.js"></script>
+  <script src="src/objects/Player.js"></script>
+  <script src="src/scenes/BootScene.js"></script>
+  <script src="src/scenes/MenuScene.js"></script>
+  <script src="src/scenes/GameScene.js"></script>
+  <script src="src/scenes/ResetScene.js"></script>
+  <script src="src/scenes/EndScene.js"></script>
+  <script src="src/config/PhaserConfig.js"></script>
+</body>
+</html>
