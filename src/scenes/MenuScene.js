@@ -13,6 +13,7 @@ class MenuScene extends Phaser.Scene {
 
     this._selectedIndex = 0;
     this._menuItems = [];
+    this._settingsOpen = false;
 
     this.add.rectangle(0, 0, W, H, C.BG).setOrigin(0, 0);
     this._drawGrid();
@@ -106,6 +107,10 @@ class MenuScene extends Phaser.Scene {
     ]);
 
     this._keyHandler = (event) => {
+      // Enquanto um modal estiver aberto, o menu principal não pode receber
+      // ENTER/SETAS. Isso evita que o mesmo ENTER ative o menu por trás.
+      if (this._settingsOpen) return;
+
       if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.UP) {
         event.preventDefault();
         this._moveSelection(-1);
@@ -401,6 +406,9 @@ class MenuScene extends Phaser.Scene {
   }
 
   _showSettings() {
+    if (this._settingsOpen) return;
+    this._settingsOpen = true;
+
     const W = FORK_CONFIG.WIDTH;
     const H = FORK_CONFIG.HEIGHT;
     const F = FORK_CONFIG.FONT;
@@ -477,6 +485,8 @@ class MenuScene extends Phaser.Scene {
     let selectedIndex = 0;
 
     const close = () => {
+      if (!this._settingsOpen) return;
+      this._settingsOpen = false;
       overlay.destroy();
       box.destroy();
       title.destroy();
