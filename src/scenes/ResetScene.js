@@ -28,10 +28,9 @@ class ResetScene extends Phaser.Scene {
     const sequence = [
       { delay: 0,    text: 'SYSTEM RESETTING...',              color: FORK_CONFIG.FONT.COLOR_DANGER, size: '28px' },
       { delay: 600,  text: `LOOP ${loopNum} COMPLETE`,         color: FORK_CONFIG.FONT.COLOR_DIM, size: '16px' },
-      { delay: 1200, text: 'Saving state...',                  color: FORK_CONFIG.FONT.COLOR_DIM, size: '15px' },
-      { delay: 1600, text: 'Clearing volatile memory...',      color: FORK_CONFIG.FONT.COLOR_DIM, size: '15px' },
-      { delay: 2000, text: 'Persistent variables: preserved.', color: FORK_CONFIG.FONT.COLOR_MID, size: '15px' },
-      { delay: 2500, text: `LOOP ${loopNum + 1} INITIALIZING...`, color: FORK_CONFIG.FONT.COLOR_PRIMARY, size: '22px' },
+      { delay: 1400, text: 'Clearing volatile memory...',      color: FORK_CONFIG.FONT.COLOR_DIM, size: '15px' },
+      { delay: 1800, text: 'Session state: preserved in memory.', color: FORK_CONFIG.FONT.COLOR_MID, size: '15px' },
+      { delay: 2300, text: `LOOP ${loopNum + 1} INITIALIZING...`, color: FORK_CONFIG.FONT.COLOR_PRIMARY, size: '22px' },
     ];
 
     // Mensagem especial se sistema está consciente
