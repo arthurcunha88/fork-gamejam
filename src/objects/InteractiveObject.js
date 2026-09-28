@@ -119,6 +119,78 @@ class InteractiveObject {
       return;
     }
 
+    if (this.visual === 'door') {
+      // Porta embutida: moldura metálica, painel central e leitura luminosa.
+      const frameX = x - 4;
+      const frameY = y - 5;
+      const frameW = w + 8;
+      const frameH = h + 10;
+      const unlocked = color === C.ACCENT;
+
+      g.fillStyle(0x0a1117, 0.98);
+      g.fillRoundedRect(frameX, frameY, frameW, frameH, 5);
+      g.lineStyle(1.5, unlocked ? C.ACCENT_DIM : 0x394752, 0.95);
+      g.strokeRoundedRect(frameX, frameY, frameW, frameH, 5);
+
+      g.fillStyle(unlocked ? 0x14252b : 0x111920, 1);
+      g.fillRoundedRect(x, y, w, h, 3);
+
+      // Divisão central e barras da porta.
+      g.lineStyle(1, unlocked ? 0x3e8fa8 : 0x36434d, 0.9);
+      g.lineBetween(this.x, y + 3, this.x, y + h - 3);
+      g.lineBetween(x + 7, y + 5, x + w - 7, y + 5);
+      g.lineBetween(x + 7, y + h - 5, x + w - 7, y + h - 5);
+
+      // Indicador de acesso.
+      g.fillStyle(unlocked ? C.ACCENT_BRIGHT : 0x687781, 0.9);
+      g.fillCircle(x + w - 7, this.y, 2);
+      g.lineStyle(1, unlocked ? C.ACCENT : 0x45525b, 0.55);
+      g.strokeCircle(x + w - 7, this.y, 4);
+
+      // Pequenas ranhuras dão volume sem virar um bloco colorido.
+      g.lineStyle(1, unlocked ? 0x2b6476 : 0x27333b, 0.65);
+      for (let i = 0; i < 4; i++) {
+        const rx = x + 9 + i * ((w - 24) / 3);
+        g.lineBetween(rx, y + 8, rx, y + h - 8);
+      }
+      return;
+    }
+
+    if (this.visual === 'camera') {
+      // Câmera de segurança com suporte e lente, em vez de um quadrado azul.
+      const bodyW = w - 8;
+      const bodyH = h - 10;
+      const bx = this.x - bodyW / 2;
+      const by = this.y - bodyH / 2 - 2;
+
+      g.fillStyle(0x111a21, 0.98);
+      g.fillRoundedRect(bx, by, bodyW, bodyH, 7);
+      g.lineStyle(1.5, 0x5b6b77, 0.9);
+      g.strokeRoundedRect(bx, by, bodyW, bodyH, 7);
+
+      // Aba superior e braço de fixação.
+      g.fillStyle(0x1c2932, 1);
+      g.fillRoundedRect(this.x - 10, by - 5, 20, 5, 2);
+      g.fillRect(this.x - 2, by - 10, 4, 7);
+      g.fillStyle(0x2d3b45, 1);
+      g.fillRoundedRect(this.x - 8, by - 12, 16, 4, 2);
+
+      // Lente.
+      g.fillStyle(0x071018, 1);
+      g.fillCircle(this.x, this.y - 1, 7);
+      g.lineStyle(1, 0x7392a3, 0.85);
+      g.strokeCircle(this.x, this.y - 1, 7);
+      g.fillStyle(0x8fe8ff, 0.85);
+      g.fillCircle(this.x + 2, this.y - 3, 2);
+      g.fillStyle(0x0b1015, 1);
+      g.fillCircle(this.x + 2, this.y - 3, 0.9);
+
+      // LED discreto de gravação.
+      g.fillStyle(0xff7b88, 0.95);
+      g.fillCircle(bx + bodyW - 5, by + 5, 1.5);
+      return;
+    }
+
     if (this.visual === 'rack') {
       g.fillStyle(0x151c24, 1);
       g.fillRoundedRect(x, y, w, h, 3);
