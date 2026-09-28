@@ -9,7 +9,7 @@ const FORK_CONFIG = {
   HEIGHT: 640,
 
   // Loop
-  LOOP_DURATION: 300,       // segundos por loop (5 min)
+  LOOP_DURATION: 180,       // segundos por loop (3 min)
   LOOP_WARNING_TIME: 60,    // segundos antes do reset para alertar
   LOOP_CRITICAL_TIME: 30,   // segundos críticos (música acelera, glitch)
   MAX_LOOPS: 10,            // segurança para loop eterno
@@ -26,7 +26,7 @@ const FORK_CONFIG = {
     PURPLE:       0x9b7bff,
     GREEN:        0x55e6a5,
     ORANGE:       0xff9d4d,
-    DANGER:       0xff2244,
+    DANGER:       0xff6678,
     WARNING:      0xffaa00,
     TEXT:         0x7ed6ff,
     TEXT_DIM:     0x40515f,
