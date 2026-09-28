@@ -148,7 +148,7 @@ const GameState = {
     }
 
     // FINAL 2 — RESET
-    if (p.escape_attempted && p.system_awareness >= 2) {
+    if (p.escape_attempted && p.system_awareness >= 2 && p.phase < FORK_CONFIG.PHASES.OBSERVER) {
       return FORK_CONFIG.ENDINGS.RESET;
     }
 
