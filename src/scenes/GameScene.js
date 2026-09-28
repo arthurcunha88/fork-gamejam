@@ -63,41 +63,105 @@ class GameScene extends Phaser.Scene {
     const F = FORK_CONFIG.FONT;
     const gfx = this.add.graphics().setDepth(0);
 
-    // Chão base
     gfx.fillStyle(C.BG, 1);
     gfx.fillRect(0, 0, W, H);
 
-    // Grid sutil
-    gfx.lineStyle(1, C.GRID, 0.5);
-    for (let x = 0; x < W; x += 32) { gfx.moveTo(x, 0).lineTo(x, H); }
-    for (let y = 0; y < H; y += 32) { gfx.moveTo(0, y).lineTo(W, y); }
+    // Grid arquitetural: linhas finas e coordenadas lembram uma interface
+    // de simulação, sem depender de imagens externas.
+    gfx.lineStyle(1, C.GRID, 0.55);
+    for (let x = 0; x <= W; x += 32) gfx.moveTo(x, 0).lineTo(x, H);
+    for (let y = 0; y <= H; y += 32) gfx.moveTo(0, y).lineTo(W, y);
     gfx.strokePath();
 
-    // Salas
-    this._drawRoom(gfx, 60,  50,  840, 540);
-    this._drawRoom(gfx, 660, 50,  240, 200, true);
-    this._drawRoom(gfx, 60,  390, 220, 200, true);
+    this._drawDigitalRain(0, 28, W, H - 50);
 
-    // Marcações de chão (scanlines digitais)
-    gfx.lineStyle(1, C.ACCENT_DIM, 0.08);
-    for (let x = 80; x < 900; x += 80) { gfx.moveTo(x, 70).lineTo(x, 570); }
-    for (let y = 70; y < 580; y += 80) { gfx.moveTo(80, y).lineTo(880, y); }
+    this._drawRoom(gfx, 60, 50, 840, 540);
+    this._drawRoom(gfx, 660, 50, 240, 200, true);
+    this._drawRoom(gfx, 60, 390, 220, 200, true);
+
+    // Faixas de iluminação e circuitos no chão.
+    gfx.lineStyle(1, C.ACCENT_DIM, 0.16);
+    for (let x = 80; x < 900; x += 80) {
+      gfx.moveTo(x, 70).lineTo(x, 570);
+    }
+    for (let y = 70; y < 580; y += 80) {
+      gfx.moveTo(80, y).lineTo(880, y);
+    }
     gfx.strokePath();
 
-    // Labels das salas — agora visíveis com verde médio
-    const labelStyle = { fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: '#00ff41', shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:10, fill:true } };
-    this.add.text(120, 62,  '// MAIN LAB',     labelStyle).setDepth(1);
-    this.add.text(672, 62,  '// CONTROL ROOM', labelStyle).setDepth(1);
-    this.add.text(72,  400, '// STORAGE',      labelStyle).setDepth(1);
+    // Trilhas de circuito decorativas.
+    gfx.lineStyle(2, C.ACCENT_DIM, 0.18);
+    [[95,115,240,115],[240,115,240,180],[400,535,560,535],
+     [560,535,560,470],[690,105,780,105],[780,105,780,160],
+     [95,350,180,350],[180,350,180,300]].forEach(([x1,y1,x2,y2]) => {
+      gfx.moveTo(x1,y1).lineTo(x2,y2);
+      gfx.strokeCircle(x2, y2, 3);
+    });
 
-    // Decoração extra: coordenadas dos cantos
+    const labelStyle = {
+      fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: '#00ff41',
+      shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:10, fill:true }
+    };
+    this.add.text(120, 62, '// MAIN LAB', labelStyle).setDepth(1);
+    this.add.text(672, 62, '// CONTROL ROOM', labelStyle).setDepth(1);
+    this.add.text(72, 400, '// STORAGE', labelStyle).setDepth(1);
+
     const dimStyle = { fontFamily: F.FAMILY, fontSize: '9px', color: '#33aa33' };
-    this.add.text(65,  55,  '[00,00]', dimStyle).setDepth(1);
-    this.add.text(860, 55,  '[10,00]', dimStyle).setOrigin(1,0).setDepth(1);
-    this.add.text(65,  575, '[00,06]', dimStyle).setDepth(1);
+    this.add.text(65, 55, '[00,00]', dimStyle).setDepth(1);
+    this.add.text(860, 55, '[10,00]', dimStyle).setOrigin(1,0).setDepth(1);
+    this.add.text(65, 575, '[00,06]', dimStyle).setDepth(1);
     this.add.text(860, 575, '[10,06]', dimStyle).setOrigin(1,0).setDepth(1);
+
+    // Painéis de status dão vida ao laboratório.
+    this._mapStatus = this.add.text(78, 555, 'NET // SYNCHRONIZED', {
+      fontFamily: F.FAMILY, fontSize: '9px', color: '#33aa33'
+    }).setDepth(2);
+
+    this.tweens.add({
+      targets: this._mapStatus,
+      alpha: { from: 1, to: 0.35 },
+      duration: 1100,
+      yoyo: true,
+      repeat: -1,
+    });
   }
 
+  _drawDigitalRain(x, y, w, h) {
+    const F = FORK_CONFIG.FONT;
+    const C = FORK_CONFIG.COLORS;
+    const layer = this.add.container(0, 0).setDepth(0).setAlpha(0.14);
+    const glyphs = '01アイウエオカキクケコ<>[]{}+/\\';
+
+    for (let i = 0; i < 28; i++) {
+      const tx = x + Phaser.Math.Between(10, w - 10);
+      const ty = y + Phaser.Math.Between(0, h);
+      const text = this.add.text(tx, ty, '', {
+        fontFamily: F.FAMILY,
+        fontSize: Phaser.Math.Between(9, 13) + 'px',
+        color: i % 5 === 0 ? '#39ff14' : '#00802a',
+      });
+
+      const length = Phaser.Math.Between(4, 12);
+      let value = '';
+      for (let j = 0; j < length; j++) {
+        value += glyphs[Phaser.Math.Between(0, glyphs.length - 1)] + '\n';
+      }
+      text.setText(value);
+      layer.add(text);
+
+      this.tweens.add({
+        targets: text,
+        y: ty + Phaser.Math.Between(90, 220),
+        alpha: { from: 0.08, to: 0.34 },
+        duration: Phaser.Math.Between(3500, 7000),
+        delay: Phaser.Math.Between(0, 2500),
+        repeat: -1,
+        onRepeat: () => {
+          text.y = Phaser.Math.Between(y, y + h);
+        }
+      });
+    }
+  }
   _drawRoom(gfx, x, y, w, h, isSecondary = false) {
     const C     = FORK_CONFIG.COLORS;
     const color = isSecondary ? C.ACCENT_DIM : C.ACCENT;
