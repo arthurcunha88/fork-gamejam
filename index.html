@@ -18,28 +18,50 @@
       overflow: hidden;
       font-family: 'Share Tech Mono', monospace;
     }
-    canvas { display: block; }
+    canvas {
+      display: block;
+      border: 1px solid #0b5a18;
+      box-shadow:
+        0 0 0 1px #001800,
+        0 0 22px rgba(0, 255, 65, 0.10),
+        inset 0 0 20px rgba(0, 255, 65, 0.03);
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 255, 65, 0.025) 0px,
+        rgba(0, 255, 65, 0.025) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+      mix-blend-mode: screen;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js"></script>
-  <script src="src/config/GameConfig.js"></script>
-  <script src="src/systems/GameState.js"></script>
-  <script src="src/systems/LoopManager.js"></script>
-  <script src="src/systems/UIManager.js"></script>
-  <script src="src/systems/AudioManager.js"></script>
-  <script src="src/systems/AnimationManager.js"></script>
-  <script src="src/systems/PuzzleManager.js"></script>
-  <script src="src/systems/DialogManager.js"></script>
-  <script src="src/systems/FinalManager.js"></script>
-  <script src="src/objects/InteractiveObject.js"></script>
-  <script src="src/objects/Terminal.js"></script>
-  <script src="src/objects/Player.js"></script>
-  <script src="src/scenes/BootScene.js"></script>
-  <script src="src/scenes/MenuScene.js"></script>
-  <script src="src/scenes/GameScene.js"></script>
-  <script src="src/scenes/ResetScene.js"></script>
-  <script src="src/scenes/EndScene.js"></script>
-  <script src="src/config/PhaserConfig.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js?v=20260928-3"></script>
+  <script src="src/config/GameConfig.js?v=20260928-3"></script>
+  <script src="src/systems/GameState.js?v=20260928-3"></script>
+  <script src="src/systems/LoopManager.js?v=20260928-3"></script>
+  <script src="src/systems/UIManager.js?v=20260928-3"></script>
+  <script src="src/systems/AudioManager.js?v=20260928-3"></script>
+  <script src="src/systems/AnimationManager.js?v=20260928-3"></script>
+  <script src="src/systems/PuzzleManager.js?v=20260928-3"></script>
+  <script src="src/systems/DialogManager.js?v=20260928-3"></script>
+  <script src="src/systems/FinalManager.js?v=20260928-3"></script>
+  <script src="src/objects/InteractiveObject.js?v=20260928-3"></script>
+  <script src="src/objects/Terminal.js?v=20260928-3"></script>
+  <script src="src/objects/Player.js?v=20260928-3"></script>
+  <script src="src/scenes/BootScene.js?v=20260928-3"></script>
+  <script src="src/scenes/MenuScene.js?v=20260928-3"></script>
+  <script src="src/scenes/GameScene.js?v=20260928-3"></script>
+  <script src="src/scenes/ResetScene.js?v=20260928-3"></script>
+  <script src="src/scenes/EndScene.js?v=20260928-3"></script>
+  <script src="src/config/PhaserConfig.js?v=20260928-3"></script>
 </body>
 </html>
