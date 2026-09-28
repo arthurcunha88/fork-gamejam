@@ -21,6 +21,7 @@ class GameScene extends Phaser.Scene {
     this._buildMap();
 
     this._objects = [];
+    this._lastCorruptionLevel = -1;
     this._buildObjects();
 
     this.player = new Player(this, 200, 300);
@@ -55,6 +56,7 @@ class GameScene extends Phaser.Scene {
     this.finalManager.check();
     this.player.update(this._objects);
     this._objects.forEach(obj => obj.update(this.player.x, this.player.y));
+    this._updateCorruptionEffects();
     this._updateHUD();
   }
 
@@ -196,10 +198,21 @@ class GameScene extends Phaser.Scene {
     // Paredes físicas
     const walls = [
       { wx: x + w/2, wy: y,       ww: w,     wh: thick },
-      { wx: x + w/2, wy: y + h,   ww: w,     wh: thick },
       { wx: x,       wy: y + h/2, ww: thick, wh: h     },
       { wx: x + w,   wy: y + h/2, ww: thick, wh: h     },
     ];
+
+    // A CONTROL ROOM possui uma passagem física pelo centro da parede inferior.
+    if (isSecondary && x === 660 && y === 50) {
+      const gap = 72;
+      const leftW = (w - gap) / 2;
+      walls.push(
+        { wx: x + leftW / 2, wy: y + h, ww: leftW, wh: thick },
+        { wx: x + leftW + gap + leftW / 2, wy: y + h, ww: leftW, wh: thick },
+      );
+    } else {
+      walls.push({ wx: x + w/2, wy: y + h, ww: w, wh: thick });
+    }
     walls.forEach(({ wx, wy, ww, wh }) => {
       const rect = this.add.rectangle(wx, wy, ww, wh, 0x000000, 0);
       this.physics.add.existing(rect, true);
@@ -374,6 +387,8 @@ class GameScene extends Phaser.Scene {
   _interactDoor(obj) {
     if (GameState.get('door_unlocked')) {
       GameState.set('escape_attempted', true);
+      if (window.AudioManagerInstance) window.AudioManagerInstance.playAlarm();
+      this.cameras.main.shake(180, 0.003);
       const ending = GameState.checkEndingConditions();
       if (ending) { this.finalManager.trigger(ending); }
       else {
@@ -392,8 +407,14 @@ class GameScene extends Phaser.Scene {
       return;
     }
     // Efeito borboleta: porta dá pista só porque LOG_07 foi deletado
-    this.dialogManager.show(NARRATIVE.door.locked_has_clue, {
-      title: 'SECURITY DOOR',
+    this.dialogManager.show([
+      ...NARRATIVE.door.locked_has_clue,
+      '',
+      'SYSTEM WARNING:',
+      'DO NOT OPEN THE DOOR.',
+      'The simulation is not ready for what is behind it.',
+    ], {
+      title: 'SECURITY DOOR // WARNING',
       onClose: () => this._showCodeInput(),
     });
   }
@@ -688,6 +709,47 @@ class GameScene extends Phaser.Scene {
     sf(this.add.rectangle(0, H-22, W, 22, C.HIGHLIGHT, 0.92).setOrigin(0,0).setDepth(90));
     this._hudSystemMsg  = sf(this.add.text(12, H-14, '> SYSTEM: Awaiting input.', { fontFamily: F.FAMILY, fontSize: '11px', color: '#33aa33' }).setDepth(91));
     this._hudAwareness  = sf(this.add.text(W-12, H-14, '', { fontFamily: F.FAMILY, fontSize: '11px', color: '#ff2244', shadow: { offsetX:0, offsetY:0, color:'#ff0000', blur:8, fill:true } }).setOrigin(1,0).setDepth(91));
+  }
+
+  _updateCorruptionEffects() {
+    const level = GameState.get('corruption_level') || 0;
+    if (level === this._lastCorruptionLevel) return;
+    this._lastCorruptionLevel = level;
+
+    const disappear = {
+      1: ['camera_01'],
+      2: ['file_notes'],
+      3: ['entity'],
+      4: ['panel_sequence'],
+      5: ['server_main', 'door_security'],
+    };
+
+    const ids = [];
+    for (let i = 1; i <= level; i++) {
+      (disappear[i] || []).forEach(id => ids.push(id));
+    }
+
+    this._objects.forEach(obj => {
+      if (ids.includes(obj.id)) {
+        obj.setEnabled(false);
+        this.tweens.add({
+          targets: [obj._body, obj._label, obj._icon],
+          alpha: 0,
+          duration: 260,
+          ease: 'Power2',
+        });
+      }
+    });
+
+    if (level > 0) {
+      this.cameras.main.shake(120 + level * 40, 0.0015 * level);
+      if (window.AudioManagerInstance) window.AudioManagerInstance.playAlarm();
+      this._setSystemMessage(
+        level >= 5
+          ? 'SIMULATION CORRUPTED — FILESYSTEM CASCADE'
+          : 'BUTTERFLY EFFECT // INTEGRITY ' + ((5 - level) * 20) + '%'
+      );
+    }
   }
 
   _updateHUD() {
