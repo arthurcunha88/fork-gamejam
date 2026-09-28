@@ -95,16 +95,30 @@ class EndScene extends Phaser.Scene {
     const W = FORK_CONFIG.WIDTH;
     const H = FORK_CONFIG.HEIGHT;
 
-    lines.forEach(([text, color, delay, size]) => {
+    const lineHeight = 34;
+    const startY = H / 2 - ((lines.length - 1) * lineHeight) / 2;
+
+    lines.forEach(([text, color, delay, size], index) => {
       this.time.delayedCall(delay, () => {
-        const t = this.add.text(W / 2, H / 2, text, {
+        const t = this.add.text(W / 2, startY + index * lineHeight, text, {
           fontFamily: FORK_CONFIG.FONT.FAMILY,
           fontSize: size,
           color,
           align: 'center',
+          wordWrap: { width: W - 140 },
+          shadow: { offsetX: 0, offsetY: 0, color, blur: 8, fill: true },
         }).setOrigin(0.5);
+
         t.setAlpha(0);
-        this.tweens.add({ targets: t, alpha: 1, duration: 220 });
+        t.setScale(0.96);
+        this.tweens.add({
+          targets: t,
+          alpha: 1,
+          scale: 1,
+          duration: 260,
+          ease: 'Power2',
+        });
+
         if (window.AudioManagerInstance) window.AudioManagerInstance.playType();
       });
     });
