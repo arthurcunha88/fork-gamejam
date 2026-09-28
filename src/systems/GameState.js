@@ -4,7 +4,7 @@
 // Singleton acessível globalmente
 // ============================================================
 
-const FORK_SAVE_KEY = 'fork_gamejam_save_v1';
+const FORK_SAVE_KEY = 'fork_gamejam_save_v2';
 
 const GameState = {
 
@@ -61,7 +61,7 @@ const GameState = {
   save() {
     try {
       const payload = {
-        version: 1,
+        version: 2,
         saved_at: new Date().toISOString(),
         persistent: JSON.parse(JSON.stringify(this.persistent)),
       };
@@ -79,7 +79,7 @@ const GameState = {
       if (!raw) return false;
 
       const payload = JSON.parse(raw);
-      if (!payload || payload.version !== 1 || !payload.persistent) return false;
+      if (!payload || payload.version !== 2 || !payload.persistent) return false;
 
       this.persistent = { ...this.persistent, ...payload.persistent };
       return true;
