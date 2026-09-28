@@ -119,8 +119,22 @@ class Terminal extends InteractiveObject {
       repeat:   -1,
     });
 
+    // Scanlines e pequenos indicadores dão aparência de monitor físico.
+    const scanlines = this.scene.add.graphics();
+    scanlines.lineStyle(1, C.ACCENT, 0.035);
+    for (let y = TY + 24; y < TY + TH - 38; y += 4) {
+      scanlines.moveTo(TX + 4, y).lineTo(TX + TW - 4, y);
+    }
+    scanlines.strokePath();
+
+    const status = this.scene.add.text(TX + TW - 74, TY + 4, '● LIVE', {
+      fontFamily: FORK_CONFIG.FONT.FAMILY,
+      fontSize: '9px',
+      color: '#39ff14',
+    });
+
     this._termContainer.add([
-      overlay, win, header, headerText, closeBtn,
+      overlay, win, header, headerText, status, scanlines, closeBtn,
       this._outputText, sep,
       this._inputPrefix, this._inputText, this._cursor,
     ]);
@@ -154,6 +168,7 @@ class Terminal extends InteractiveObject {
       // Caracteres imprimíveis
       if (e.key.length === 1) {
         this._inputBuf += e.key;
+        if (window.AudioManagerInstance) window.AudioManagerInstance.playType();
         this._updateInputDisplay();
       }
     });
@@ -167,6 +182,9 @@ class Terminal extends InteractiveObject {
     this._isOpen = true;
     this._termContainer.setVisible(true);
     GameState.volatile.terminal_open = true;
+    if (window.AudioManagerInstance) window.AudioManagerInstance.playBeep();
+    this._termContainer.setAlpha(0);
+    this.scene.tweens.add({ targets: this._termContainer, alpha: 1, duration: 160 });
 
     if (this._history.length === 0) {
       this._printWelcome();
@@ -177,7 +195,7 @@ class Terminal extends InteractiveObject {
 
   close() {
     this._isOpen = false;
-    this._termContainer.setVisible(false);
+    this.scene.tweens.add({ targets: this._termContainer, alpha: 0, duration: 120, onComplete: () => this._termContainer.setVisible(false) });
     GameState.volatile.terminal_open = false;
   }
 
