@@ -51,6 +51,7 @@ class PuzzleManager {
               '  STATUS      — system status',
               '  SCAN        — scan environment',
               '  CLEAR       — clear terminal',
+              '  DELETE ALL  — wipe the local simulation filesystem',
             ],
           },
 
@@ -66,6 +67,7 @@ class PuzzleManager {
                 `  ACTIVE PROCESSES:  7`,
                 `  ANOMALIES:         ${awareness}`,
                 `  LOG ERRORS:        ${deleted ? '1 (LOG_07 missing)' : '0'}`,
+                `  CORRUPTION:        ${GameState.get('corruption_level')}/5`,
               ];
             },
             onExecute: () => GameState.executeCommand('STATUS'),
@@ -265,7 +267,24 @@ class PuzzleManager {
             onExecute: () => GameState.executeCommand('READ_SYSTEM_NOTES'),
           },
 
-          'CLEAR': { output: null, onExecute: () => {} },
+          'CLEAR': {
+            output: [
+              '> TERMINAL BUFFER PURGED.',
+              '// The terminal is empty.',
+              '// The simulation is not.',
+            ],
+            onExecute: () => GameState.registerClear(),
+          },
+
+          'DELETE ALL': {
+            output: [
+              '> WARNING: MASS FILE DELETION REQUESTED.',
+              '> All local simulation files will be removed.',
+              '> This action cannot be predicted.',
+              '> CONSEQUENCE CHAIN: UNKNOWN',
+            ],
+            onExecute: () => GameState.wipeFilesystem(),
+          },
         },
         validator: () => true,
         consequences: [],
