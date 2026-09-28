@@ -17,62 +17,90 @@ class MenuScene extends Phaser.Scene {
     // Header
     this.add.rectangle(0, 0, W, 26, C.HIGHLIGHT, 1).setOrigin(0, 0);
     this.add.text(12, 6, 'FORK OS  //  SIMULATION ENVIRONMENT  //  LOOP SYSTEM ACTIVE', {
-      fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM,
+      fontFamily: F.FAMILY, fontSize: '11px', color: '#33aa33',
     });
     this.add.text(W - 12, 6, 'v2.1.0', {
-      fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM,
+      fontFamily: F.FAMILY, fontSize: '11px', color: '#33aa33',
     }).setOrigin(1, 0);
 
-    // Título
-    const titleY = H / 2 - 100;
-    this.add.text(W / 2, titleY, 'F O R K', {
+    // Título FORK — grande, neon, com glow via shadow
+    const titleY = H / 2 - 110;
+    const title = this.add.text(W / 2, titleY, 'F O R K', {
       fontFamily: F.FAMILY_TITLE,
-      fontSize: '90px',
-      color: F.COLOR_BRIGHT,
-      stroke: '#003300',
-      strokeThickness: 2,
+      fontSize: '110px',
+      color: '#39ff14',
+      stroke: '#00ff41',
+      strokeThickness: 1,
+      shadow: { offsetX: 0, offsetY: 0, color: '#00ff41', blur: 20, stroke: true, fill: true },
     }).setOrigin(0.5, 0);
 
-    this.add.text(W / 2, titleY + 68, '[ ESCAPE ROOM  //  LOOP SYSTEM  //  BUTTERFLY EFFECT ]', {
-      fontFamily: F.FAMILY_TITLE, fontSize: '16px', color: F.COLOR_DIM,
+    // Pulso no título
+    this.tweens.add({
+      targets: title,
+      alpha: { from: 1, to: 0.75 },
+      duration: 1800,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+
+    // Subtítulo
+    this.add.text(W / 2, titleY + 96, '[ ESCAPE ROOM  //  LOOP SYSTEM  //  BUTTERFLY EFFECT ]', {
+      fontFamily: F.FAMILY,
+      fontSize: '12px',
+      color: '#33aa33',
+      shadow: { offsetX: 0, offsetY: 0, color: '#00ff41', blur: 6, fill: true },
     }).setOrigin(0.5, 0);
 
-    this.add.rectangle(W / 2, titleY + 88, 340, 1, C.ACCENT_DIM, 0.6).setOrigin(0.5, 0);
+    // Linha separadora com brilho
+    this.add.rectangle(W / 2, titleY + 116, 360, 1, 0x00ff41, 0.5).setOrigin(0.5, 0);
 
     // Botões
-    const btnY = H / 2 + 10;
-    this._makeButton(W / 2, btnY,      '> INICIAR SIMULAÇÃO', () => this._startGame());
-    this._makeButton(W / 2, btnY + 46, '> CONTINUAR',         () => this._continueGame(), GameState.get('loop_count') > 0);
-    this._makeButton(W / 2, btnY + 92, '> SOBRE',             () => this._showAbout());
+    const btnY = H / 2 + 18;
+    this._makeButton(W / 2, btnY,       '> INICIAR SIMULAÇÃO', () => this._startGame());
+    this._makeButton(W / 2, btnY + 52,  '> CONTINUAR',         () => this._continueGame(), GameState.get('loop_count') > 0);
+    this._makeButton(W / 2, btnY + 104, '> SOBRE',             () => this._showAbout());
 
     // Footer
-    this.add.text(W / 2, H - 14, 'NPCboPe  //  GAME JAM  //  BUTTERFLY EFFECT', {
-      fontFamily: F.FAMILY, fontSize: '9px', color: F.COLOR_DIM,
+    this.add.text(W / 2, H - 12, 'NPCboPe  //  GAME JAM  //  BUTTERFLY EFFECT', {
+      fontFamily: F.FAMILY, fontSize: '10px', color: '#1a4d1a',
     }).setOrigin(0.5, 1);
 
     // Loop warning
     if (GameState.get('loop_count') > 0) {
-      const msg = this.add.text(W / 2, btnY - 28,
+      const msg = this.add.text(W / 2, btnY - 32,
         `// LOOP ${GameState.get('loop_count')} DETECTED — MEMORY PRESERVED`, {
-        fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_WARNING,
+        fontFamily: F.FAMILY, fontSize: '11px', color: '#ffaa00',
+        shadow: { offsetX: 0, offsetY: 0, color: '#ffaa00', blur: 8, fill: true },
       }).setOrigin(0.5, 0);
-      this.tweens.add({ targets: msg, alpha: 0.2, duration: 900, yoyo: true, repeat: -1 });
+      this.tweens.add({ targets: msg, alpha: 0.3, duration: 900, yoyo: true, repeat: -1 });
     }
   }
 
   _makeButton(x, y, label, onClick, enabled = true) {
-    const F = FORK_CONFIG.FONT;
-    const color = enabled ? F.COLOR_PRIMARY : F.COLOR_DIM;
+    const F    = FORK_CONFIG.FONT;
+    const color = enabled ? '#00ff41' : '#1a4d1a';
 
     const btn = this.add.text(x, y, label, {
-      fontFamily: F.FAMILY_TITLE, fontSize: '22px', color,
+      fontFamily: F.FAMILY,
+      fontSize:   '16px',
+      color,
+      shadow: enabled
+        ? { offsetX: 0, offsetY: 0, color: '#00ff41', blur: 8, fill: true }
+        : undefined,
     }).setOrigin(0.5, 0);
 
     if (enabled) {
       btn.setInteractive({ useHandCursor: true });
-      btn.on('pointerover',  () => { btn.setColor(F.COLOR_BRIGHT); btn.setFontStyle('bold'); });
-      btn.on('pointerout',   () => { btn.setColor(color); btn.setFontStyle('normal'); });
-      btn.on('pointerdown',  onClick);
+      btn.on('pointerover', () => {
+        btn.setColor('#ffffff');
+        btn.setShadow(0, 0, '#39ff14', 18, true, true);
+      });
+      btn.on('pointerout', () => {
+        btn.setColor(color);
+        btn.setShadow(0, 0, '#00ff41', 8, true, true);
+      });
+      btn.on('pointerdown', onClick);
     }
     return btn;
   }

@@ -79,13 +79,13 @@ class GameScene extends Phaser.Scene {
     gfx.strokePath();
 
     // Labels das salas — agora visíveis com verde médio
-    const labelStyle = { fontFamily: F.FAMILY_TITLE, fontSize: '18px', color: F.COLOR_MID };
+    const labelStyle = { fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: '#00ff41', shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:10, fill:true } };
     this.add.text(120, 62,  '// MAIN LAB',     labelStyle).setDepth(1);
     this.add.text(672, 62,  '// CONTROL ROOM', labelStyle).setDepth(1);
     this.add.text(72,  400, '// STORAGE',      labelStyle).setDepth(1);
 
     // Decoração extra: coordenadas dos cantos
-    const dimStyle = { fontFamily: F.FAMILY, fontSize: '9px', color: F.COLOR_DIM };
+    const dimStyle = { fontFamily: F.FAMILY, fontSize: '9px', color: '#33aa33' };
     this.add.text(65,  55,  '[00,00]', dimStyle).setDepth(1);
     this.add.text(860, 55,  '[10,00]', dimStyle).setOrigin(1,0).setDepth(1);
     this.add.text(65,  575, '[00,06]', dimStyle).setDepth(1);
@@ -450,15 +450,15 @@ class GameScene extends Phaser.Scene {
     const sf = (obj) => { obj.setScrollFactor(0); return obj; };
 
     sf(this.add.rectangle(0, 0, W, 28, C.HIGHLIGHT, 0.96).setOrigin(0,0).setDepth(90));
-    sf(this.add.text(12, 5, 'FORK', { fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: F.COLOR_BRIGHT }).setDepth(91));
+    sf(this.add.text(12, 4, 'FORK', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#39ff14', shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:12, fill:true } }).setDepth(91));
 
-    this._hudLoop  = sf(this.add.text(W/2, 4, 'LOOP 01', { fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: F.COLOR_MID }).setOrigin(0.5,0).setDepth(91));
-    this._hudTimer = sf(this.add.text(W-12, 4, 'TIME: 05:00', { fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: F.COLOR_PRIMARY }).setOrigin(1,0).setDepth(91));
+    this._hudLoop  = sf(this.add.text(W/2, 4, 'LOOP 01', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#33aa33', shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:6, fill:true } }).setOrigin(0.5,0).setDepth(91));
+    this._hudTimer = sf(this.add.text(W-12, 4, 'TIME: 05:00', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#00ff41', shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:10, fill:true } }).setOrigin(1,0).setDepth(91));
     this._timerBar = sf(this.add.rectangle(0, 28, W, 3, C.ACCENT, 1).setOrigin(0,0).setDepth(91));
 
     sf(this.add.rectangle(0, H-22, W, 22, C.HIGHLIGHT, 0.92).setOrigin(0,0).setDepth(90));
-    this._hudSystemMsg  = sf(this.add.text(12, H-14, '> SYSTEM: Awaiting input.', { fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_MID }).setDepth(91));
-    this._hudAwareness  = sf(this.add.text(W-12, H-14, '', { fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DANGER }).setOrigin(1,0).setDepth(91));
+    this._hudSystemMsg  = sf(this.add.text(12, H-14, '> SYSTEM: Awaiting input.', { fontFamily: F.FAMILY, fontSize: '11px', color: '#33aa33' }).setDepth(91));
+    this._hudAwareness  = sf(this.add.text(W-12, H-14, '', { fontFamily: F.FAMILY, fontSize: '11px', color: '#ff2244', shadow: { offsetX:0, offsetY:0, color:'#ff0000', blur:8, fill:true } }).setOrigin(1,0).setDepth(91));
   }
 
   _updateHUD() {

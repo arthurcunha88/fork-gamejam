@@ -40,8 +40,9 @@ class BootScene extends Phaser.Scene {
       this.time.delayedCall(delay, () => {
         this.add.text(W / 2, H / 2 - 80 + i * 20, line.t, {
           fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE,
-          fontSize: '20px',
+          fontSize: '22px',
           color: line.c,
+          shadow: { offsetX:0, offsetY:0, color: line.c, blur:8, fill:true },
         }).setOrigin(0.5, 0);
       });
       delay += i < 2 ? 80 : 160;

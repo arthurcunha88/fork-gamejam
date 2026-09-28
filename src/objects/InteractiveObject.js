@@ -26,19 +26,22 @@ class InteractiveObject {
 
     // Label
     this._label = scene.add.text(x, y - h / 2 - 8, this.label, {
-      fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE, fontSize: '16px', color: FORK_CONFIG.FONT.COLOR_MID,
+      fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE, fontSize: '17px', color: '#33aa33',
+      shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:6, fill:true },
     }).setOrigin(0.5, 1).setDepth(6);
 
     // Ícone
     this._icon = scene.add.text(x, y, this._getTypeIcon(), {
-      fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE, fontSize: '16px', color: FORK_CONFIG.FONT.COLOR_MID,
+      fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE, fontSize: '17px', color: '#00ff41',
+      shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:8, fill:true },
     }).setOrigin(0.5, 0.5).setDepth(6);
 
     // Indicador [E] — começa invisível
     // FIX: posição inicial correta para o tween
     this._indicatorY = y - h / 2 - 20;
     this._indicator  = scene.add.text(x, this._indicatorY, '[E]', {
-      fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE, fontSize: '18px', color: FORK_CONFIG.FONT.COLOR_BRIGHT,
+      fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE, fontSize: '20px', color: '#39ff14',
+      shadow: { offsetX:0, offsetY:0, color:'#39ff14', blur:14, fill:true },
     }).setOrigin(0.5, 1).setDepth(7).setVisible(false);
 
     // FIX: hitbox usando zone + physics.add.existing em vez de staticImage sem texture
