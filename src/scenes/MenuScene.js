@@ -132,33 +132,72 @@ class MenuScene extends Phaser.Scene {
     const W = FORK_CONFIG.WIDTH;
     const H = FORK_CONFIG.HEIGHT;
     const F = FORK_CONFIG.FONT;
+    const C = FORK_CONFIG.COLORS;
 
-    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.88).setOrigin(0, 0).setDepth(50);
-    this.add.rectangle(W/2, H/2, 500, 320, FORK_CONFIG.COLORS.TERMINAL_BG, 0.98)
-      .setStrokeStyle(1, FORK_CONFIG.COLORS.ACCENT_DIM).setDepth(51);
+    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.9)
+      .setOrigin(0, 0).setDepth(50).setInteractive();
 
-    this.add.text(W/2, H/2, [
-      'FORK',
-      '──────────────────────────────────',
-      'Escape room digital em 2D top-down.',
-      'Você está preso em um sistema que',
-      'se reinicia continuamente.',
-      '',
-      'Cada ação altera o próximo ciclo.',
-      'Pequenas decisões. Grandes consequências.',
-      '',
-      'TEMA: Efeito Borboleta',
-      '',
-      'Desenvolvido por NPCboPe',
-      'SEMCOMP Game Jam 2026',
-      '──────────────────────────────────',
-      '[ CLIQUE PARA FECHAR ]',
-    ].join('\n'), {
-      fontFamily: F.FAMILY, fontSize: '12px',
-      color: F.COLOR_SYSTEM, align: 'center',
-    }).setOrigin(0.5, 0.5).setDepth(52);
+    const box = this.add.rectangle(W / 2, H / 2, 620, 400, C.TERMINAL_BG, 0.98)
+      .setStrokeStyle(1, C.ACCENT_DIM).setDepth(51);
 
-    overlay.setInteractive();
-    overlay.once('pointerdown', () => { overlay.destroy(); });
+    const title = this.add.text(W / 2, H / 2 - 174, '// FORK — TECHNICAL OVERVIEW', {
+      fontFamily: F.FAMILY_TITLE, fontSize: '24px', color: F.COLOR_BRIGHT,
+      shadow: { offsetX: 0, offsetY: 0, color: '#00ff41', blur: 10, fill: true },
+    }).setOrigin(0.5).setDepth(52);
+
+    const body = [
+      'DIGITAL ESCAPE ROOM  //  TOP-DOWN 2D',
+      '────────────────────────────────────────────',
+      'ENGINE        Phaser 3',
+      'RUNTIME       JavaScript / Web Audio API',
+      'ARCHITECTURE  Scene + Manager + State',
+      'GAME STATE    Persistent local state between loops',
+      'AUDIO         Procedural synthesis — no external SFX',
+      'VISUALS       Procedural rendering / tweens / particles',
+      'INPUT         Keyboard + pointer interaction',
+      '',
+      'CORE SYSTEMS',
+      '  LoopManager     → temporal reset and loop lifecycle',
+      '  PuzzleManager   → dependencies and consequences',
+      '  GameState       → persistent narrative state',
+      '  UIManager       → modal/input lifecycle',
+      '  AudioManager    → procedural sound layer',
+      '  AnimationManager→ visual feedback and effects',
+      '',
+      'GAMEPLAY MODEL',
+      '  Efeito Borboleta → pequenas ações alteram estados futuros.',
+      '  Cinco rotas de final → investigação, identidade e decisão.',
+      '',
+      'DESENVOLVIMENTO',
+      '  Arthur Cunha • Pedro Henrique Andrade',
+      '  Andre Luiz Rangel • e equipe',
+      '',
+      'SEMCOMP GAME JAM 2026  //  BUTTERFLY EFFECT',
+    ].join('\n');
+
+    const text = this.add.text(W / 2, H / 2 + 4, body, {
+      fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_SYSTEM,
+      align: 'left', lineSpacing: 3,
+    }).setOrigin(0.5).setDepth(52);
+
+    const close = this.add.text(W / 2, H / 2 + 174, '[ ESC / CLIQUE FORA / [X] ]', {
+      fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM,
+    }).setOrigin(0.5).setDepth(52).setInteractive({ useHandCursor: true });
+
+    const closeAbout = () => {
+      overlay.destroy(); box.destroy(); title.destroy(); text.destroy(); close.destroy();
+      this.input.keyboard.off('keydown', esc);
+    };
+    const esc = (e) => {
+      if (e.keyCode === Phaser.Input.Keyboard.KeyCodes.ESC) closeAbout();
+    };
+
+    overlay.on('pointerdown', closeAbout);
+    close.on('pointerdown', closeAbout);
+    this.input.keyboard.on('keydown', esc);
+
+    box.setScale(0.96); box.setAlpha(0);
+    this.tweens.add({ targets: [box, title, text, close], alpha: 1, duration: 180, ease: 'Quad.easeOut' });
+    this.tweens.add({ targets: box, scale: 1, duration: 180, ease: 'Back.easeOut' });
   }
 }
