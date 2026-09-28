@@ -24,8 +24,13 @@ class PuzzleManager {
     if (correct) {
       GameState.solvePuzzle(id);
       this._applyConsequences(p.consequences);
+      return true;
     }
-    return correct;
+    if (FORK_CONFIG.CRITICAL_PUZZLES.includes(id) && window.LoopManagerInstance) {
+      GameState.registerLoopError(id, 'Resposta incorreta em protocolo crítico.');
+      window.LoopManagerInstance.collapse('PUZZLE_ERROR:' + id);
+    }
+    return false;
   }
 
   // ── Definição dos puzzles ─────────────────────────────────
@@ -378,6 +383,19 @@ class PuzzleManager {
         },
         validator: () => true,
         consequences: [],
+      },
+
+      // ── PUZZLE 0: Chave de inicialização ──────────────────
+      [FORK_CONFIG.PUZZLES.BOOT_CODE]: {
+        id: FORK_CONFIG.PUZZLES.BOOT_CODE,
+        type: 'code',
+        requires: null,
+        validator: answer => answer === '0731',
+        consequences: [
+          { key: 'boot_code_found', value: true },
+          { key: 'phase', value: FORK_CONFIG.PHASES.ANOMALY },
+          { butterfly: 'boot_0731' },
+        ],
       },
 
       // ── PUZZLE 2: Handshake da Porta ───────────────────────
