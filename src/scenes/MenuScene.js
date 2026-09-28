@@ -173,10 +173,14 @@ class MenuScene extends Phaser.Scene {
       fork_sequence_complete: false, commands_executed: [], puzzles_solved: [], ending_flags: {},
     };
     GameState.nextLoop();
+    GameState.save();
     this.scene.start('GameScene');
   }
 
-  _continueGame() { this.scene.start('GameScene'); }
+  _continueGame() {
+    if (!GameState.load()) return;
+    this.scene.start('GameScene');
+  }
 
   _showAbout() {
     const W = FORK_CONFIG.WIDTH;
