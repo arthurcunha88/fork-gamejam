@@ -12,6 +12,7 @@ const GameState = {
   persistent: {
     loop_count:            0,
     phase:                 FORK_CONFIG.PHASES.AWAKENING,
+    boot_code_found:       false,
     memory_code_found:     false,
     observer_unlocked:     false,
     identity_fragment_found: false,
@@ -34,6 +35,8 @@ const GameState = {
     system_notes_read:     false,
     restore_requested:     false,
     system_restored:       false,
+    loop_error_count:      0,
+    last_loop_error:       null,
   },
 
   // ── Estado volátil (reseta a cada loop) ──────────────────
@@ -162,6 +165,15 @@ const GameState = {
   /** A corrupção crítica não possui restauração nem save de recuperação. */
   restoreSystem() {
     return false;
+  },
+
+  /** Registra um erro crítico que força a próxima ramificação. */
+  registerLoopError(source, detail = 'Resposta inválida.') {
+    this.persistent.loop_error_count += 1;
+    this.persistent.last_loop_error = { source, detail, loop: this.persistent.loop_count, timestamp: Date.now() };
+    this.addButterflyStep('loop_error_' + this.persistent.loop_error_count);
+    this.persistent.system_awareness = Math.min(5, this.persistent.system_awareness + 1);
+    this.save();
   },
 
   /** Aumenta consciência do sistema */
