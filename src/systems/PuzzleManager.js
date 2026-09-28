@@ -362,7 +362,10 @@ class PuzzleManager {
           const required = ['delete_log07', 'reboot_server', 'find_project', 'unlock_door'];
           return required.every(s => steps.includes(s));
         },
-        consequences: [{ butterfly: 'complete_sequence' }],
+        consequences: [
+          { butterfly: 'complete_sequence' },
+          { key: 'fork_sequence_complete', value: true },
+        ],
       },
 
       // Alias interno para LOG_FILE
