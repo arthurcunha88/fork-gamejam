@@ -11,100 +11,147 @@ class MenuScene extends Phaser.Scene {
     const C = FORK_CONFIG.COLORS;
     const F = FORK_CONFIG.FONT;
 
+    this._selectedIndex = 0;
+    this._menuItems = [];
+
     this.add.rectangle(0, 0, W, H, C.BG).setOrigin(0, 0);
     this._drawGrid();
+    this._drawMatrixRain();
+    this._drawServerVisuals();
 
-    // Header
-    this.add.rectangle(0, 0, W, 26, C.HIGHLIGHT, 1).setOrigin(0, 0);
-    this.add.text(12, 6, 'FORK OS  //  SIMULATION ENVIRONMENT  //  LOOP SYSTEM ACTIVE', {
-      fontFamily: F.FAMILY, fontSize: '11px', color: '#33aa33',
+    this.add.rectangle(0, 0, W, 30, C.HIGHLIGHT, 1).setOrigin(0, 0);
+    this.add.text(14, 7, 'FORK OS  //  SIMULATION CORE  //  NETWORK ONLINE', {
+      fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_MID,
     });
-    this.add.text(W - 12, 6, 'v2.1.0', {
-      fontFamily: F.FAMILY, fontSize: '11px', color: '#33aa33',
+    this.add.text(W - 14, 7, 'NODE: 07:31  //  v2.1.0', {
+      fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_MID,
     }).setOrigin(1, 0);
 
-    // Título FORK — grande, neon, com glow via shadow
-    const titleY = H / 2 - 110;
+    const titleY = H / 2 - 148;
     const title = this.add.text(W / 2, titleY, 'F O R K', {
-      fontFamily: F.FAMILY_TITLE,
-      fontSize: '110px',
-      color: '#39ff14',
-      stroke: '#00ff41',
-      strokeThickness: 1,
-      shadow: { offsetX: 0, offsetY: 0, color: '#00ff41', blur: 20, stroke: true, fill: true },
+      fontFamily: F.FAMILY_TITLE, fontSize: '112px', color: F.COLOR_BRIGHT,
+      stroke: F.COLOR_PRIMARY, strokeThickness: 1,
+      shadow: { offsetX: 0, offsetY: 0, color: F.COLOR_PRIMARY, blur: 22, stroke: true, fill: true },
     }).setOrigin(0.5, 0);
 
-    // Pulso no título
-    this.tweens.add({
-      targets: title,
-      alpha: { from: 1, to: 0.75 },
-      duration: 1800,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    });
+    this.tweens.add({ targets: title, alpha: { from: 1, to: 0.72 }, duration: 1700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
-    // Subtítulo
-    this.add.text(W / 2, titleY + 96, '[ ESCAPE ROOM  //  LOOP SYSTEM  //  BUTTERFLY EFFECT ]', {
-      fontFamily: F.FAMILY,
-      fontSize: '12px',
-      color: '#33aa33',
-      shadow: { offsetX: 0, offsetY: 0, color: '#00ff41', blur: 6, fill: true },
+    this.add.text(W / 2, titleY + 100, '[ DIGITAL ESCAPE ROOM  //  LOOP SYSTEM  //  BUTTERFLY EFFECT ]', {
+      fontFamily: F.FAMILY, fontSize: '12px', color: F.COLOR_MID,
+      shadow: { offsetX: 0, offsetY: 0, color: F.COLOR_PRIMARY, blur: 7, fill: true },
     }).setOrigin(0.5, 0);
+    this.add.rectangle(W / 2, titleY + 124, 420, 1, C.ACCENT, 0.5).setOrigin(0.5, 0);
 
-    // Linha separadora com brilho
-    this.add.rectangle(W / 2, titleY + 116, 360, 1, 0x00ff41, 0.5).setOrigin(0.5, 0);
+    const hasSave = GameState.hasSave();
+    const menuY = H / 2 + 4;
+    this._makeButton(W / 2, menuY, '> NOVO JOGO', () => this._startGame(), true);
+    this._makeButton(W / 2, menuY + 48, hasSave ? '> CONTINUAR' : '> CONTINUAR  [NO SAVE]', () => this._continueGame(), hasSave);
+    this._makeButton(W / 2, menuY + 96, '> SOBRE', () => this._showAbout(), true);
 
-    // Botões
-    const btnY = H / 2 + 18;
-    this._makeButton(W / 2, btnY,       '> INICIAR SIMULAÇÃO', () => this._startGame());
-    this._makeButton(W / 2, btnY + 52,  '> CONTINUAR',         () => this._continueGame(), GameState.get('loop_count') > 0);
-    this._makeButton(W / 2, btnY + 104, '> SOBRE',             () => this._showAbout());
+    this._selectionHint = this.add.text(W / 2, menuY + 146, '[ ↑ / ↓ ] SELECIONAR    [ ENTER ] CONFIRMAR', {
+      fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM,
+    }).setOrigin(0.5);
 
-    // Footer
-    this.add.text(W / 2, H - 12, 'NPCboPe  //  GAME JAM  //  BUTTERFLY EFFECT', {
-      fontFamily: F.FAMILY, fontSize: '10px', color: '#1a4d1a',
+    const saveDate = GameState.getSaveDate();
+    const saveText = hasSave
+      ? 'SAVE: LOCAL // LOOP ' + String(GameState.get('loop_count')).padStart(2, '0') + ' // ' + (saveDate ? saveDate.slice(0, 19).replace('T', ' ') : 'AVAILABLE')
+      : 'SAVE: NO LOCAL DATA // START A NEW SIMULATION';
+    this._saveStatus = this.add.text(W / 2, H - 52, saveText, {
+      fontFamily: F.FAMILY, fontSize: '10px', color: hasSave ? F.COLOR_MID : F.COLOR_DIM,
+    }).setOrigin(0.5);
+
+    this.add.text(W / 2, H - 14, 'NPCboPe  //  GAME JAM  //  BUTTERFLY EFFECT  //  LOCAL SAVE ENABLED', {
+      fontFamily: F.FAMILY, fontSize: '9px', color: '#1a4d1a',
     }).setOrigin(0.5, 1);
 
-    // Loop warning
-    if (GameState.get('loop_count') > 0) {
-      const msg = this.add.text(W / 2, btnY - 32,
-        `// LOOP ${GameState.get('loop_count')} DETECTED — MEMORY PRESERVED`, {
-        fontFamily: F.FAMILY, fontSize: '11px', color: '#ffaa00',
-        shadow: { offsetX: 0, offsetY: 0, color: '#ffaa00', blur: 8, fill: true },
-      }).setOrigin(0.5, 0);
-      this.tweens.add({ targets: msg, alpha: 0.3, duration: 900, yoyo: true, repeat: -1 });
-    }
+    this._updateSelection();
+    this._keyHandler = (event) => {
+      if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.UP) this._moveSelection(-1);
+      else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.DOWN) this._moveSelection(1);
+      else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER) this._activateSelection();
+    };
+    this.input.keyboard.on('keydown', this._keyHandler);
+    this.events.once('shutdown', () => this.input.keyboard.off('keydown', this._keyHandler));
   }
-
   _makeButton(x, y, label, onClick, enabled = true) {
-    const F    = FORK_CONFIG.FONT;
-    const color = enabled ? '#00ff41' : '#1a4d1a';
-
+    const F = FORK_CONFIG.FONT;
     const btn = this.add.text(x, y, label, {
-      fontFamily: F.FAMILY,
-      fontSize:   '16px',
-      color,
-      shadow: enabled
-        ? { offsetX: 0, offsetY: 0, color: '#00ff41', blur: 8, fill: true }
-        : undefined,
+      fontFamily: F.FAMILY, fontSize: '17px', color: enabled ? F.COLOR_PRIMARY : F.COLOR_DIM,
+      shadow: enabled ? { offsetX: 0, offsetY: 0, color: F.COLOR_PRIMARY, blur: 8, fill: true } : undefined,
     }).setOrigin(0.5, 0);
-
+    const item = { btn, onClick, enabled };
+    this._menuItems.push(item);
     if (enabled) {
       btn.setInteractive({ useHandCursor: true });
-      btn.on('pointerover', () => {
-        btn.setColor('#ffffff');
-        btn.setShadow(0, 0, '#39ff14', 18, true, true);
-      });
-      btn.on('pointerout', () => {
-        btn.setColor(color);
-        btn.setShadow(0, 0, '#00ff41', 8, true, true);
-      });
+      btn.on('pointerover', () => { this._selectedIndex = this._menuItems.indexOf(item); this._updateSelection(); });
       btn.on('pointerdown', onClick);
     }
     return btn;
   }
 
+  _moveSelection(direction) {
+    if (!this._menuItems.length) return;
+    let next = this._selectedIndex;
+    for (let i = 0; i < this._menuItems.length; i++) {
+      next = (next + direction + this._menuItems.length) % this._menuItems.length;
+      if (this._menuItems[next].enabled) { this._selectedIndex = next; this._updateSelection(); return; }
+    }
+  }
+
+  _updateSelection() {
+    this._menuItems.forEach((item, index) => {
+      if (!item.enabled) { item.btn.setColor(FORK_CONFIG.FONT.COLOR_DIM).setAlpha(0.45); return; }
+      const selected = index === this._selectedIndex;
+      item.btn.setColor(selected ? FORK_CONFIG.FONT.COLOR_WHITE : FORK_CONFIG.FONT.COLOR_PRIMARY);
+      item.btn.setShadow(0, 0, selected ? FORK_CONFIG.FONT.COLOR_BRIGHT : FORK_CONFIG.FONT.COLOR_PRIMARY, selected ? 16 : 7, true, true);
+      item.btn.setScale(selected ? 1.04 : 1);
+    });
+  }
+
+  _activateSelection() {
+    const item = this._menuItems[this._selectedIndex];
+    if (item && item.enabled) item.onClick();
+  }
+
+  _drawMatrixRain() {
+    const W = FORK_CONFIG.WIDTH, H = FORK_CONFIG.HEIGHT, F = FORK_CONFIG.FONT;
+    const glyphs = '01アイウエオカキクケコ<>[]{}+/\\';
+    const layer = this.add.container(0, 30).setAlpha(0.16);
+    for (let i = 0; i < 34; i++) {
+      const x = Phaser.Math.Between(8, W - 8), y = Phaser.Math.Between(35, H);
+      const length = Phaser.Math.Between(5, 15);
+      let value = '';
+      for (let j = 0; j < length; j++) value += glyphs[Phaser.Math.Between(0, glyphs.length - 1)] + '\n';
+      const column = this.add.text(x, y, value, { fontFamily: F.FAMILY, fontSize: Phaser.Math.Between(8, 12) + 'px', color: i % 6 === 0 ? F.COLOR_BRIGHT : F.COLOR_DIM });
+      layer.add(column);
+      this.tweens.add({ targets: column, y: y + Phaser.Math.Between(70, 190), duration: Phaser.Math.Between(3500, 7000), delay: Phaser.Math.Between(0, 2500), repeat: -1, onRepeat: () => { column.y = Phaser.Math.Between(35, H); } });
+    }
+  }
+
+  _drawServerVisuals() {
+    const W = FORK_CONFIG.WIDTH, C = FORK_CONFIG.COLORS, F = FORK_CONFIG.FONT;
+    const gfx = this.add.graphics();
+    gfx.fillStyle(0x010501, 0.92); gfx.fillRect(34, 170, 150, 230);
+    gfx.lineStyle(1, C.ACCENT_DIM, 0.8); gfx.strokeRect(34, 170, 150, 230);
+    this.add.text(46, 180, 'SERVER RACK // A', { fontFamily: F.FAMILY_TITLE, fontSize: '16px', color: F.COLOR_MID });
+    for (let i = 0; i < 7; i++) {
+      const y = 210 + i * 25;
+      gfx.fillStyle(0x030d03, 1); gfx.fillRect(46, y, 126, 18); gfx.lineStyle(1, C.ACCENT_DIM, 0.45); gfx.strokeRect(46, y, 126, 18);
+      this.add.text(52, y + 3, 'NODE-' + String(i + 1).padStart(2, '0'), { fontFamily: F.FAMILY, fontSize: '8px', color: F.COLOR_DIM });
+      const led = this.add.circle(158, y + 9, 3, i === 0 ? C.ACCENT_BRIGHT : C.ACCENT_DIM, 1);
+      this.tweens.add({ targets: led, alpha: { from: 1, to: 0.25 }, duration: 500 + i * 100, yoyo: true, repeat: -1 });
+    }
+    gfx.fillStyle(0x010501, 0.92); gfx.fillRect(W - 190, 170, 150, 230);
+    gfx.lineStyle(1, C.ACCENT_DIM, 0.8); gfx.strokeRect(W - 190, 170, 150, 230);
+    this.add.text(W - 178, 180, 'NETWORK // CORE', { fontFamily: F.FAMILY_TITLE, fontSize: '16px', color: F.COLOR_MID });
+    ['CORE','MEMORY','OBSERVER','LOOP','GATE'].forEach((name, i) => {
+      const y = 220 + i * 30;
+      this.add.text(W - 176, y, name, { fontFamily: F.FAMILY, fontSize: '9px', color: F.COLOR_DIM });
+      this.add.text(W - 58, y, i === 2 ? 'LOCKED' : 'ONLINE', { fontFamily: F.FAMILY, fontSize: '9px', color: i === 2 ? F.COLOR_WARNING : F.COLOR_MID }).setOrigin(1, 0);
+    });
+    gfx.lineStyle(1, C.ACCENT_DIM, 0.35); gfx.moveTo(184, 285).lineTo(330, 285); gfx.moveTo(W - 190, 285).lineTo(810, 285); gfx.strokePath();
+    this.add.text(W / 2, 308, ':: SYSTEM STATUS ::', { fontFamily: F.FAMILY, fontSize: '9px', color: F.COLOR_DIM }).setOrigin(0.5);
+  }
   _drawGrid() {
     const W = FORK_CONFIG.WIDTH;
     const H = FORK_CONFIG.HEIGHT;
