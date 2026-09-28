@@ -76,11 +76,7 @@ class MenuScene extends Phaser.Scene {
       ease: 'Sine.easeInOut',
     });
 
-    this._saveStatus = this.add.text(W / 2, H - 52, 'PROGRESSO: APENAS NA SESSÃO ATUAL // SEM SAVE', {
-      fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM,
-    }).setOrigin(0.5);
-
-    this.add.text(W / 2, H - 14, 'NPCboPe  //  GAME JAM  //  SESSION ONLY', {
+    this.add.text(W / 2, H - 14, 'NPCboPe  //  GAME JAM', {
       fontFamily: F.FAMILY, fontSize: '9px', color: F.COLOR_DIM,
     }).setOrigin(0.5, 1);
 
@@ -372,7 +368,7 @@ class MenuScene extends Phaser.Scene {
   _startGame() {
     GameState.clearSave();
     GameState.persistent = {
-      loop_count: 0, log07_deleted: false, server_rebooted: false,
+      loop_count: 0, boot_code_found: false, log07_deleted: false, server_rebooted: false,
       door_unlocked: false, secret_area_found: false, entity_trust: 0,
       system_awareness: 0, butterfly_steps: [], player_identity_known: false,
       phase: FORK_CONFIG.PHASES.AWAKENING,
