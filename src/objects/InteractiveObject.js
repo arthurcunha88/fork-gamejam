@@ -38,6 +38,29 @@ class InteractiveObject {
       shadow: { offsetX: 0, offsetY: 0, color: '#4ac8ff', blur: 8, fill: true },
     }).setOrigin(0.5, 0.5).setDepth(6);
 
+    this._selectionFrame = scene.add.graphics().setDepth(6).setVisible(false);
+    this._selectionW = w + 10;
+    this._selectionH = h + 10;
+    this._selectionFrame.lineStyle(1.5, FORK_CONFIG.COLORS.ACCENT_BRIGHT, 0.9);
+    this._selectionFrame.strokeRoundedRect(
+      x - this._selectionW / 2,
+      y - this._selectionH / 2,
+      this._selectionW,
+      this._selectionH,
+      5
+    );
+
+    this._selectionPulse = scene.tweens.add({
+      targets: this._selectionFrame,
+      alpha: { from: 0.35, to: 0.95 },
+      scale: { from: 0.96, to: 1.04 },
+      duration: 520,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+      paused: true,
+    });
+
     this._indicatorY = y - h / 2 - 20;
     this._indicator = scene.add.text(x, this._indicatorY, '[E]', {
       fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE,
@@ -120,20 +143,38 @@ class InteractiveObject {
     g.strokeRoundedRect(x, y, w, h, 4);
   }
 
-  update(playerX, playerY) {
+  update(playerX, playerY, selectedObject = null) {
     if (!this.enabled) return;
 
     const dist = Phaser.Math.Distance.Between(this.x, this.y, playerX, playerY);
     const inRange = dist <= FORK_CONFIG.INTERACT_RANGE;
-    this._indicator.setVisible(inRange);
+    const isSelected = inRange && (!selectedObject || selectedObject === this);
 
-    if (inRange && !this.visual) {
+    this._indicator.setVisible(isSelected);
+    this._selectionFrame.setVisible(isSelected);
+
+    if (isSelected) {
+      this._selectionPulse.resume();
+      this._label.setColor('#9be8ff');
+      this._label.setShadow(0, 0, '#59d8ff', 9, true, true);
+      this._indicator.setAlpha(1);
+    } else {
+      this._selectionPulse.pause();
+      this._selectionFrame.setAlpha(0);
+      this._selectionFrame.setScale(1);
+      this._label.setColor(this.visual ? '#b9c8d8' : '#7ed6ff');
+      this._label.setShadow(0, 0, this.visual ? '#4b647a' : '#4ac8ff', 6, true, true);
+    }
+
+    // Apenas objetos narrativos usam o preenchimento de destaque.
+    // Equipamentos decorativos recebem somente o frame de seleção.
+    if (isSelected && !this.visual) {
       this._body.clear();
       this._body.fillStyle(FORK_CONFIG.COLORS.ACCENT, 0.95);
       this._body.fillRoundedRect(this.x - 16, this.y - 16, 32, 32, 4);
       this._body.lineStyle(2, FORK_CONFIG.COLORS.ACCENT_BRIGHT, 1);
       this._body.strokeRoundedRect(this.x - 16, this.y - 16, 32, 32, 4);
-    } else if (!this.visual && !inRange) {
+    } else if (!isSelected && !this.visual) {
       this._body.clear();
       this._drawVisual(32, 32, FORK_CONFIG.COLORS.ACCENT_DIM);
     }
@@ -163,6 +204,8 @@ class InteractiveObject {
   }
 
   destroy() {
+    if (this._selectionPulse) this._selectionPulse.remove();
+    if (this._selectionFrame) this._selectionFrame.destroy();
     if (this._indicator) this._indicator.destroy();
     if (this._body) this._body.destroy();
     if (this._label) this._label.destroy();
