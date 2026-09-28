@@ -16,20 +16,20 @@ const FORK_CONFIG = {
 
   // Cores (paleta FORK — green hacker)
   COLORS: {
-    BG:           0x030a03,  // preto esverdeado
-    BG_ALT:       0x050f05,
-    GRID:         0x0a1a0a,
-    ACCENT:       0x00ff41,  // verde matrix
-    ACCENT_DIM:   0x00802a,
-    ACCENT_BRIGHT:0x39ff14,  // verde neon vivo
+    BG:           0x070b10,  // preto esverdeado
+    BG_ALT:       0x0c1219,
+    GRID:         0x16202a,
+    ACCENT:       0x59d8ff,  // verde matrix
+    ACCENT_DIM:   0x2e718b,
+    ACCENT_BRIGHT:0x9be8ff,  // verde neon vivo
     DANGER:       0xff2244,
     WARNING:      0xffaa00,
-    TEXT:         0x00ff41,
-    TEXT_DIM:     0x1a4d1a,
-    TEXT_MID:     0x33aa33,
-    TEXT_SYSTEM:  0x00cc33,
-    TERMINAL_BG:  0x020802,
-    HIGHLIGHT:    0x001a00,
+    TEXT:         0x7ed6ff,
+    TEXT_DIM:     0x40515f,
+    TEXT_MID:     0x76a7ba,
+    TEXT_SYSTEM:  0x72d2ee,
+    TERMINAL_BG:  0x071018,
+    HIGHLIGHT:    0x0d1720,
     WHITE:        0xffffff,
     BLACK:        0x000000,
   },
@@ -41,7 +41,7 @@ const FORK_CONFIG = {
     // VT323 — títulos grandes, FORK logo, tela de reset, finais
     FAMILY_TITLE: "'VT323', 'Share Tech Mono', monospace",
 
-    COLOR_PRIMARY:  '#00ff41',   // verde matrix principal
+    COLOR_PRIMARY:  '#59d8ff',   // verde matrix principal
     COLOR_DIM:      '#1a4d1a',   // verde escuro (labels secundários)
     COLOR_MID:      '#33aa33',   // verde médio (subtítulos, labels mapa)
     COLOR_SYSTEM:   '#00cc33',   // verde sistema (diálogos, prompts)
