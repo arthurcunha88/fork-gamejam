@@ -140,10 +140,10 @@ class MenuScene extends Phaser.Scene {
     const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.9)
       .setOrigin(0, 0).setDepth(50).setInteractive();
 
-    const box = this.add.rectangle(W / 2, H / 2, 620, 400, C.TERMINAL_BG, 0.98)
+    const box = this.add.rectangle(W / 2, H / 2, 700, 500, C.TERMINAL_BG, 0.99)
       .setStrokeStyle(1, C.ACCENT_DIM).setDepth(51);
 
-    const title = this.add.text(W / 2, H / 2 - 174, '// FORK — TECHNICAL OVERVIEW', {
+    const title = this.add.text(W / 2, H / 2 - 224, '// FORK — TECHNICAL OVERVIEW', {
       fontFamily: F.FAMILY_TITLE, fontSize: '24px', color: F.COLOR_BRIGHT,
       shadow: { offsetX: 0, offsetY: 0, color: '#00ff41', blur: 10, fill: true },
     }).setOrigin(0.5).setDepth(52);
@@ -178,17 +178,22 @@ class MenuScene extends Phaser.Scene {
       'SEMCOMP GAME JAM 2026  //  BUTTERFLY EFFECT',
     ].join('\n');
 
-    const text = this.add.text(W / 2, H / 2 + 4, body, {
-      fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_SYSTEM,
-      align: 'left', lineSpacing: 3,
+    const text = this.add.text(W / 2, H / 2 + 2, body, {
+      fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_SYSTEM,
+      align: 'left', lineSpacing: 3, wordWrap: { width: 640 },
     }).setOrigin(0.5).setDepth(52);
 
-    const close = this.add.text(W / 2, H / 2 + 174, '[ ESC / CLIQUE FORA / [X] ]', {
+    const close = this.add.text(W / 2 + 324, H / 2 - 230, '[ X ]', {
+      fontFamily: F.FAMILY, fontSize: '12px', color: F.COLOR_BRIGHT,
+      backgroundColor: '#001a00', padding: { x: 6, y: 3 },
+    }).setOrigin(1, 0).setDepth(53).setInteractive({ useHandCursor: true });
+
+    const closeHint = this.add.text(W / 2, H / 2 + 232, '[ ESC / CLIQUE FORA PARA FECHAR ]', {
       fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM,
-    }).setOrigin(0.5).setDepth(52).setInteractive({ useHandCursor: true });
+    }).setOrigin(0.5).setDepth(52);
 
     const closeAbout = () => {
-      overlay.destroy(); box.destroy(); title.destroy(); text.destroy(); close.destroy();
+      overlay.destroy(); box.destroy(); title.destroy(); text.destroy(); close.destroy(); closeHint.destroy();
       this.input.keyboard.off('keydown', esc);
     };
     const esc = (e) => {
@@ -200,7 +205,7 @@ class MenuScene extends Phaser.Scene {
     this.input.keyboard.on('keydown', esc);
 
     box.setScale(0.96); box.setAlpha(0);
-    this.tweens.add({ targets: [box, title, text, close], alpha: 1, duration: 180, ease: 'Quad.easeOut' });
+    this.tweens.add({ targets: [box, title, text, close, closeHint], alpha: 1, duration: 180, ease: 'Quad.easeOut' });
     this.tweens.add({ targets: box, scale: 1, duration: 180, ease: 'Back.easeOut' });
   }
 }
