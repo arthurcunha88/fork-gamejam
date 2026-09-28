@@ -110,6 +110,35 @@ class GameScene extends Phaser.Scene {
     };
     this.add.text(120, 62, '// MAIN LAB', labelStyle).setDepth(1);
     this.add.text(672, 62, '// CONTROL ROOM', labelStyle).setDepth(1);
+
+    // A passagem agora parece uma entrada real, não apenas um buraco na parede.
+    const entranceX = 780;
+    const entranceY = 250;
+    gfx.lineStyle(2, C.ACCENT_BRIGHT, 0.7);
+    gfx.strokeRect(744, 244, 72, 14);
+    gfx.lineStyle(1, C.ACCENT_BRIGHT, 0.35);
+    gfx.strokeRect(748, 248, 64, 8);
+    const entranceText = this.add.text(780, 266, 'ENTRADA // CONTROL ROOM', {
+      fontFamily: F.FAMILY_TITLE,
+      fontSize: '13px',
+      color: '#39ff14',
+      shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:8, fill:true },
+    }).setOrigin(0.5, 0).setDepth(2);
+
+    this.add.text(780, 286, '↓  ACESSO AO SERVIDOR A', {
+      fontFamily: F.FAMILY,
+      fontSize: '10px',
+      color: '#33aa33',
+    }).setOrigin(0.5, 0).setDepth(2);
+
+    this.tweens.add({
+      targets: [entranceText],
+      alpha: { from: 1, to: 0.35 },
+      duration: 700,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
     this.add.text(72, 400, '// STORAGE', labelStyle).setDepth(1);
 
     const dimStyle = { fontFamily: F.FAMILY, fontSize: '9px', color: '#33aa33' };
@@ -280,6 +309,34 @@ class GameScene extends Phaser.Scene {
       onInteract: () => this._interactCamera(),
     });
     this._objects.push(cam);
+
+    // Elementos sem importância narrativa: servem para a simulação parecer
+    // habitada e são os primeiros a desaparecer com CLEAR.
+    const decor = [
+      ['cabinet_01', 330, 115, 'ARMÁRIO A', 42, 58],
+      ['cabinet_02', 410, 115, 'ARMÁRIO B', 42, 58],
+      ['monitor_01', 330, 190, 'MONITOR 01', 38, 24],
+      ['monitor_02', 410, 190, 'MONITOR 02', 38, 24],
+      ['rack_01', 300, 500, 'RACK AUX', 44, 52],
+      ['monitor_03', 390, 500, 'MONITOR 03', 38, 24],
+    ];
+
+    decor.forEach(([id, x, y, label, width, height]) => {
+      const object = new InteractiveObject(this, x, y, {
+        id,
+        type: FORK_CONFIG.OBJECT_TYPES.OBJECT,
+        label,
+        width,
+        height,
+        color: 0x07300f,
+        onInteract: () => this.dialogManager.show([
+          label,
+          'Equipamento auxiliar.',
+          'Nenhuma função relevante detectada.',
+        ], { title: 'EQUIPAMENTO' }),
+      });
+      this._objects.push(object);
+    });
 
     if (GameState.get('server_rebooted') && GameState.get('log07_deleted')) {
       this._spawnSecretFile();
@@ -717,10 +774,12 @@ class GameScene extends Phaser.Scene {
     this._lastCorruptionLevel = level;
 
     const disappear = {
-      1: ['camera_01'],
-      2: ['file_notes'],
-      3: ['entity'],
-      4: ['panel_sequence'],
+      // Primeiro: objetos puramente decorativos.
+      1: ['cabinet_01', 'monitor_01'],
+      2: ['cabinet_02', 'monitor_02', 'rack_01'],
+      // Só depois a corrupção alcança elementos da história.
+      3: ['monitor_03', 'camera_01'],
+      4: ['file_notes', 'entity', 'panel_sequence'],
       5: ['server_main', 'door_security'],
     };
 
@@ -743,12 +802,44 @@ class GameScene extends Phaser.Scene {
 
     if (level > 0) {
       this.cameras.main.shake(120 + level * 40, 0.0015 * level);
+      this.cameras.main.flash(90, 0, 255, 65, false);
       if (window.AudioManagerInstance) window.AudioManagerInstance.playAlarm();
-      this._setSystemMessage(
-        level >= 5
-          ? 'SIMULATION CORRUPTED — FILESYSTEM CASCADE'
-          : 'BUTTERFLY EFFECT // INTEGRITY ' + ((5 - level) * 20) + '%'
-      );
+
+      const warnings = {
+        1: [
+          'AVISO: algo desapareceu do ambiente.',
+          'O CLEAR deveria afetar apenas o terminal.',
+          'Você acabou de ver uma alteração que não deveria existir.',
+        ],
+        2: [
+          'ALERTA: a limpeza está ficando intensa.',
+          'Objetos auxiliares estão sumindo diante dos seus olhos.',
+          'O sistema não está apenas limpando o terminal.',
+        ],
+        3: [
+          'ERRO: a corrupção alcançou o ambiente.',
+          'A simulação está apagando partes que você não escolheu remover.',
+          'Pare de usar CLEAR. As consequências estão se espalhando.',
+        ],
+        4: [
+          'FALHA DE INTEGRIDADE: elementos da investigação desapareceram.',
+          'O sistema está perdendo memória física.',
+          'Você alterou a simulação mais do que pretendia.',
+        ],
+        5: [
+          'CORRUPÇÃO CRÍTICA.',
+          'A estrutura da simulação está sendo apagada.',
+          'O que desaparecer agora pode não voltar.',
+        ],
+      };
+
+      this._setSystemMessage(warnings[level]?.[0] || 'CORRUPÇÃO DETECTADA');
+
+      if (this.dialogManager && !this.dialogManager.isOpen && !GameState.volatile.terminal_open) {
+        this.dialogManager.show(warnings[level] || warnings[5], {
+          title: level >= 3 ? 'SISTEMA // FALHA' : 'SISTEMA // AVISO',
+        });
+      }
     }
   }
 
