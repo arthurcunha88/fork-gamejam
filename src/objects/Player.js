@@ -9,13 +9,54 @@ class Player {
     this.scene = scene;
     this.speed = FORK_CONFIG.PLAYER_SPEED;
 
-    // FIX: usar add.rectangle + physics.add.existing
-    this._sprite = scene.add.rectangle(x, y, 18, 18, FORK_CONFIG.COLORS.ACCENT, 1);
-    this._sprite.setDepth(10);
+    // O jogador não é uma pessoa desenhada: é uma partícula intrusa,
+    // pequena demais para competir visualmente com a escala do sistema.
+    this._sprite = scene.add.circle(x, y, 7, FORK_CONFIG.COLORS.WHITE, 1)
+      .setStrokeStyle(2, FORK_CONFIG.COLORS.ACCENT_BRIGHT, 0.95)
+      .setDepth(12);
     scene.physics.add.existing(this._sprite);
+    this._sprite.body.setCircle(7, 0, 0);
 
-    // Sombra visual
-    this._shadow = scene.add.ellipse(x, y + 10, 16, 8, 0x000000, 0.4).setDepth(9);
+    this._coreGlow = scene.add.circle(x, y, 13, FORK_CONFIG.COLORS.ACCENT, 0.12)
+      .setStrokeStyle(1, FORK_CONFIG.COLORS.ACCENT_BRIGHT, 0.35)
+      .setDepth(10);
+
+    this._shadow = scene.add.ellipse(x, y + 10, 14, 6, 0x000000, 0.35).setDepth(9);
+
+    // Pequenas partículas acompanham o fragmento e se soltam quando ele se move.
+    this._particleTextureKey = '__fork_player_particle';
+    if (!scene.textures.exists(this._particleTextureKey)) {
+      const g = scene.add.graphics();
+      g.fillStyle(FORK_CONFIG.COLORS.WHITE, 1);
+      g.fillCircle(4, 4, 4);
+      g.generateTexture(this._particleTextureKey, 8, 8);
+      g.destroy();
+    }
+
+    this._trail = scene.add.particles(x, y, this._particleTextureKey, {
+      speed: { min: 8, max: 24 },
+      angle: { min: 0, max: 360 },
+      lifespan: { min: 220, max: 480 },
+      scale: { start: 0.7, end: 0 },
+      alpha: { start: 0.75, end: 0 },
+      frequency: 85,
+      quantity: 1,
+      tint: [FORK_CONFIG.COLORS.ACCENT_BRIGHT, FORK_CONFIG.COLORS.WHITE],
+      blendMode: 'ADD',
+      emitting: true,
+    });
+    this._trail.setDepth(11);
+    this._trail.startFollow(this._sprite, 0, 0, true);
+
+    this._movePulse = scene.tweens.add({
+      targets: this._coreGlow,
+      scale: { from: 0.85, to: 1.18 },
+      alpha: { from: 0.10, to: 0.28 },
+      duration: 520,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
 
     this.direction = 'down';
     this._nearestObject = null;
@@ -48,6 +89,7 @@ class Player {
     }
 
     this._shadow.setPosition(this.x, this.y + 10);
+    this._coreGlow.setPosition(this.x, this.y);
 
     this._nearestObject = this._findNearest(objects);
 
@@ -92,13 +134,19 @@ class Player {
     return nearest;
   }
 
-  setPosition(x, y) { this._sprite.setPosition(x, y); }
+  setPosition(x, y) {
+    this._sprite.setPosition(x, y);
+    this._coreGlow.setPosition(x, y);
+    this._shadow.setPosition(x, y + 10);
+  }
 
   // FIX: retorna o rectangle (que agora tem physics via existing)
   getPhysicsBody() { return this._sprite; }
 
   destroy() {
     this._sprite.destroy();
+    this._coreGlow.destroy();
     this._shadow.destroy();
+    if (this._trail) this._trail.destroy();
   }
 }
