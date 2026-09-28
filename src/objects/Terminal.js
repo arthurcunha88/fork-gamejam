@@ -240,8 +240,20 @@ class Terminal extends InteractiveObject {
         cmdDef.onExecute();
       }
 
-    } else if (cmd === 'CLEAR') {
-      this._history = [];
+      if (cmd === 'CLEAR') {
+        this._history = [];
+        this._addLine('> BUFFER CLEARED.');
+        this._addLine(GameState.get('corruption_level') > 0
+          ? '> WARNING: SIMULATION INTEGRITY ' + (5 - GameState.get('corruption_level')) * 20 + '%'
+          : '> SYSTEM INTEGRITY: 100%');
+      }
+
+      if (cmd === 'DELETE ALL') {
+        this._addLine('> FILESYSTEM WIPE COMPLETE.');
+        this._addLine('> SIMULATION CORRUPTION: ' + GameState.get('corruption_level') + '/5');
+        this._addLine('> CONSEQUENCES WILL PROPAGATE.');
+      }
+
     } else {
       this._addLine(`ERROR: Command not recognized — "${cmd}"`);
       this._addLine('Type HELP for available commands.');
