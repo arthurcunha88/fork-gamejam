@@ -823,13 +823,13 @@ class GameScene extends Phaser.Scene {
     this.dialogManager.show([
       'OBSERVER ROOM',
       'Three controls appear on the console:',
-      'PAUSE / WATCH / RELEASE',
-      '// Do not choose them in the order the system suggests.',
+      'WATCH / PAUSE / RELEASE',
+      '// First observe. Then stop what you saw. Only then let it go.',
     ], {
       title: 'OBSERVER',
       onClose: () => this.uiManager.openSequence({
         title: '// OBSERVER PROTOCOL',
-        items: ['PAUSE', 'WATCH', 'RELEASE'],
+        items: ['WATCH', 'PAUSE', 'RELEASE'],
         validator: answer => this.puzzleManager.checkAnswer(
           FORK_CONFIG.PUZZLES.OBSERVER_SEQUENCE,
           answer
