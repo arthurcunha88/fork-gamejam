@@ -1342,7 +1342,7 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  _updateHUD {
+  _updateHUD() {
     const loop      = GameState.get('loop_count');
     const time      = this.loopManager.getFormattedTime();
     const progress  = this.loopManager.getProgress();
