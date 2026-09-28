@@ -9,6 +9,11 @@ const GameState = {
   // ── Estado persistente (sobrevive ao reset) ──────────────
   persistent: {
     loop_count:            0,
+    phase:                 FORK_CONFIG.PHASES.AWAKENING,
+    memory_code_found:     false,
+    observer_unlocked:     false,
+    identity_fragment_found: false,
+    fork_sequence_complete: false,
     log07_deleted:         false,
     server_rebooted:       false,
     door_unlocked:         false,
@@ -30,6 +35,7 @@ const GameState = {
     player_y:         300,
     dialog_open:      false,
     terminal_open:    false,
+    modal_open:       false,
     active_object:    null,
   },
 
@@ -99,6 +105,7 @@ const GameState = {
       player_y:      300,
       dialog_open:   false,
       terminal_open: false,
+      modal_open:    false,
       active_object: null,
     };
   },
@@ -110,12 +117,23 @@ const GameState = {
     console.log(`[FORK] Loop ${this.persistent.loop_count} started`);
   },
 
+  advancePhase(phase) {
+    if (phase > (this.persistent.phase || 1)) {
+      this.persistent.phase = Math.min(FORK_CONFIG.PHASES.FORK, phase);
+    }
+  },
+
   /** Verifica condições para cada final */
   checkEndingConditions() {
     const p = this.persistent;
 
-    // FINAL 5 — PROJECT BUTTERFLY (secreto, checado primeiro)
-    if (p.butterfly_steps.length >= 4) {
+    // FINAL 5 — exige a cadeia secreta completa.
+    if (p.butterfly_steps.includes('delete_log07') &&
+        p.butterfly_steps.includes('reboot_server') &&
+        p.butterfly_steps.includes('find_project') &&
+        p.butterfly_steps.includes('unlock_door') &&
+        p.butterfly_steps.includes('observer_truth') &&
+        p.fork_sequence_complete) {
       return FORK_CONFIG.ENDINGS.BUTTERFLY;
     }
 
@@ -125,7 +143,7 @@ const GameState = {
     }
 
     // FINAL 4 — VOCÊ ESTÁ SENDO CONTROLADO
-    if (p.system_awareness >= 4 && p.player_identity_known) {
+    if (p.system_awareness >= 4 && p.player_identity_known && p.identity_fragment_found) {
       return FORK_CONFIG.ENDINGS.CONTROLLED;
     }
 
@@ -135,7 +153,7 @@ const GameState = {
     }
 
     // FINAL 1 — ESCAPE
-    if (p.door_unlocked && p.puzzles_solved.length >= 3) {
+    if (p.door_unlocked && p.puzzles_solved.length >= 5 && p.phase >= FORK_CONFIG.PHASES.INFILTRATION) {
       return FORK_CONFIG.ENDINGS.ESCAPE;
     }
 
@@ -153,6 +171,18 @@ const GameState = {
     }
     if (key === 'server_rebooted' && value === true) {
       this.increaseSystemAwareness(1);
+    }
+    if (key === 'identity_fragment_found' && value === true) {
+      this.increaseSystemAwareness(1);
+    }
+    if (this.persistent.log07_deleted && this.persistent.server_rebooted) {
+      this.advancePhase(FORK_CONFIG.PHASES.INFILTRATION);
+    }
+    if (this.persistent.observer_unlocked && this.persistent.identity_fragment_found) {
+      this.advancePhase(FORK_CONFIG.PHASES.OBSERVER);
+    }
+    if (this.persistent.secret_area_found && this.persistent.door_unlocked && this.persistent.observer_unlocked) {
+      this.advancePhase(FORK_CONFIG.PHASES.FORK);
     }
   },
 
