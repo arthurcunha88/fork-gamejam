@@ -1,6 +1,29 @@
 // ============================================================
-// FORK — GameScene.js  [v2 — green hacker visual]
-// ============================================================
+const NARRATIVE = {
+  door: {
+    locked_no_clue: ['PORTA DE SEGURANÇA','O acesso está sincronizado com um evento que ainda não aconteceu.','// O sistema não entrega a resposta diretamente.'],
+    locked_has_clue: ['PORTA DE SEGURANÇA','LOG_07 desapareceu.','O horário do desaparecimento continua registrado.','// O que o sistema registrou quando você agiu?'],
+  },
+  serverLEDs: ['SERVER A','Os quatro canais não pulsam da mesma forma.','','Canal A  [ • ]','Canal B  [ • • ]','Canal C  [ • • • ]','Canal D  [ • • • • ]','','// Os canais não estão em ordem.','// A ordem de ativação importa.','// Toda fuga começa pelo pulso mais forte.'],
+  entity: {
+    first_contact: ['???','Você finalmente percebeu que existe alguém além da interface.','// Não confie em tudo que permanece visível.'],
+    hint_log07: ['???','Procure o arquivo que o sistema tenta manter fora do seu alcance.','// O que é apagado também deixa rastros.'],
+    hint_server: ['???','A porta abriu porque uma ação antiga mudou o presente.','// Agora faça o servidor lembrar do que esqueceu.'],
+    hint_butterfly: ['???','O projeto não está nomeado onde você espera.','// Procure o lugar indicado pela coordenada.'],
+    warning: ['???','A simulação já conhece suas escolhas.','// Continue e ela começará a antecipá-las.'],
+  },
+  camera: {
+    standard: ['CAM-01','Gravação ativa.','// Movimento registrado.'],
+    aware: ['CAM-01','A câmera está alguns segundos à frente.','// Ela parece reagir antes de você.'],
+    morse: ['CAM-01','Sinal auxiliar detectado.','...- .. --. .. .-','// A transmissão não está usando palavras.'],
+  },
+  loopStart: loop => ['FORK OS // LOOP ' + String(loop).padStart(2,'0'), loop === 1 ? 'Ambiente carregado.' : 'A simulação lembra do que você fez.','// Algumas consequências chegam antes da causa.'],
+  systemReactions: {
+    both: ['O sistema detectou duas alterações persistentes.','// A cadeia de consequências está se acumulando.'],
+    log07_deleted: ['LOG_07 continua ausente.','// O sistema sabe que você o removeu.'],
+    server_rebooted: ['SERVER A já foi reiniciado.','// O presente carrega uma decisão de outro loop.'],
+  },
+};
 
 class GameScene extends Phaser.Scene {
   constructor() { super({ key: 'GameScene' }); }
@@ -19,6 +42,7 @@ class GameScene extends Phaser.Scene {
 
     this._wallRects = [];
     this._buildMap();
+    this._buildMapDynamics();
 
     this._objects = [];
     this._lastCorruptionLevel = -1;
@@ -57,6 +81,13 @@ class GameScene extends Phaser.Scene {
     this.player.update(this._objects);
     this._objects.forEach(obj => obj.update(this.player.x, this.player.y));
     this._updateCorruptionEffects();
+
+    if (GameState.get('restore_requested')) {
+      GameState.set('restore_requested', false);
+      this.time.delayedCall(80, () => this.scene.restart());
+      return;
+    }
+
     this._updateHUD();
   }
 
@@ -159,6 +190,69 @@ class GameScene extends Phaser.Scene {
       yoyo: true,
       repeat: -1,
     });
+  }
+
+  _buildMapDynamics() {
+    const C = FORK_CONFIG.COLORS;
+    const F = FORK_CONFIG.FONT;
+    const W = FORK_CONFIG.WIDTH;
+    const H = FORK_CONFIG.HEIGHT;
+
+    const routes = [
+      { color: C.ACCENT, points: [[90,150],[230,150],[230,215],[320,215]] },
+      { color: C.PURPLE, points: [[470,90],[470,160],[610,160],[610,250]] },
+      { color: C.MAGENTA, points: [[110,335],[260,335],[260,455],[430,455]] },
+      { color: C.GREEN, points: [[520,540],[640,540],[640,430],[760,430]] },
+      { color: C.ORANGE, points: [[850,95],[850,180],[790,180]] },
+    ];
+
+    routes.forEach((route, index) => {
+      const g = this.add.graphics().setDepth(1);
+      g.lineStyle(2, route.color, 0.16);
+      route.points.forEach(([x,y], i) => {
+        if (i === 0) g.moveTo(x,y);
+        else g.lineTo(x,y);
+      });
+      g.strokePath();
+
+      const pulse = this.add.circle(route.points[0][0], route.points[0][1], 3, route.color, 0.95).setDepth(2);
+      let segment = 0;
+      const moveNext = () => {
+        const [sx,sy] = route.points[segment];
+        const [tx,ty] = route.points[(segment + 1) % route.points.length];
+        pulse.setPosition(sx,sy);
+        this.tweens.add({
+          targets: pulse, x: tx, y: ty, duration: 650 + index * 80,
+          ease: 'Sine.easeInOut',
+          onComplete: () => { segment = (segment + 1) % route.points.length; moveNext(); },
+        });
+      };
+      moveNext();
+    });
+
+    const nodes = [
+      [230,150,C.ACCENT],[470,160,C.PURPLE],[610,250,C.MAGENTA],
+      [260,335,C.GREEN],[640,430,C.ORANGE],[850,180,C.ACCENT_BRIGHT],
+      [500,480,C.MAGENTA],[300,270,C.PURPLE],[700,95,C.GREEN],
+    ];
+
+    nodes.forEach(([x,y,color], i) => {
+      const core = this.add.rectangle(x, y, 5, 5, color, 0.95).setDepth(2);
+      const ring = this.add.rectangle(x, y, 12, 12, color, 0).setStrokeStyle(1, color, 0.55).setDepth(2);
+      this.tweens.add({
+        targets: [core, ring], alpha: { from: 0.9, to: 0.15 }, scale: { from: 0.8, to: 1.5 },
+        duration: 700 + i * 90, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+      });
+    });
+
+    const scan = this.add.rectangle(W / 2, 48, W - 140, 1, C.ACCENT_BRIGHT, 0.18).setDepth(2);
+    this.tweens.add({ targets: scan, y: H - 60, duration: 6200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+
+    const status = this.add.text(W - 82, 565, 'LIVE', {
+      fontFamily: F.FAMILY_TITLE, fontSize: '14px', color: F.COLOR_MAGENTA,
+      shadow: { offsetX: 0, offsetY: 0, color: F.COLOR_MAGENTA, blur: 10, fill: true },
+    }).setDepth(2);
+    this.tweens.add({ targets: status, alpha: { from: 1, to: 0.2 }, duration: 380, yoyo: true, repeat: -1 });
   }
 
   _drawDigitalRain(x, y, w, h) {
