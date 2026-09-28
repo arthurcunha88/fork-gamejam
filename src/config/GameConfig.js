@@ -57,6 +57,15 @@ const FORK_CONFIG = {
   // Interação
   INTERACT_RANGE: 80,       // pixels de distância para interagir
 
+  // Progressão em cinco fases dentro do mesmo mapa.
+  PHASES: {
+    AWAKENING: 1,
+    ANOMALY: 2,
+    INFILTRATION: 3,
+    OBSERVER: 4,
+    FORK: 5,
+  },
+
   // Puzzle IDs
   PUZZLES: {
     TERMINAL_MAIN:    'puzzle_terminal_main',
@@ -65,6 +74,9 @@ const FORK_CONFIG = {
     SERVER_SEQUENCE:  'puzzle_server_sequence',
     HIDDEN_FILE:      'puzzle_hidden_file',
     BUTTERFLY:        'puzzle_butterfly_sequence',
+    MEMORY_CODE:      'puzzle_memory_code',
+    OBSERVER_SEQUENCE: 'puzzle_observer_sequence',
+    IDENTITY_WORD:    'puzzle_identity_word',
   },
 
   // Variáveis de estado persistentes entre loops
@@ -79,6 +91,11 @@ const FORK_CONFIG = {
     BUTTERFLY_STEPS:      'butterfly_steps',    // array de passos
     PLAYER_IDENTITY_KNOWN:'player_identity_known',
     ESCAPE_ATTEMPTED:     'escape_attempted',
+    PHASE:                'phase',
+    MEMORY_CODE_FOUND:    'memory_code_found',
+    OBSERVER_UNLOCKED:    'observer_unlocked',
+    IDENTITY_FRAGMENT_FOUND: 'identity_fragment_found',
+    FORK_SEQUENCE_COMPLETE: 'fork_sequence_complete',
     COMMANDS_EXECUTED:    'commands_executed',  // array
   },
 
