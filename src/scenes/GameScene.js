@@ -1,3 +1,4 @@
+(function () {
 // ============================================================
 const NARRATIVE = {
   door: {
@@ -1046,3 +1047,6 @@ class GameScene extends Phaser.Scene {
     });
   }
 }
+
+  window.GameScene = GameScene;
+})();
