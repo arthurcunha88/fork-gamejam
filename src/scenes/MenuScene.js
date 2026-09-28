@@ -495,6 +495,10 @@ class MenuScene extends Phaser.Scene {
       volumeFill.destroy();
       volumeHint.destroy();
       [muteButton, tutorialButton, creditsButton, aboutButton, closeButton].forEach(b => b.destroy());
+      if (this._settingsSelectionArrow) {
+        this._settingsSelectionArrow.destroy();
+        this._settingsSelectionArrow = null;
+      }
       this.input.keyboard.off('keydown', keyHandler);
     };
 
