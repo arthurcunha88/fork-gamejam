@@ -59,12 +59,8 @@ class LoopManager {
       this._fire('onCritical');
     }
 
-    // Reset
-    if (this.timeRemaining <= 0) {
-      this.timeRemaining = 0;
-      this.active = false;
-      this._fire('onReset');
-    }
+    // O relógio não encerra o loop. Apenas marca o tempo da sessão.
+    if (this.timeRemaining <= 0) this.timeRemaining = 0;
   }
 
   // ── Formatação ────────────────────────────────────────────
@@ -110,10 +106,15 @@ class LoopManager {
     this.timeRemaining = Math.max(0, this.timeRemaining - seconds);
   }
 
-  /** Força reset imediato */
-  forceReset() {
-    this.timeRemaining = 0;
+  /** Colapsa o loop por erro crítico explícito. */
+  collapse(reason = 'CRITICAL_ERROR') {
+    if (!this.active) return;
     this.active = false;
-    this._fire('onReset');
+    this.paused = false;
+    this._fire('onReset', reason);
+  }
+
+  forceReset(reason = 'FORCED_ERROR') {
+    this.collapse(reason);
   }
 }
