@@ -75,7 +75,7 @@ class GameScene extends Phaser.Scene {
     if (!this.player) return;
     this.loopManager.update(delta);
     if (this.loopManager.isCritical()) {
-      this.animationManager.flash('critical');
+      this._updateCriticalAlert();
     }
     this.dialogManager.update();
     this.finalManager.check();
@@ -91,6 +91,30 @@ class GameScene extends Phaser.Scene {
     }
 
     this._updateHUD();
+  }
+
+  _updateCriticalAlert() {
+    if (!this._criticalAlert) return;
+
+    const remaining = this.loopManager.timeRemaining;
+    const urgency = Phaser.Math.Clamp(1 - (remaining / FORK_CONFIG.LOOP_CRITICAL_TIME), 0, 1);
+    const alphaMin = 0.18 + urgency * 0.08;
+    const alphaMax = 0.42 + urgency * 0.14;
+    const duration = Math.max(360, 620 - urgency * 180);
+
+    this._criticalAlert.setColor('#ff9aa6');
+    this._criticalAlert.setAlpha(alphaMax);
+
+    if (!this._criticalAlertTween || !this._criticalAlertTween.isPlaying()) {
+      this._criticalAlertTween = this.tweens.add({
+        targets: this._criticalAlert,
+        alpha: { from: alphaMax, to: alphaMin },
+        duration,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+    }
   }
 
   // ── Mapa ──────────────────────────────────────────────────
@@ -897,12 +921,18 @@ class GameScene extends Phaser.Scene {
     sf(this.add.text(12, 4, 'FORK', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#39ff14', shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:12, fill:true } }).setDepth(91));
 
     this._hudLoop  = sf(this.add.text(W/2, 4, 'LOOP 01', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#33aa33', shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:6, fill:true } }).setOrigin(0.5,0).setDepth(91));
-    this._hudTimer = sf(this.add.text(W-12, 4, 'TIME: 05:00', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#00ff41', shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:10, fill:true } }).setOrigin(1,0).setDepth(91));
+    this._hudTimer = sf(this.add.text(W-12, 4, 'TIME: 03:00', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#9be8ff', shadow: { offsetX:0, offsetY:0, color:'#59d8ff', blur:8, fill:true } }).setOrigin(1,0).setDepth(91));
     this._timerBar = sf(this.add.rectangle(0, 28, W, 3, C.ACCENT, 1).setOrigin(0,0).setDepth(91));
 
     sf(this.add.rectangle(0, H-22, W, 22, C.HIGHLIGHT, 0.92).setOrigin(0,0).setDepth(90));
     this._hudSystemMsg  = sf(this.add.text(12, H-14, '> SYSTEM: Awaiting input.', { fontFamily: F.FAMILY, fontSize: '11px', color: '#33aa33' }).setDepth(91));
-    this._hudAwareness  = sf(this.add.text(W-12, H-14, '', { fontFamily: F.FAMILY, fontSize: '11px', color: '#ff2244', shadow: { offsetX:0, offsetY:0, color:'#ff0000', blur:8, fill:true } }).setOrigin(1,0).setDepth(91));
+    this._hudAwareness  = sf(this.add.text(W-12, H-14, '', { fontFamily: F.FAMILY, fontSize: '11px', color: '#ff9aa6', shadow: { offsetX:0, offsetY:0, color:'#ff6678', blur:6, fill:true } }).setOrigin(1,0).setDepth(91));
+    this._criticalAlert = sf(this.add.text(W-150, H-14, '', {
+      fontFamily: F.FAMILY,
+      fontSize: '10px',
+      color: '#ff9aa6',
+      shadow: { offsetX: 0, offsetY: 0, color: '#ff6678', blur: 5, fill: true }
+    }).setOrigin(1,0).setDepth(91));
   }
 
   _updateCorruptionEffects() {
