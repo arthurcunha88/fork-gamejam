@@ -660,7 +660,7 @@ class GameScene extends Phaser.Scene {
   _showSequencePuzzle() {
     this.uiManager.openSequence({
       title: '// SERVER SEQUENCE // PULSES',
-      items: ['D', 'C', 'B', 'A'],
+      items: ['A', 'B', 'C', 'D'],
       validator: answer => this.puzzleManager.checkAnswer(
         FORK_CONFIG.PUZZLES.SERVER_SEQUENCE,
         answer
