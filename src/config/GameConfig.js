@@ -14,22 +14,37 @@ const FORK_CONFIG = {
   LOOP_CRITICAL_TIME: 30,   // segundos críticos (música acelera, glitch)
   MAX_LOOPS: 10,            // segurança para loop eterno
 
-  // Cores (paleta FORK)
+  // Cores (paleta FORK — green hacker)
   COLORS: {
-    BG:           0x050810,
-    BG_ALT:       0x080d1a,
-    GRID:         0x0d1a2e,
-    ACCENT:       0x00ffe0,
-    ACCENT_DIM:   0x00886a,
+    BG:           0x030a03,  // preto esverdeado
+    BG_ALT:       0x050f05,
+    GRID:         0x0a1a0a,
+    ACCENT:       0x00ff41,  // verde matrix
+    ACCENT_DIM:   0x00802a,
+    ACCENT_BRIGHT:0x39ff14,  // verde neon vivo
     DANGER:       0xff2244,
     WARNING:      0xffaa00,
-    TEXT:         0x00ffe0,
-    TEXT_DIM:     0x446655,
-    TEXT_SYSTEM:  0x88ffdd,
-    TERMINAL_BG:  0x020c10,
-    HIGHLIGHT:    0x003322,
+    TEXT:         0x00ff41,
+    TEXT_DIM:     0x1a4d1a,
+    TEXT_MID:     0x33aa33,
+    TEXT_SYSTEM:  0x00cc33,
+    TERMINAL_BG:  0x020802,
+    HIGHLIGHT:    0x001a00,
     WHITE:        0xffffff,
     BLACK:        0x000000,
+  },
+
+  // Fonte padrão do jogo
+  FONT: {
+    FAMILY: '"Courier New", Courier, monospace',
+    COLOR_PRIMARY:  '#00ff41',
+    COLOR_DIM:      '#1a4d1a',
+    COLOR_MID:      '#33aa33',
+    COLOR_SYSTEM:   '#00cc33',
+    COLOR_BRIGHT:   '#39ff14',
+    COLOR_DANGER:   '#ff2244',
+    COLOR_WARNING:  '#ffaa00',
+    COLOR_WHITE:    '#ffffff',
   },
 
   // Velocidade do player

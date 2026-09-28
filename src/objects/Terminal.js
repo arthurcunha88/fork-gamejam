@@ -68,12 +68,12 @@ class Terminal extends InteractiveObject {
     // Header
     const header = this.scene.add.rectangle(TX, TY, TW, 20, C.HIGHLIGHT, 1).setOrigin(0, 0);
     const headerText = this.scene.add.text(TX + 8, TY + 4, 'FORK TERMINAL  //  v2.1.0', {
-      fontFamily: 'monospace',
+      fontFamily: FORK_CONFIG.FONT.FAMILY,
       fontSize:   '10px',
       color:      '#00ffe0',
     });
     const closeBtn = this.scene.add.text(TX + TW - 10, TY + 4, '[ESC]', {
-      fontFamily: 'monospace',
+      fontFamily: FORK_CONFIG.FONT.FAMILY,
       fontSize:   '10px',
       color:      '#446655',
     }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
@@ -81,7 +81,7 @@ class Terminal extends InteractiveObject {
 
     // Área de output
     this._outputText = this.scene.add.text(TX + 10, TY + 28, '', {
-      fontFamily: 'monospace',
+      fontFamily: FORK_CONFIG.FONT.FAMILY,
       fontSize:   '12px',
       color:      '#88ffdd',
       wordWrap:   { width: TW - 20 },
@@ -94,20 +94,20 @@ class Terminal extends InteractiveObject {
 
     // Input line
     this._inputPrefix = this.scene.add.text(TX + 10, TY + TH - 28, '> ', {
-      fontFamily: 'monospace',
+      fontFamily: FORK_CONFIG.FONT.FAMILY,
       fontSize:   '12px',
       color:      '#00ffe0',
     });
 
     this._inputText = this.scene.add.text(TX + 26, TY + TH - 28, '', {
-      fontFamily: 'monospace',
+      fontFamily: FORK_CONFIG.FONT.FAMILY,
       fontSize:   '12px',
       color:      '#ffffff',
     });
 
     // Cursor piscante
     this._cursor = this.scene.add.text(TX + 26, TY + TH - 28, '_', {
-      fontFamily: 'monospace',
+      fontFamily: FORK_CONFIG.FONT.FAMILY,
       fontSize:   '12px',
       color:      '#00ffe0',
     });

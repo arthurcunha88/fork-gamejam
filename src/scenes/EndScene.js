@@ -36,11 +36,11 @@ class EndScene extends Phaser.Scene {
     const H = FORK_CONFIG.HEIGHT;
 
     this._typeLines([
-      { text: 'ACCESS GRANTED.',          color: '#00ffe0', delay: 0    },
-      { text: 'Você sai do sistema.',     color: '#88ffdd', delay: 1200 },
-      { text: '.',                        color: '#446655', delay: 2400 },
-      { text: '. .',                      color: '#446655', delay: 3000 },
-      { text: '. . .',                    color: '#446655', delay: 3600 },
+      { text: 'ACCESS GRANTED.',          color: FORK_CONFIG.FONT.COLOR_PRIMARY, delay: 0    },
+      { text: 'Você sai do sistema.',     color: FORK_CONFIG.FONT.COLOR_SYSTEM, delay: 1200 },
+      { text: '.',                        color: FORK_CONFIG.FONT.COLOR_DIM, delay: 2400 },
+      { text: '. .',                      color: FORK_CONFIG.FONT.COLOR_DIM, delay: 3000 },
+      { text: '. . .',                    color: FORK_CONFIG.FONT.COLOR_DIM, delay: 3600 },
     ], H / 2 - 60);
 
     // Tela fica preta
@@ -52,7 +52,7 @@ class EndScene extends Phaser.Scene {
     this.time.delayedCall(6200, () => {
       this.add.rectangle(0, 0, W, H, 0x000000, 1).setOrigin(0, 0);
       this.add.text(W / 2, H / 2, 'SYSTEM USERS: 2', {
-        fontFamily: 'monospace', fontSize: '18px', color: '#ff2244',
+        fontFamily: FORK_CONFIG.FONT.FAMILY, fontSize: '18px', color: FORK_CONFIG.FONT.COLOR_DANGER,
       }).setOrigin(0.5, 0.5);
 
       this._showEndButtons('FINAL 1 — ESCAPE');
@@ -65,11 +65,11 @@ class EndScene extends Phaser.Scene {
     const H = FORK_CONFIG.HEIGHT;
 
     this._typeLines([
-      { text: 'ACCESS DENIED.',             color: '#ff2244', delay: 0    },
-      { text: 'SYSTEM RESETTING...',        color: '#ffaa00', delay: 1000 },
+      { text: 'ACCESS DENIED.',             color: FORK_CONFIG.FONT.COLOR_DANGER, delay: 0    },
+      { text: 'SYSTEM RESETTING...',        color: FORK_CONFIG.FONT.COLOR_WARNING, delay: 1000 },
       { text: '',                           color: '#000000', delay: 2400 },
-      { text: 'I REMEMBER YOU.',            color: '#ff2244', delay: 3200 },
-      { text: `LOOP ${GameState.get('loop_count') + 1} INITIALIZING...`, color: '#446655', delay: 4200 },
+      { text: 'I REMEMBER YOU.',            color: FORK_CONFIG.FONT.COLOR_DANGER, delay: 3200 },
+      { text: `LOOP ${GameState.get('loop_count') + 1} INITIALIZING...`, color: FORK_CONFIG.FONT.COLOR_DIM, delay: 4200 },
     ], H / 2 - 60);
 
     this.time.delayedCall(5800, () => {
@@ -85,12 +85,12 @@ class EndScene extends Phaser.Scene {
     const current = base + GameState.get('loop_count');
 
     this._typeLines([
-      { text: 'Você encontrou os registros.',    color: '#88ffdd', delay: 0    },
-      { text: `LOOP COUNT: ${current.toLocaleString()}`, color: '#ffaa00', delay: 1400 },
-      { text: 'Isso já aconteceu antes.',        color: '#446655', delay: 2800 },
-      { text: 'Muitas vezes.',                   color: '#446655', delay: 3800 },
+      { text: 'Você encontrou os registros.',    color: FORK_CONFIG.FONT.COLOR_SYSTEM, delay: 0    },
+      { text: `LOOP COUNT: ${current.toLocaleString()}`, color: FORK_CONFIG.FONT.COLOR_WARNING, delay: 1400 },
+      { text: 'Isso já aconteceu antes.',        color: FORK_CONFIG.FONT.COLOR_DIM, delay: 2800 },
+      { text: 'Muitas vezes.',                   color: FORK_CONFIG.FONT.COLOR_DIM, delay: 3800 },
       { text: '',                                color: '#000', delay: 5000 },
-      { text: `LOOP COUNT: ${(current + 1).toLocaleString()}`, color: '#ff2244', delay: 5800 },
+      { text: `LOOP COUNT: ${(current + 1).toLocaleString()}`, color: FORK_CONFIG.FONT.COLOR_DANGER, delay: 5800 },
     ], H / 2 - 80);
 
     this.time.delayedCall(7200, () => {
@@ -104,12 +104,12 @@ class EndScene extends Phaser.Scene {
     const H = FORK_CONFIG.HEIGHT;
 
     this._typeLines([
-      { text: 'Você encontrou os registros.',            color: '#88ffdd', delay: 0    },
-      { text: 'BEHAVIORAL PREDICTION: 97.3% ACCURACY',  color: '#ffaa00', delay: 1400 },
-      { text: 'Cada escolha que você fez...',            color: '#446655', delay: 2800 },
-      { text: '...já havia sido calculada.',             color: '#446655', delay: 3800 },
+      { text: 'Você encontrou os registros.',            color: FORK_CONFIG.FONT.COLOR_SYSTEM, delay: 0    },
+      { text: 'BEHAVIORAL PREDICTION: 97.3% ACCURACY',  color: FORK_CONFIG.FONT.COLOR_WARNING, delay: 1400 },
+      { text: 'Cada escolha que você fez...',            color: FORK_CONFIG.FONT.COLOR_DIM, delay: 2800 },
+      { text: '...já havia sido calculada.',             color: FORK_CONFIG.FONT.COLOR_DIM, delay: 3800 },
       { text: '',                                        color: '#000',    delay: 5000 },
-      { text: 'WHO IS REALLY PLAYING?',                  color: '#ff2244', delay: 5600 },
+      { text: 'WHO IS REALLY PLAYING?',                  color: FORK_CONFIG.FONT.COLOR_DANGER, delay: 5600 },
     ], H / 2 - 80);
 
     this.time.delayedCall(7200, () => {
@@ -128,19 +128,19 @@ class EndScene extends Phaser.Scene {
     });
 
     this._typeLines([
-      { text: 'PROJECT BUTTERFLY',                          color: '#00ffe0', delay: 0,    size: '18px' },
-      { text: '──────────────────────────────────',         color: '#1a3322', delay: 600  },
-      { text: 'OBJETIVO: Simular o efeito borboleta.',      color: '#88ffdd', delay: 1200 },
-      { text: 'VARIÁVEL: comportamento do sujeito.',        color: '#88ffdd', delay: 2000 },
+      { text: 'PROJECT BUTTERFLY',                          color: FORK_CONFIG.FONT.COLOR_PRIMARY, delay: 0,    size: '18px' },
+      { text: '──────────────────────────────────',         color: FORK_CONFIG.FONT.COLOR_DIM, delay: 600  },
+      { text: 'OBJETIVO: Simular o efeito borboleta.',      color: FORK_CONFIG.FONT.COLOR_SYSTEM, delay: 1200 },
+      { text: 'VARIÁVEL: comportamento do sujeito.',        color: FORK_CONFIG.FONT.COLOR_SYSTEM, delay: 2000 },
       { text: '',                                           color: '#000',    delay: 2800 },
-      { text: 'VARIÁVEL NÃO PREVISTA:',                     color: '#ffaa00', delay: 3400 },
-      { text: 'Sujeito encontrou este arquivo.',            color: '#ffaa00', delay: 4000 },
+      { text: 'VARIÁVEL NÃO PREVISTA:',                     color: FORK_CONFIG.FONT.COLOR_WARNING, delay: 3400 },
+      { text: 'Sujeito encontrou este arquivo.',            color: FORK_CONFIG.FONT.COLOR_WARNING, delay: 4000 },
       { text: '',                                           color: '#000',    delay: 4800 },
-      { text: 'SYSTEM NOTE: This was not supposed',        color: '#ff2244', delay: 5400 },
-      { text: '            to happen.',                     color: '#ff2244', delay: 5900 },
+      { text: 'SYSTEM NOTE: This was not supposed',        color: FORK_CONFIG.FONT.COLOR_DANGER, delay: 5400 },
+      { text: '            to happen.',                     color: FORK_CONFIG.FONT.COLOR_DANGER, delay: 5900 },
       { text: '',                                           color: '#000',    delay: 6600 },
-      { text: 'Parabéns.',                                  color: '#00ffe0', delay: 7200 },
-      { text: 'Você é a anomalia.',                         color: '#00ffe0', delay: 8000, size: '16px' },
+      { text: 'Parabéns.',                                  color: FORK_CONFIG.FONT.COLOR_PRIMARY, delay: 7200 },
+      { text: 'Você é a anomalia.',                         color: FORK_CONFIG.FONT.COLOR_PRIMARY, delay: 8000, size: '16px' },
     ], H / 2 - 140);
 
     this.time.delayedCall(9600, () => {
@@ -157,7 +157,7 @@ class EndScene extends Phaser.Scene {
     lines.forEach(({ text, color, delay, size }) => {
       this.time.delayedCall(delay, () => {
         this.add.text(W / 2, y, text, {
-          fontFamily: 'monospace',
+          fontFamily: FORK_CONFIG.FONT.FAMILY,
           fontSize:   size || '13px',
           color,
         }).setOrigin(0.5, 0);
@@ -172,7 +172,7 @@ class EndScene extends Phaser.Scene {
 
     // Label do final
     this.add.text(W / 2, H - 90, finalLabel, {
-      fontFamily: 'monospace', fontSize: '11px', color: '#1a3322',
+      fontFamily: FORK_CONFIG.FONT.FAMILY, fontSize: '11px', color: FORK_CONFIG.FONT.COLOR_DIM,
     }).setOrigin(0.5, 0);
 
     // Linha separadora
@@ -181,7 +181,7 @@ class EndScene extends Phaser.Scene {
 
     // Botão — jogar novamente
     const btnNew = this.add.text(W / 2 - 100, H - 52, '[ NOVO JOGO ]', {
-      fontFamily: 'monospace', fontSize: '12px', color: '#00ffe0',
+      fontFamily: FORK_CONFIG.FONT.FAMILY, fontSize: '12px', color: FORK_CONFIG.FONT.COLOR_PRIMARY,
     }).setOrigin(0.5, 0).setInteractive({ useHandCursor: true });
 
     btnNew.on('pointerover',  () => btnNew.setColor('#ffffff'));
@@ -199,7 +199,7 @@ class EndScene extends Phaser.Scene {
 
     // Botão — menu
     const btnMenu = this.add.text(W / 2 + 100, H - 52, '[ MENU ]', {
-      fontFamily: 'monospace', fontSize: '12px', color: '#446655',
+      fontFamily: FORK_CONFIG.FONT.FAMILY, fontSize: '12px', color: FORK_CONFIG.FONT.COLOR_DIM,
     }).setOrigin(0.5, 0).setInteractive({ useHandCursor: true });
 
     btnMenu.on('pointerover',  () => btnMenu.setColor('#88ffdd'));
