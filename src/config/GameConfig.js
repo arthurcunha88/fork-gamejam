@@ -109,6 +109,13 @@ const FORK_CONFIG = {
     COMMANDS_EXECUTED:    'commands_executed',  // array
   },
 
+  // Puzzles cuja falha provoca LOOP COLLAPSE.
+  CRITICAL_PUZZLES: [
+    'puzzle_boot_code',
+    'puzzle_door_sequence',
+    'puzzle_server_sequence',
+  ],
+
   // Tipos de finais
   ENDINGS: {
     ESCAPE:        'ending_escape',
