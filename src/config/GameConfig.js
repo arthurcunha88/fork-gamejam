@@ -9,9 +9,9 @@ const FORK_CONFIG = {
   HEIGHT: 640,
 
   // Loop
-  LOOP_DURATION: 180,       // segundos por loop (3 min)
-  LOOP_WARNING_TIME: 60,    // segundos antes do reset para alertar
-  LOOP_CRITICAL_TIME: 30,   // segundos críticos (música acelera, glitch)
+  LOOP_DURATION: 451,       // relógio inicial: 07:31
+  LOOP_WARNING_TIME: 120,   // alerta de tempo, sem reiniciar o loop
+  LOOP_CRITICAL_TIME: 60,   // alerta crítico, sem reiniciar o loop
   MAX_LOOPS: 10,            // segurança para loop eterno
 
   // Cores (paleta FORK — green hacker)
@@ -77,6 +77,7 @@ const FORK_CONFIG = {
   // Puzzle IDs
   PUZZLES: {
     TERMINAL_MAIN:    'puzzle_terminal_main',
+    BOOT_CODE:        'puzzle_boot_code',
     LOG_FILE:         'puzzle_log_file',
     DOOR_CODE:        'puzzle_door_code',
     DOOR_SEQUENCE:    'puzzle_door_sequence',
