@@ -245,6 +245,16 @@ class PuzzleManager {
           'READ SYSTEM_NOTES': {
             output: () => {
               const deleted = GameState.get('log07_deleted');
+              const wiped = GameState.get('filesystem_wiped');
+
+              if (wiped && !GameState.get('system_notes_read')) {
+                return [
+                  '> ERROR: SYSTEM_NOTES.txt — FILESYSTEM UNAVAILABLE',
+                  '  Recovery data was not cached.',
+                  '// Some information only exists if you noticed it before the wipe.',
+                ];
+              }
+
               const lines = [
                 '> SYSTEM_NOTES.txt',
                 '──────────────────────────────',
@@ -252,8 +262,8 @@ class PuzzleManager {
                 'Format: 4-digit numeric code.',
                 '──────────────────────────────',
               ];
+
               if (deleted) {
-                // Efeito borboleta: a nota agora mostra a pista porque o arquivo foi deletado
                 lines.push('ANOMALY DETECTED: LOG_07 removed.');
                 lines.push('Deletion event timestamp: 07:31');
                 lines.push('// The system recorded when you acted.');
@@ -262,9 +272,51 @@ class PuzzleManager {
                 lines.push('Access code: classified.');
                 lines.push('// Find what the system is hiding.');
               }
+
+              lines.push('');
+              lines.push('RECOVERY CHANNEL // INTEGRITY < 60%');
+              lines.push('KEY: 7 — 3 — 1 — 9');
+              lines.push('// Keep this outside the terminal.');
+              lines.push('// It cannot be reconstructed after a wipe.');
+
+              GameState.set('system_notes_read', true);
               return lines;
             },
-            onExecute: () => GameState.executeCommand('READ_SYSTEM_NOTES'),
+            onExecute: () => {
+              GameState.executeCommand('READ_SYSTEM_NOTES');
+              GameState.set('system_notes_read', true);
+            },
+          },
+
+          'RESTORE 7319': {
+            output: () => {
+              if (!GameState.get('system_notes_read')) {
+                return [
+                  '> RECOVERY DENIED.',
+                  '  Recovery key not present in memory.',
+                ];
+              }
+              if (GameState.get('corruption_level') < 3) {
+                return [
+                  '> RECOVERY LOCKED.',
+                  '  Integrity threshold not reached.',
+                  '  Nothing needs to be restored.',
+                ];
+              }
+              return [
+                '> RECOVERY KEY ACCEPTED.',
+                '> RESTORING SIMULATION STATE...',
+                '> Rebuilding deleted environment nodes.',
+                '> Reconnecting physical layer.',
+                '> SYSTEM RESTORE QUEUED.',
+              ];
+            },
+            onExecute: () => {
+              if (GameState.get('system_notes_read') &&
+                  GameState.get('corruption_level') >= 3) {
+                GameState.restoreSystem();
+              }
+            },
           },
 
           'CLEAR': {
@@ -347,7 +399,7 @@ class PuzzleManager {
         id:    FORK_CONFIG.PUZZLES.SERVER_SEQUENCE,
         type:  'sequence',
         requires: { log07_deleted: true },
-        // Pista visual: os painéis pulsam em 4, 3, 2 e 1 ciclos → ordem decrescente = D C B A
+        // A pista visual indica intensidade; a interface não revela a sequência.
         validator: (answer) => JSON.stringify(answer) === JSON.stringify(['D', 'C', 'B', 'A']),
         consequences: [
           { key: 'server_rebooted', value: true },
@@ -362,7 +414,8 @@ class PuzzleManager {
         id:    FORK_CONFIG.PUZZLES.HIDDEN_FILE,
         type:  'word',
         requires: { server_rebooted: true, log07_deleted: true },
-        validator: (answer) => answer.trim().toUpperCase() === 'BUTTERFLY',
+        validator: (answer) => answer.trim().toUpperCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '') === 'BRASILIA',
         consequences: [
           { key: 'secret_area_found', value: true },
           { butterfly: 'find_project' },
@@ -388,7 +441,7 @@ class PuzzleManager {
         id: FORK_CONFIG.PUZZLES.OBSERVER_SEQUENCE,
         type: 'sequence',
         requires: { observer_unlocked: true },
-        validator: answer => JSON.stringify(answer) === JSON.stringify(['PAUSE', 'WATCH', 'RELEASE']),
+        validator: answer => JSON.stringify(answer) === JSON.stringify(['WATCH', 'PAUSE', 'RELEASE']),
         consequences: [
           { butterfly: 'observer_truth' },
           { awareness: 1 },
@@ -399,7 +452,7 @@ class PuzzleManager {
         id: FORK_CONFIG.PUZZLES.IDENTITY_WORD,
         type: 'word',
         requires: { observer_unlocked: true },
-        validator: answer => answer.trim().toUpperCase() === 'SUBJECT',
+        validator: answer => answer.trim().toUpperCase() === 'ORIGIN',
         consequences: [
           { key: 'identity_fragment_found', value: true },
           { key: 'player_identity_known', value: true },
