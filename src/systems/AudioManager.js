@@ -6,11 +6,73 @@
 class AudioManager {
   constructor() {
     this.ctx = null;
-    this.master = 0.07;
+    this.baseMaster = 0.07;
+    this.volume = 1;
+    this.muted = false;
+    this.master = this.baseMaster;
     this._ambient = null;
     this._boundInput = false;
     this._lastInputAt = 0;
+    this._loadSettings();
     this._bindGlobalInput();
+  }
+
+  _loadSettings() {
+    try {
+      const raw = window.localStorage.getItem('fork_audio_settings_v1');
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (typeof data.volume === 'number') this.volume = Math.max(0, Math.min(1, data.volume));
+      if (typeof data.muted === 'boolean') this.muted = data.muted;
+      this._syncMaster();
+    } catch (_) {}
+  }
+
+  _saveSettings() {
+    try {
+      window.localStorage.setItem('fork_audio_settings_v1', JSON.stringify({
+        volume: this.volume,
+        muted: this.muted,
+      }));
+    } catch (_) {}
+  }
+
+  _syncMaster() {
+    this.master = this.muted ? 0 : this.baseMaster * this.volume;
+    if (this._ambient && this._ambient.gain) {
+      this._ambient.gain.gain.value = this.master * 0.18;
+    }
+  }
+
+  getVolumePercent() {
+    return Math.round(this.volume * 100);
+  }
+
+  isMuted() {
+    return this.muted;
+  }
+
+  setVolume(value) {
+    this.volume = Math.max(0, Math.min(1, Number(value) || 0));
+    if (this.volume > 0 && this.muted) this.muted = false;
+    this._syncMaster();
+    this._saveSettings();
+    return this.getVolumePercent();
+  }
+
+  changeVolume(delta) {
+    return this.setVolume(this.volume + delta);
+  }
+
+  setMuted(value) {
+    this.muted = !!value;
+    this._syncMaster();
+    this._saveSettings();
+    return this.muted;
+  }
+
+  toggleMute() {
+    return this.setMuted(!this.muted);
   }
 
   _bindGlobalInput() {
@@ -40,6 +102,8 @@ class AudioManager {
   }
 
   _tone(freq, duration = 0.08, type = 'square', volume = 1, endFreq = null) {
+    if (this.muted || this.master <= 0) return;
+
     const ctx = this._ensure();
     if (!ctx) return;
 
@@ -74,6 +138,8 @@ class AudioManager {
   playBeep() { this._tone(520, 0.05, 'square', 0.7); }
 
   playInterfaceClick() {
+    if (this.muted || this.master <= 0) return;
+
     const now = performance.now();
     if (now - this._lastInputAt < 28) return;
     this._lastInputAt = now;
@@ -102,6 +168,8 @@ class AudioManager {
   }
 
   playKey(code = '') {
+    if (this.muted || this.master <= 0) return;
+
     const now = performance.now();
     if (now - this._lastInputAt < 18) return;
     this._lastInputAt = now;
