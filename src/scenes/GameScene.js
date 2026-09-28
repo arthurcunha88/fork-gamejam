@@ -34,6 +34,7 @@ class GameScene extends Phaser.Scene {
     const H = FORK_CONFIG.HEIGHT;
 
     this.loopManager   = new LoopManager(this);
+    window.LoopManagerInstance = this.loopManager;
     this.puzzleManager = new PuzzleManager();
     this.dialogManager = new DialogManager(this);
     this.finalManager  = new FinalManager(this);
@@ -952,6 +953,24 @@ class GameScene extends Phaser.Scene {
   }
 
   _interactFile() {
+    GameState.addButterflyStep('read_notes');
+
+    if (GameState.get('boot_code_found')) {
+      this.dialogManager.show([
+        'NOTES.txt',
+        '─────────────────────────────────',
+        '"A porta nunca abre na primeira vez.',
+        ' Mas sempre abre na segunda."',
+        '',
+        '"Delete o que o sistema não quer que você veja."',
+        '',
+        'CLOCK ANCHOR // 07:31',
+        'BOOT ACCESS // ALREADY VERIFIED',
+        '─────────────────────────────────',
+      ], { title: 'NOTES' });
+      return;
+    }
+
     this.dialogManager.show([
       'NOTES.txt',
       '─────────────────────────────────',
@@ -959,9 +978,30 @@ class GameScene extends Phaser.Scene {
       ' Mas sempre abre na segunda."',
       '',
       '"Delete o que o sistema não quer que você veja."',
+      '',
+      'CLOCK ANCHOR // 07:31',
+      '// O horário está sendo usado como chave.',
       '─────────────────────────────────',
-    ], { title: 'NOTES' });
-    GameState.addButterflyStep('read_notes');
+    ], {
+      title: 'NOTES // BOOT ACCESS',
+      onClose: () => this.uiManager.openCodeInput({
+        title: '// SYSTEM BOOT // KEY',
+        length: 4,
+        validator: value => this.puzzleManager.checkAnswer(
+          FORK_CONFIG.PUZZLES.BOOT_CODE,
+          value
+        ),
+        onSuccess: () => {
+          this._setSystemMessage('BOOT ACCESS GRANTED // 07:31');
+          this.dialogManager.show([
+            'BOOT ACCESS ACCEPTED.',
+            '07:31 was not only a timestamp.',
+            'It is the first anchor of the simulation.',
+            '// Something will remain after the next loop.',
+          ], { title: 'SYSTEM BOOT' });
+        },
+      }),
+    });
   }
 
   _interactEntity() {
@@ -1173,7 +1213,7 @@ class GameScene extends Phaser.Scene {
     sf(this.add.text(12, 4, 'FORK', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#39ff14', shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:12, fill:true } }).setDepth(91));
 
     this._hudLoop  = sf(this.add.text(W/2, 4, 'LOOP 01', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#33aa33', shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:6, fill:true } }).setOrigin(0.5,0).setDepth(91));
-    this._hudTimer = sf(this.add.text(W-12, 4, 'TIME: 03:00', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#9be8ff', shadow: { offsetX:0, offsetY:0, color:'#59d8ff', blur:8, fill:true } }).setOrigin(1,0).setDepth(91));
+    this._hudTimer = sf(this.add.text(W-12, 4, 'TIME: 07:31', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#9be8ff', shadow: { offsetX:0, offsetY:0, color:'#59d8ff', blur:8, fill:true } }).setOrigin(1,0).setDepth(91));
     this._timerBar = sf(this.add.rectangle(0, 28, W, 3, C.ACCENT, 1).setOrigin(0,0).setDepth(91));
 
     sf(this.add.rectangle(0, H-22, W, 22, C.HIGHLIGHT, 0.92).setOrigin(0,0).setDepth(90));
@@ -1378,9 +1418,9 @@ class GameScene extends Phaser.Scene {
 
   _setupLoopCallbacks() {
     this.loopManager
-      .on('onWarning',  () => { this._setSystemMessage('WARNING — Loop reset imminent.'); this.dialogManager.showSystem('WARNING: 60 seconds remaining.'); })
-      .on('onCritical', () => { this._setSystemMessage('CRITICAL — System resetting soon.'); })
-      .on('onReset',    () => { this.scene.start('ResetScene'); });
+      .on('onWarning',  () => { this._setSystemMessage('WARNING — Tempo baixo. O loop continua ativo.'); this.dialogManager.showSystem('WARNING: 02:00 remaining.'); })
+      .on('onCritical', () => { this._setSystemMessage('CRITICAL — Tempo baixo. Erros ainda determinam o loop.'); })
+      .on('onReset',    (reason) => { this.scene.start('ResetScene', { reason }); });
   }
 
   _showLoopStart() {
