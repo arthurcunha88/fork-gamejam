@@ -380,14 +380,16 @@ class PuzzleManager {
         consequences: [],
       },
 
-      // ── PUZZLE 2: Código da Porta ──────────────────────────
-      // CADEIA: deletar LOG_07 → timestamp 07:31 aparece → senha = 0731
-      // Pista: SYSTEM_NOTES mostra "Deletion timestamp: 07:31" após delete
-      [FORK_CONFIG.PUZZLES.DOOR_CODE]: {
-        id:    FORK_CONFIG.PUZZLES.DOOR_CODE,
-        type:  'code',
+      // ── PUZZLE 2: Handshake da Porta ───────────────────────
+      // CADEIA: LOG_07 removido → protocolo de acesso é exposto →
+      // jogador precisa reproduzir o handshake do Control Server.
+      [FORK_CONFIG.PUZZLES.DOOR_SEQUENCE]: {
+        id:    FORK_CONFIG.PUZZLES.DOOR_SEQUENCE,
+        type:  'sequence',
         requires: { log07_deleted: true },
-        validator: (answer) => answer === '0731',
+        validator: (answer) => JSON.stringify(answer) === JSON.stringify([
+          'TRACE', 'AUTH', 'SYNC', 'OPEN'
+        ]),
         consequences: [
           { key: 'door_unlocked', value: true },
           { butterfly: 'unlock_door' },
