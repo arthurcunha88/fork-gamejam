@@ -16,12 +16,12 @@ const FORK_CONFIG = {
 
   // Cores (paleta FORK — green hacker)
   COLORS: {
-    BG:           0x070b10,  // preto esverdeado
+    BG:           0x070b10,  // preto azulado
     BG_ALT:       0x0c1219,
     GRID:         0x16202a,
-    ACCENT:       0x59d8ff,  // verde matrix
+    ACCENT:       0x59d8ff,  // ciano
     ACCENT_DIM:   0x2e718b,
-    ACCENT_BRIGHT:0x9be8ff,  // verde neon vivo
+    ACCENT_BRIGHT:0x9be8ff,  // ciano claro
     DANGER:       0xff2244,
     WARNING:      0xffaa00,
     TEXT:         0x7ed6ff,
