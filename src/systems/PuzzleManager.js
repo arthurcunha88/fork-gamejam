@@ -268,11 +268,47 @@ class PuzzleManager {
           },
 
           'CLEAR': {
-            output: [
-              '> TERMINAL BUFFER PURGED.',
-              '// The terminal is empty.',
-              '// The simulation is not.',
-            ],
+            output: () => {
+              const next = GameState.get('clear_count') + 1;
+              const lines = [
+                '> LIMPANDO MEMÓRIA DO TERMINAL...',
+                '> BUFFER LOCAL APAGADO.',
+                '',
+              ];
+
+              if (next === 1) {
+                lines.push(
+                  'AVISO: pequena oscilação detectada no ambiente.',
+                  '// Um monitor secundário deixou de responder.'
+                );
+              } else if (next === 2) {
+                lines.push(
+                  'AVISO: a limpeza está afetando a simulação.',
+                  '// Alguns elementos decorativos desapareceram.',
+                  '// Isto não deveria acontecer.'
+                );
+              } else if (next === 3) {
+                lines.push(
+                  'ERRO: LIMPEZA EXCESSIVA.',
+                  'A simulação está perdendo objetos persistentes.',
+                  '// Você está apagando mais do que o terminal.'
+                );
+              } else if (next === 4) {
+                lines.push(
+                  'ALERTA CRÍTICO: ESTRUTURA DA SIMULAÇÃO INSTÁVEL.',
+                  'Partes do ambiente não puderam ser restauradas.',
+                  '// O sistema está reagindo à sua ação.'
+                );
+              } else {
+                lines.push(
+                  'FALHA CRÍTICA: CASCATA DE CORRUPÇÃO.',
+                  'A limpeza atingiu estruturas do experimento.',
+                  '// PARE. O sistema não consegue desfazer isso.'
+                );
+              }
+
+              return lines;
+            },
             onExecute: () => GameState.registerClear(),
           },
 
