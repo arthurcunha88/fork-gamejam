@@ -80,7 +80,7 @@ class MenuScene extends Phaser.Scene {
       fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM,
     }).setOrigin(0.5);
 
-    this.add.text(W / 2, H - 14, 'NPCboPe  //  GAME JAM  //  LOCAL SAVE', {
+    this.add.text(W / 2, H - 14, 'NPCboPe  //  GAME JAM  //  SESSION ONLY', {
       fontFamily: F.FAMILY, fontSize: '9px', color: F.COLOR_DIM,
     }).setOrigin(0.5, 1);
 
