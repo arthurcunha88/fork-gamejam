@@ -4,6 +4,8 @@
 // Singleton acessível globalmente
 // ============================================================
 
+const FORK_SAVE_KEY = 'fork_gamejam_save_v1';
+
 const GameState = {
 
   // ── Estado persistente (sobrevive ao reset) ──────────────
@@ -39,6 +41,68 @@ const GameState = {
     active_object:    null,
   },
 
+  // ── Persistência local ──────────────────────────────────
+
+  hasSave() {
+    try {
+      return !!window.localStorage.getItem(FORK_SAVE_KEY);
+    } catch (error) {
+      console.warn('[FORK] Local save unavailable:', error);
+      return false;
+    }
+  },
+
+  save() {
+    try {
+      const payload = {
+        version: 1,
+        saved_at: new Date().toISOString(),
+        persistent: JSON.parse(JSON.stringify(this.persistent)),
+      };
+      window.localStorage.setItem(FORK_SAVE_KEY, JSON.stringify(payload));
+      return true;
+    } catch (error) {
+      console.warn('[FORK] Could not save game:', error);
+      return false;
+    }
+  },
+
+  load() {
+    try {
+      const raw = window.localStorage.getItem(FORK_SAVE_KEY);
+      if (!raw) return false;
+
+      const payload = JSON.parse(raw);
+      if (!payload || payload.version !== 1 || !payload.persistent) return false;
+
+      this.persistent = { ...this.persistent, ...payload.persistent };
+      return true;
+    } catch (error) {
+      console.warn('[FORK] Could not load save:', error);
+      return false;
+    }
+  },
+
+  clearSave() {
+    try {
+      window.localStorage.removeItem(FORK_SAVE_KEY);
+      return true;
+    } catch (error) {
+      console.warn('[FORK] Could not clear save:', error);
+      return false;
+    }
+  },
+
+  getSaveDate() {
+    try {
+      const raw = window.localStorage.getItem(FORK_SAVE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw).saved_at || null;
+    } catch (error) {
+      return null;
+    }
+  },
+
   // ── API pública ──────────────────────────────────────────
 
   /** Retorna valor persistente */
@@ -65,6 +129,7 @@ const GameState = {
     }
     if (!this.persistent[key].includes(value)) {
       this.persistent[key].push(value);
+      this._onChange(key, this.persistent[key]);
     }
   },
 
@@ -184,6 +249,8 @@ const GameState = {
     if (this.persistent.secret_area_found && this.persistent.door_unlocked && this.persistent.observer_unlocked) {
       this.advancePhase(FORK_CONFIG.PHASES.FORK);
     }
+
+    this.save();
   },
 
   /** Debug: imprime estado atual */
@@ -191,3 +258,5 @@ const GameState = {
     console.table(this.persistent);
   },
 };
+
+GameState.load();
