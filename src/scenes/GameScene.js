@@ -47,6 +47,9 @@ class GameScene extends Phaser.Scene {
 
     this._objects = [];
     this._lastCorruptionLevel = -1;
+    this._isPaused = false;
+    this._pauseOverlay = null;
+    this._hardCorruption = false;
     this._buildObjects();
 
     this.player = new Player(this, 200, 300);
@@ -56,10 +59,6 @@ class GameScene extends Phaser.Scene {
     });
 
     this._buildHUD();
-    this._saveKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-    this._saveKey.on('down', () => {
-      if (GameState.save()) this._setSystemMessage('SAVE COMPLETE — LOCAL STATE STORED.');
-    });
 
     this.cameras.main.setBounds(0, 0, W, H);
     this.cameras.main.startFollow(this.player.getPhysicsBody(), true, 0.1, 0.1);
@@ -68,11 +67,52 @@ class GameScene extends Phaser.Scene {
     this.loopManager.start();
     this._showLoopStart();
 
-    this.input.on('pointerdown', (ptr) => this._handleClick(ptr));
+    this.input.keyboard.addCapture([
+      Phaser.Input.Keyboard.KeyCodes.ESC,
+      Phaser.Input.Keyboard.KeyCodes.P
+    ]);
+
+    this._pauseKeyHandler = (event) => {
+      if (event.keyCode !== Phaser.Input.Keyboard.KeyCodes.ESC &&
+          event.keyCode !== Phaser.Input.Keyboard.KeyCodes.P) return;
+
+      if (this._hardCorruption) return;
+      if (GameState.volatile.dialog_open ||
+          GameState.volatile.terminal_open ||
+          GameState.volatile.modal_open) return;
+
+      event.preventDefault();
+      if (this._isPaused) this._closePause();
+      else this._openPause();
+    };
+
+    this.input.keyboard.on('keydown', this._pauseKeyHandler);
+
+    this.events.once('shutdown', () => {
+      if (this._pauseKeyHandler) {
+        this.input.keyboard.off('keydown', this._pauseKeyHandler);
+      }
+    });
+
+    this.input.on('pointerdown', (ptr) => {
+      if (this._isPaused || this._hardCorruption) return;
+      this._handleClick(ptr);
+    });
   }
 
   update(time, delta) {
     if (!this.player) return;
+
+    if (this._hardCorruption) {
+      this._updateHUD();
+      return;
+    }
+
+    if (this._isPaused) {
+      this._updateHUD();
+      return;
+    }
+
     this.loopManager.update(delta);
     if (this.loopManager.isCritical()) {
       this._updateCriticalAlert();
@@ -83,12 +123,6 @@ class GameScene extends Phaser.Scene {
     const selectedObject = this.player.getNearestObject();
     this._objects.forEach(obj => obj.update(this.player.x, this.player.y, selectedObject));
     this._updateCorruptionEffects();
-
-    if (GameState.get('restore_requested')) {
-      GameState.set('restore_requested', false);
-      this.time.delayedCall(80, () => this.scene.restart());
-      return;
-    }
 
     this._updateHUD();
   }
@@ -115,6 +149,207 @@ class GameScene extends Phaser.Scene {
         ease: 'Sine.easeInOut',
       });
     }
+  }
+
+  // ── Pause ──────────────────────────────────────────────────
+
+  _openPause() {
+    if (this._isPaused || this._hardCorruption) return;
+
+    this._isPaused = true;
+    this.loopManager.pause();
+    GameState.volatile.modal_open = true;
+
+    const W = FORK_CONFIG.WIDTH;
+    const H = FORK_CONFIG.HEIGHT;
+    const C = FORK_CONFIG.COLORS;
+    const F = FORK_CONFIG.FONT;
+
+    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.82)
+      .setOrigin(0, 0)
+      .setScrollFactor(0)
+      .setDepth(150)
+      .setInteractive();
+
+    const box = this.add.rectangle(W / 2, H / 2, 470, 330, C.TERMINAL_BG, 0.99)
+      .setStrokeStyle(1, C.ACCENT_DIM)
+      .setScrollFactor(0)
+      .setDepth(151);
+
+    const title = this.add.text(W / 2, H / 2 - 125, '// PAUSE', {
+      fontFamily: F.FAMILY_TITLE,
+      fontSize: '30px',
+      color: F.COLOR_BRIGHT,
+      shadow: { offsetX: 0, offsetY: 0, color: F.COLOR_PRIMARY, blur: 12, fill: true },
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(152);
+
+    const status = this.add.text(W / 2, H / 2 - 82, 'LOOP CONGELADO // TEMPO PARADO', {
+      fontFamily: F.FAMILY,
+      fontSize: '10px',
+      color: F.COLOR_DIM,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(152);
+
+    const items = [
+      ['> CONTINUAR', () => this._closePause()],
+      ['> CONFIGURAÇÕES', () => this._openPauseSettings()],
+      ['> VOLTAR AO MENU', () => this._returnToMenuFromPause()],
+    ];
+
+    const buttons = items.map(([label, action], i) => {
+      const b = this.add.text(W / 2, H / 2 - 25 + i * 55, label, {
+        fontFamily: F.FAMILY,
+        fontSize: '17px',
+        color: F.COLOR_PRIMARY,
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(152).setInteractive({ useHandCursor: true });
+      b.on('pointerover', () => { b.setColor(F.COLOR_WHITE); b.setScale(1.04); });
+      b.on('pointerout', () => { if (!this._pauseButtonLocked) { b.setColor(F.COLOR_PRIMARY); b.setScale(1); } });
+      b.on('pointerdown', action);
+      return b;
+    });
+
+    const close = this.add.text(W / 2, H / 2 + 122, '[ ESC / P ]', {
+      fontFamily: F.FAMILY,
+      fontSize: '10px',
+      color: F.COLOR_DIM,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(152);
+
+    this._pauseOverlay = {
+      overlay, box, title, status, buttons, close,
+      settings: null,
+      selectedIndex: 0,
+      keyHandler: null,
+    };
+
+    const updateSelection = () => {
+      if (!this._pauseOverlay || this._pauseOverlay.settings) return;
+      buttons.forEach((b, i) => {
+        const selected = i === this._pauseOverlay.selectedIndex;
+        b.setColor(selected ? F.COLOR_WHITE : F.COLOR_PRIMARY);
+        b.setScale(selected ? 1.05 : 1);
+        b.setShadow(0, 0, selected ? F.COLOR_BRIGHT : F.COLOR_PRIMARY, selected ? 16 : 7, true, true);
+      });
+    };
+
+    this._pauseOverlay.keyHandler = (event) => {
+      if (!this._pauseOverlay || this._pauseOverlay.settings) return;
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        this._pauseOverlay.selectedIndex = (this._pauseOverlay.selectedIndex + 2) % 3;
+        updateSelection();
+      } else if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        this._pauseOverlay.selectedIndex = (this._pauseOverlay.selectedIndex + 1) % 3;
+        updateSelection();
+      } else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER) {
+        event.preventDefault();
+        items[this._pauseOverlay.selectedIndex][1]();
+      }
+    };
+
+    this.input.keyboard.on('keydown', this._pauseOverlay.keyHandler);
+    overlay.on('pointerdown', () => this._closePause());
+    updateSelection();
+  }
+
+  _closePause() {
+    const p = this._pauseOverlay;
+    if (!p || p.settings) return;
+
+    this._isPaused = false;
+    this.loopManager.resume();
+    GameState.volatile.modal_open = false;
+
+    if (p.keyHandler) this.input.keyboard.off('keydown', p.keyHandler);
+    [p.overlay, p.box, p.title, p.status, ...p.buttons, p.close].forEach(o => o && o.destroy());
+    this._pauseOverlay = null;
+    this._pauseButtonLocked = false;
+  }
+
+  _openPauseSettings() {
+    const p = this._pauseOverlay;
+    if (!p || p.settings) return;
+
+    const W = FORK_CONFIG.WIDTH;
+    const H = FORK_CONFIG.HEIGHT;
+    const C = FORK_CONFIG.COLORS;
+    const F = FORK_CONFIG.FONT;
+    const A = window.AudioManagerInstance;
+
+    [p.box, p.title, p.status, ...p.buttons, p.close].forEach(o => o.setVisible(false));
+
+    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.90)
+      .setOrigin(0, 0).setScrollFactor(0).setDepth(153).setInteractive();
+
+    const box = this.add.rectangle(W / 2, H / 2, 520, 360, C.TERMINAL_BG, 0.99)
+      .setStrokeStyle(1, C.ACCENT_DIM).setScrollFactor(0).setDepth(154);
+
+    const title = this.add.text(W / 2, H / 2 - 132, '// CONFIGURAÇÕES', {
+      fontFamily: F.FAMILY_TITLE, fontSize: '26px', color: F.COLOR_BRIGHT,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(155);
+
+    const volume = this.add.text(W / 2, H / 2 - 65, '', {
+      fontFamily: F.FAMILY, fontSize: '14px', color: F.COLOR_SYSTEM,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(155);
+
+    const mute = this.add.text(W / 2, H / 2 - 15, '', {
+      fontFamily: F.FAMILY, fontSize: '15px', color: F.COLOR_PRIMARY,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(155).setInteractive({ useHandCursor: true });
+
+    const back = this.add.text(W / 2, H / 2 + 55, '> VOLTAR', {
+      fontFamily: F.FAMILY, fontSize: '16px', color: F.COLOR_PRIMARY,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(155).setInteractive({ useHandCursor: true });
+
+    const hint = this.add.text(W / 2, H / 2 + 112, '[ ← / → ] VOLUME   [ M ] MUTE   [ ESC ] VOLTAR', {
+      fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(155);
+
+    const update = () => {
+      const pct = A.getVolumePercent();
+      volume.setText('VOLUME DOS SONS  //  ' + String(pct).padStart(3, '0') + '%');
+      mute.setText(A.isMuted() ? '[ SOM: MUTADO ]' : '[ SOM: ATIVO ]');
+    };
+
+    const closeSettings = () => {
+      if (!p.settings) return;
+      this.input.keyboard.off('keydown', keyHandler);
+      [overlay, box, title, volume, mute, back, hint].forEach(o => o.destroy());
+      [p.box, p.title, p.status, ...p.buttons, p.close].forEach(o => o.setVisible(true));
+      p.settings = null;
+      this._pauseButtonLocked = false;
+      this._pauseOverlay.keyHandler && this.input.keyboard.on('keydown', this._pauseOverlay.keyHandler);
+    };
+
+    const keyHandler = (event) => {
+      if (!p.settings) return;
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault(); A.changeVolume(-0.1); update();
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault(); A.changeVolume(0.1); A.playBeep(); update();
+      } else if (event.key.toLowerCase() === 'm') {
+        event.preventDefault(); A.toggleMute(); update();
+      } else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ESC) {
+        event.preventDefault(); closeSettings();
+      } else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER) {
+        event.preventDefault(); A.toggleMute(); update();
+      }
+    };
+
+    mute.on('pointerdown', () => { A.toggleMute(); update(); });
+    back.on('pointerdown', closeSettings);
+    overlay.on('pointerdown', closeSettings);
+
+    p.settings = { overlay, box, title, volume, mute, back, hint };
+    this._pauseButtonLocked = true;
+    update();
+    this.input.keyboard.off('keydown', p.keyHandler);
+    this.input.keyboard.on('keydown', keyHandler);
+  }
+
+  _returnToMenuFromPause() {
+    if (!this._pauseOverlay) return;
+    this.loopManager.stop();
+    GameState.volatile.modal_open = false;
+    this.scene.start('MenuScene');
   }
 
   // ── Mapa ──────────────────────────────────────────────────
@@ -1018,10 +1253,96 @@ class GameScene extends Phaser.Scene {
           title: level >= 3 ? 'SISTEMA // FALHA' : 'SISTEMA // AVISO',
         });
       }
+
+      if (level >= 5 && !this._hardCorruption) {
+        this._triggerHardCorruption();
+      }
     }
   }
 
-  _updateHUD() {
+  _triggerHardCorruption() {
+    if (this._hardCorruption) return;
+    this._hardCorruption = true;
+    this.loopManager.stop();
+    GameState.clearSave();
+    GameState.volatile.modal_open = true;
+
+    const W = FORK_CONFIG.WIDTH;
+    const H = FORK_CONFIG.HEIGHT;
+    const F = FORK_CONFIG.FONT;
+
+    this.cameras.main.shake(700, 0.012);
+    this.cameras.main.flash(500, 255, 60, 80, false);
+    if (window.AudioManagerInstance) window.AudioManagerInstance.playAlarm();
+
+    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.94)
+      .setOrigin(0, 0).setDepth(300).setScrollFactor(0);
+
+    const title = this.add.text(W / 2, H / 2 - 110, 'SYSTEM CORRUPTED', {
+      fontFamily: F.FAMILY_TITLE, fontSize: '34px', color: '#ff9aa6',
+      shadow: { offsetX: 0, offsetY: 0, color: '#ff6678', blur: 16, fill: true },
+    }).setOrigin(0.5).setDepth(301).setScrollFactor(0);
+
+    const body = this.add.text(W / 2, H / 2 - 40, [
+      'CRITICAL INTEGRITY FAILURE',
+      '',
+      'The simulation can no longer be restored.',
+      'No recovery save exists.',
+      '',
+      'ALL SESSION STATE HAS BEEN LOST.',
+      '',
+      '// RESTART THE GAME TO BEGIN AGAIN.',
+    ].join('\n'), {
+      fontFamily: F.FAMILY,
+      fontSize: '13px',
+      color: F.COLOR_SYSTEM,
+      align: 'center',
+      lineSpacing: 7,
+      wordWrap: { width: 650 },
+    }).setOrigin(0.5).setDepth(301).setScrollFactor(0);
+
+    const restart = this.add.text(W / 2, H / 2 + 110, '[ REINICIAR JOGO ]', {
+      fontFamily: F.FAMILY,
+      fontSize: '15px',
+      color: F.COLOR_PRIMARY,
+    }).setOrigin(0.5).setDepth(301).setScrollFactor(0).setInteractive({ useHandCursor: true });
+
+    restart.on('pointerover', () => restart.setColor(F.COLOR_WHITE).setScale(1.05));
+    restart.on('pointerout', () => restart.setColor(F.COLOR_PRIMARY).setScale(1));
+    restart.on('pointerdown', () => {
+      GameState.clearSave();
+      GameState.persistent = {
+        loop_count: 0,
+        phase: FORK_CONFIG.PHASES.AWAKENING,
+        memory_code_found: false,
+        observer_unlocked: false,
+        identity_fragment_found: false,
+        fork_sequence_complete: false,
+        log07_deleted: false,
+        server_rebooted: false,
+        door_unlocked: false,
+        secret_area_found: false,
+        entity_trust: 0,
+        system_awareness: 0,
+        butterfly_steps: [],
+        player_identity_known: false,
+        escape_attempted: false,
+        commands_executed: [],
+        puzzles_solved: [],
+        ending_flags: {},
+        clear_count: 0,
+        corruption_level: 0,
+        filesystem_wiped: false,
+        system_notes_read: false,
+        restore_requested: false,
+        system_restored: false,
+      };
+      GameState.resetVolatile();
+      this.scene.start('MenuScene');
+    });
+  }
+
+  _updateHUD {
     const loop      = GameState.get('loop_count');
     const time      = this.loopManager.getFormattedTime();
     const progress  = this.loopManager.getProgress();
