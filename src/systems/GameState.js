@@ -162,16 +162,20 @@ const GameState = {
   /** Registra o efeito borboleta de limpar o terminal. */
   registerClear() {
     this.persistent.clear_count += 1;
-    this.persistent.corruption_level = Math.min(5, this.persistent.corruption_level + 1);
+
+    // Os dois primeiros CLEARs corrompem apenas elementos decorativos.
+    // A partir do terceiro, a simulação começa a perder elementos relevantes.
+    this.persistent.corruption_level = Math.min(5, this.persistent.clear_count);
 
     const step = 'clear_' + this.persistent.clear_count;
     this.addButterflyStep(step);
 
-    if (this.persistent.corruption_level >= 3) {
+    if (this.persistent.clear_count >= 3) {
       this.persistent.system_awareness = Math.min(5, this.persistent.system_awareness + 1);
     }
 
     this.save();
+    return this.persistent.corruption_level;
   },
 
   /** Apaga o sistema de arquivos e força a simulação a entrar em corrupção. */
