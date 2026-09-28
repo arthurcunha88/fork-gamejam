@@ -13,11 +13,13 @@ class AudioManager {
     this._ambient = null;
     this._boundInput = false;
     this._lastInputAt = 0;
-    this._loadSettings();
+    this._settingsLoaded = false;
     this._bindGlobalInput();
   }
 
   _loadSettings() {
+    if (this._settingsLoaded) return;
+    this._settingsLoaded = true;
     try {
       const raw = window.localStorage.getItem('fork_audio_settings_v1');
       if (!raw) return;
@@ -45,14 +47,17 @@ class AudioManager {
   }
 
   getVolumePercent() {
+    this._loadSettings();
     return Math.round(this.volume * 100);
   }
 
   isMuted() {
+    this._loadSettings();
     return this.muted;
   }
 
   setVolume(value) {
+    this._loadSettings();
     this.volume = Math.max(0, Math.min(1, Number(value) || 0));
     if (this.volume > 0 && this.muted) this.muted = false;
     this._syncMaster();
@@ -65,6 +70,7 @@ class AudioManager {
   }
 
   setMuted(value) {
+    this._loadSettings();
     this.muted = !!value;
     this._syncMaster();
     this._saveSettings();
@@ -245,4 +251,27 @@ class AudioManager {
   }
 }
 
-window.AudioManagerInstance = new AudioManager();
+try {
+  window.AudioManagerInstance = new AudioManager();
+} catch (error) {
+  console.warn('[FORK] Audio disabled:', error);
+  window.AudioManagerInstance = {
+    getVolumePercent: () => 100,
+    isMuted: () => false,
+    setVolume: () => 100,
+    changeVolume: () => 100,
+    setMuted: () => false,
+    toggleMute: () => false,
+    playBeep: () => {},
+    playInterfaceClick: () => {},
+    playKey: () => {},
+    playType: () => {},
+    playSuccess: () => {},
+    playError: () => {},
+    playDoor: () => {},
+    playReset: () => {},
+    playAlarm: () => {},
+    playAmbient: () => {},
+    stopAmbient: () => {},
+  };
+}
