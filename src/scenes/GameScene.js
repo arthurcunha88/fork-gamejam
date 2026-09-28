@@ -105,11 +105,11 @@ class GameScene extends Phaser.Scene {
     });
 
     const labelStyle = {
-      fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: '#00ff41',
-      shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:10, fill:true }
+      fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: '#7ed6ff',
+      shadow: { offsetX:0, offsetY:0, color:'#3c8eac', blur:10, fill:true }
     };
     this.add.text(120, 62, '// MAIN LAB', labelStyle).setDepth(1);
-    this.add.text(672, 62, '// CONTROL ROOM', labelStyle).setDepth(1);
+    this.add.text(672, 62, '// SERVER ROOM // LOCKED', labelStyle).setDepth(1);
 
     // A passagem agora parece uma entrada real, não apenas um buraco na parede.
     const entranceX = 780;
@@ -121,14 +121,14 @@ class GameScene extends Phaser.Scene {
     const entranceText = this.add.text(780, 266, 'ENTRADA // CONTROL ROOM', {
       fontFamily: F.FAMILY_TITLE,
       fontSize: '13px',
-      color: '#39ff14',
-      shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:8, fill:true },
+      color: '#9be8ff',
+      shadow: { offsetX:0, offsetY:0, color:'#4a9ab8', blur:8, fill:true },
     }).setOrigin(0.5, 0).setDepth(2);
 
-    this.add.text(780, 286, '↓  ACESSO AO SERVIDOR A', {
+    this.add.text(780, 286, '↓  PORTA FECHADA // CÓDIGO NECESSÁRIO', {
       fontFamily: F.FAMILY,
       fontSize: '10px',
-      color: '#33aa33',
+      color: '#6d9aaa';
     }).setOrigin(0.5, 0).setDepth(2);
 
     this.tweens.add({
@@ -247,6 +247,15 @@ class GameScene extends Phaser.Scene {
       this.physics.add.existing(rect, true);
       this._wallRects.push(rect);
     });
+
+    // A abertura da sala do servidor só existe fisicamente depois do código.
+    if (isSecondary && x === 660 && y === 50 && !GameState.get('door_unlocked')) {
+      this._controlRoomGate = this.add.rectangle(780, 250, 72, thick, 0x111a22, 0.96)
+        .setStrokeStyle(2, 0x9be8ff, 0.8)
+        .setDepth(4);
+      this.physics.add.existing(this._controlRoomGate, true);
+      this._controlRoomGate.body.setSize(72, thick);
+    }
   }
 
   // ── Objetos interativos ───────────────────────────────────
@@ -262,10 +271,10 @@ class GameScene extends Phaser.Scene {
     });
     this._objects.push(terminal);
 
-    const door = new InteractiveObject(this, 878, 300, {
+    const door = new InteractiveObject(this, 780, 250, {
       id: 'door_security', type: FORK_CONFIG.OBJECT_TYPES.DOOR,
-      label: 'SECURITY DOOR', width: 16, height: 60,
-      color: GameState.get('door_unlocked') ? C.ACCENT : C.DANGER,
+      label: GameState.get('door_unlocked') ? 'PORTA // ABERTA' : 'PORTA // FECHADA', width: 58, height: 12,
+      color: GameState.get('door_unlocked') ? C.ACCENT : 0x36424c,
       onInteract: (obj) => this._interactDoor(obj),
     });
     this._objects.push(door);
@@ -273,6 +282,7 @@ class GameScene extends Phaser.Scene {
     const server = new InteractiveObject(this, 750, 130, {
       id: 'server_main', type: FORK_CONFIG.OBJECT_TYPES.SERVER,
       label: 'SERVER A', width: 36, height: 52,
+      enabled: GameState.get('door_unlocked'),
       color: C.ACCENT_DIM,
       onInteract: () => this._interactServer(),
     });
@@ -281,6 +291,7 @@ class GameScene extends Phaser.Scene {
     const panel = new InteractiveObject(this, 820, 130, {
       id: 'panel_sequence', type: FORK_CONFIG.OBJECT_TYPES.PANEL,
       label: 'PANEL', width: 28, height: 28,
+      enabled: GameState.get('door_unlocked'),
       color: C.ACCENT_DIM,
       onInteract: () => this._interactPanel(),
     });
@@ -313,22 +324,23 @@ class GameScene extends Phaser.Scene {
     // Elementos sem importância narrativa: servem para a simulação parecer
     // habitada e são os primeiros a desaparecer com CLEAR.
     const decor = [
-      ['cabinet_01', 330, 115, 'ARMÁRIO A', 42, 58],
-      ['cabinet_02', 410, 115, 'ARMÁRIO B', 42, 58],
-      ['monitor_01', 330, 190, 'MONITOR 01', 38, 24],
-      ['monitor_02', 410, 190, 'MONITOR 02', 38, 24],
-      ['rack_01', 300, 500, 'RACK AUX', 44, 52],
-      ['monitor_03', 390, 500, 'MONITOR 03', 38, 24],
+      ['cabinet_01', 330, 115, 'ARMÁRIO A', 46, 64, 'cabinet'],
+      ['cabinet_02', 410, 115, 'ARMÁRIO B', 46, 64, 'cabinet'],
+      ['monitor_01', 330, 190, 'MONITOR 01', 46, 30, 'monitor'],
+      ['monitor_02', 410, 190, 'MONITOR 02', 46, 30, 'monitor'],
+      ['rack_01', 300, 500, 'RACK AUX', 50, 56, 'rack'],
+      ['monitor_03', 390, 500, 'MONITOR 03', 46, 30, 'monitor'],
     ];
 
-    decor.forEach(([id, x, y, label, width, height]) => {
+    decor.forEach(([id, x, y, label, width, height, visual]) => {
       const object = new InteractiveObject(this, x, y, {
         id,
         type: FORK_CONFIG.OBJECT_TYPES.OBJECT,
         label,
         width,
         height,
-        color: 0x07300f,
+        visual,
+        color: 0x26313b,
         onInteract: () => this.dialogManager.show([
           label,
           'Equipamento auxiliar.',
@@ -453,7 +465,7 @@ class GameScene extends Phaser.Scene {
           'ACESSO CONCEDIDO.',
           'Mas algo te impede.',
           'Ainda não é hora.',
-        ], { title: 'SECURITY DOOR' });
+        ], { title: 'PORTA DE SEGURANÇA' });
       }
     } else { this._showCodePuzzle(); }
   }
@@ -478,13 +490,46 @@ class GameScene extends Phaser.Scene {
 
   _showCodeInput() {
     this.uiManager.openCodeInput({
-      title: '// SECURITY DOOR — ACCESS CODE',
+      title: '// PORTA DE SEGURANÇA — CÓDIGO DE ACESSO',
       length: 4,
       validator: value => this.puzzleManager.checkAnswer(FORK_CONFIG.PUZZLES.DOOR_CODE, value),
       onSuccess: () => {
         if (window.AudioManagerInstance) window.AudioManagerInstance.playDoor();
-        this.animationManager.doorOpen(878, 300);
-        this._setSystemMessage('DOOR UNLOCKED — proceed with caution');
+
+        if (this._controlRoomGate) {
+          this.tweens.add({
+            targets: this._controlRoomGate,
+            alpha: 0,
+            scaleX: 0.05,
+            duration: 420,
+            ease: 'Power2',
+            onComplete: () => {
+              if (this._controlRoomGate.body) this._controlRoomGate.body.enable = false;
+              this._controlRoomGate.setVisible(false);
+            },
+          });
+        }
+
+        const doorObj = this._objects.find(o => o.id === 'door_security');
+        if (doorObj) {
+          doorObj._label.setText('PORTA // ABERTA');
+          doorObj._body.clear();
+          doorObj._body.fillStyle(0x1a3540, 0.72);
+          doorObj._body.fillRoundedRect(780 - 29, 250 - 6, 58, 12, 4);
+          doorObj._body.lineStyle(2, FORK_CONFIG.COLORS.ACCENT_BRIGHT, 0.95);
+          doorObj._body.strokeRoundedRect(780 - 29, 250 - 6, 58, 12, 4);
+          doorObj.setEnabled(true);
+        }
+
+        ['server_main', 'panel_sequence'].forEach(id => {
+          const obj = this._objects.find(o => o.id === id);
+          if (obj) obj.setEnabled(true);
+        });
+
+        this.animationManager.doorOpen(780, 250);
+        this.cameras.main.flash(180, 90, 220, 255, false);
+        this.cameras.main.shake(220, 0.004);
+        this._setSystemMessage('PORTA ABERTA // SALA DO SERVIDOR LIBERADA');
         this.time.delayedCall(450, () => {
           this.dialogManager.show([
             'ACESSO CONCEDIDO.',
@@ -520,8 +565,8 @@ class GameScene extends Phaser.Scene {
 
   _showSequencePuzzle() {
     this.uiManager.openSequence({
-      title: '// SERVER SEQUENCE',
-      items: ['A', 'B', 'C', 'D'],
+      title: '// SERVER SEQUENCE // PULSES',
+      items: ['D', 'C', 'B', 'A'],
       validator: answer => this.puzzleManager.checkAnswer(
         FORK_CONFIG.PUZZLES.SERVER_SEQUENCE,
         answer
@@ -789,14 +834,8 @@ class GameScene extends Phaser.Scene {
     }
 
     this._objects.forEach(obj => {
-      if (ids.includes(obj.id)) {
-        obj.setEnabled(false);
-        this.tweens.add({
-          targets: [obj._body, obj._label, obj._icon],
-          alpha: 0,
-          duration: 260,
-          ease: 'Power2',
-        });
+      if (ids.includes(obj.id) && obj.enabled) {
+        obj.removeFromSimulation();
       }
     });
 
@@ -813,13 +852,13 @@ class GameScene extends Phaser.Scene {
         ],
         2: [
           'ALERTA: a limpeza está ficando intensa.',
-          'Objetos auxiliares estão sumindo diante dos seus olhos.',
-          'O sistema não está apenas limpando o terminal.',
+          'Os equipamentos estão sendo removidos da sala diante dos seus olhos.',
+          'O CLEAR está apagando objetos físicos da simulação.',
         ],
         3: [
           'ERRO: a corrupção alcançou o ambiente.',
           'A simulação está apagando partes que você não escolheu remover.',
-          'Pare de usar CLEAR. As consequências estão se espalhando.',
+          'Pare de usar CLEAR. A limpeza atravessou a interface e chegou ao ambiente.',
         ],
         4: [
           'FALHA DE INTEGRIDADE: elementos da investigação desapareceram.',
