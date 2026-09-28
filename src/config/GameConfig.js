@@ -36,15 +36,19 @@ const FORK_CONFIG = {
 
   // Fonte padrão do jogo
   FONT: {
-    FAMILY: '"Courier New", Courier, monospace',
-    COLOR_PRIMARY:  '#00ff41',
-    COLOR_DIM:      '#1a4d1a',
-    COLOR_MID:      '#33aa33',
-    COLOR_SYSTEM:   '#00cc33',
-    COLOR_BRIGHT:   '#39ff14',
-    COLOR_DANGER:   '#ff2244',
-    COLOR_WARNING:  '#ffaa00',
-    COLOR_WHITE:    '#ffffff',
+    // Share Tech Mono — texto de terminal, HUD, diálogos, labels do mapa
+    FAMILY:       "'Share Tech Mono', 'Courier New', monospace",
+    // VT323 — títulos grandes, FORK logo, tela de reset, finais
+    FAMILY_TITLE: "'VT323', 'Share Tech Mono', monospace",
+
+    COLOR_PRIMARY:  '#00ff41',   // verde matrix principal
+    COLOR_DIM:      '#1a4d1a',   // verde escuro (labels secundários)
+    COLOR_MID:      '#33aa33',   // verde médio (subtítulos, labels mapa)
+    COLOR_SYSTEM:   '#00cc33',   // verde sistema (diálogos, prompts)
+    COLOR_BRIGHT:   '#39ff14',   // verde neon vivo (destaques, hover)
+    COLOR_DANGER:   '#ff2244',   // vermelho perigo
+    COLOR_WARNING:  '#ffaa00',   // amarelo alerta
+    COLOR_WHITE:    '#ffffff',   // branco puro
   },
 
   // Velocidade do player

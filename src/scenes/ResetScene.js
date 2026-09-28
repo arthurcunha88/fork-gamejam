@@ -26,12 +26,12 @@ class ResetScene extends Phaser.Scene {
 
     // Sequência de reset
     const sequence = [
-      { delay: 0,    text: 'SYSTEM RESETTING...',              color: FORK_CONFIG.FONT.COLOR_DANGER, size: '20px' },
-      { delay: 600,  text: `LOOP ${loopNum} COMPLETE`,         color: FORK_CONFIG.FONT.COLOR_DIM, size: '13px' },
-      { delay: 1200, text: 'Saving state...',                  color: FORK_CONFIG.FONT.COLOR_DIM, size: '12px' },
-      { delay: 1600, text: 'Clearing volatile memory...',      color: FORK_CONFIG.FONT.COLOR_DIM, size: '12px' },
-      { delay: 2000, text: 'Persistent variables: preserved.', color: FORK_CONFIG.FONT.COLOR_MID, size: '12px' },
-      { delay: 2500, text: `LOOP ${loopNum + 1} INITIALIZING...`, color: FORK_CONFIG.FONT.COLOR_PRIMARY, size: '16px' },
+      { delay: 0,    text: 'SYSTEM RESETTING...',              color: FORK_CONFIG.FONT.COLOR_DANGER, size: '28px' },
+      { delay: 600,  text: `LOOP ${loopNum} COMPLETE`,         color: FORK_CONFIG.FONT.COLOR_DIM, size: '16px' },
+      { delay: 1200, text: 'Saving state...',                  color: FORK_CONFIG.FONT.COLOR_DIM, size: '15px' },
+      { delay: 1600, text: 'Clearing volatile memory...',      color: FORK_CONFIG.FONT.COLOR_DIM, size: '15px' },
+      { delay: 2000, text: 'Persistent variables: preserved.', color: FORK_CONFIG.FONT.COLOR_MID, size: '15px' },
+      { delay: 2500, text: `LOOP ${loopNum + 1} INITIALIZING...`, color: FORK_CONFIG.FONT.COLOR_PRIMARY, size: '22px' },
     ];
 
     // Mensagem especial se sistema está consciente

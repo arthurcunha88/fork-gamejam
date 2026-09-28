@@ -79,13 +79,13 @@ class GameScene extends Phaser.Scene {
     gfx.strokePath();
 
     // Labels das salas — agora visíveis com verde médio
-    const labelStyle = { fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_MID };
+    const labelStyle = { fontFamily: F.FAMILY_TITLE, fontSize: '18px', color: F.COLOR_MID };
     this.add.text(120, 62,  '// MAIN LAB',     labelStyle).setDepth(1);
     this.add.text(672, 62,  '// CONTROL ROOM', labelStyle).setDepth(1);
     this.add.text(72,  400, '// STORAGE',      labelStyle).setDepth(1);
 
     // Decoração extra: coordenadas dos cantos
-    const dimStyle = { fontFamily: F.FAMILY, fontSize: '8px', color: F.COLOR_DIM };
+    const dimStyle = { fontFamily: F.FAMILY, fontSize: '9px', color: F.COLOR_DIM };
     this.add.text(65,  55,  '[00,00]', dimStyle).setDepth(1);
     this.add.text(860, 55,  '[10,00]', dimStyle).setOrigin(1,0).setDepth(1);
     this.add.text(65,  575, '[00,06]', dimStyle).setDepth(1);
@@ -259,11 +259,11 @@ class GameScene extends Phaser.Scene {
 
     const overlay  = this.add.rectangle(0, 0, W, H, 0x000000, 0.8).setOrigin(0, 0);
     const box      = this.add.rectangle(W/2, H/2, 340, 210, C.TERMINAL_BG, 0.98).setStrokeStyle(1, C.ACCENT_DIM);
-    const titleLbl = this.add.text(W/2, H/2 - 82, '// SECURITY DOOR — ACCESS CODE', { fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_DIM }).setOrigin(0.5, 0);
-    const prompt   = this.add.text(W/2, H/2 - 56, 'Enter 4-digit access code:', { fontFamily: F.FAMILY, fontSize: '13px', color: F.COLOR_SYSTEM }).setOrigin(0.5, 0);
+    const titleLbl = this.add.text(W/2, H/2 - 82, '// SECURITY DOOR — ACCESS CODE', { fontFamily: F.FAMILY_TITLE, fontSize: '18px', color: F.COLOR_DIM }).setOrigin(0.5, 0);
+    const prompt   = this.add.text(W/2, H/2 - 56, 'Enter 4-digit access code:', { fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: F.COLOR_SYSTEM }).setOrigin(0.5, 0);
 
     let code = '';
-    const codeDisplay = this.add.text(W/2, H/2 - 18, '_ _ _ _', { fontFamily: F.FAMILY, fontSize: '30px', color: F.COLOR_PRIMARY, letterSpacing: 8 }).setOrigin(0.5, 0);
+    const codeDisplay = this.add.text(W/2, H/2 - 18, '_ _ _ _', { fontFamily: F.FAMILY_TITLE, fontSize: '52px', color: F.COLOR_PRIMARY, letterSpacing: 8 }).setOrigin(0.5, 0);
     const feedback    = this.add.text(W/2, H/2 + 42, '', { fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_DANGER }).setOrigin(0.5, 0);
     const hint        = this.add.text(W/2, H/2 + 66, '[ ESC ] Cancel', { fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM }).setOrigin(0.5, 0);
 
@@ -318,8 +318,8 @@ class GameScene extends Phaser.Scene {
     const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.8).setOrigin(0, 0);
     const box     = this.add.rectangle(W/2, H/2, 420, 290, C.TERMINAL_BG, 0.98).setStrokeStyle(1, C.ACCENT_DIM);
 
-    this.add.text(W/2, H/2 - 120, '// SERVER SEQUENCE', { fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_DIM }).setOrigin(0.5, 0);
-    this.add.text(W/2, H/2 - 96,  'Activate panels in the correct order:', { fontFamily: F.FAMILY, fontSize: '12px', color: F.COLOR_SYSTEM }).setOrigin(0.5, 0);
+    this.add.text(W/2, H/2 - 120, '// SERVER SEQUENCE', { fontFamily: F.FAMILY_TITLE, fontSize: '18px', color: F.COLOR_DIM }).setOrigin(0.5, 0);
+    this.add.text(W/2, H/2 - 96,  'Activate panels in the correct order:', { fontFamily: F.FAMILY_TITLE, fontSize: '18px', color: F.COLOR_SYSTEM }).setOrigin(0.5, 0);
     container.add([overlay, box]);
 
     const panels   = ['A', 'B', 'C', 'D'];
@@ -333,7 +333,7 @@ class GameScene extends Phaser.Scene {
       const bx = W/2 - 90 + i * 60;
       const by = H/2 - 22;
       const btn = this.add.rectangle(bx, by, 44, 44, C.ACCENT_DIM, 0.3).setStrokeStyle(1, C.ACCENT_DIM).setInteractive({ useHandCursor: true });
-      const lbl = this.add.text(bx, by, p, { fontFamily: F.FAMILY, fontSize: '20px', color: F.COLOR_PRIMARY }).setOrigin(0.5, 0.5);
+      const lbl = this.add.text(bx, by, p, { fontFamily: F.FAMILY_TITLE, fontSize: '30px', color: F.COLOR_PRIMARY }).setOrigin(0.5, 0.5);
       container.add([btn, lbl]);
 
       btn.on('pointerover',  () => { if (!selected.includes(p)) btn.setFillStyle(C.ACCENT, 0.2); });
@@ -450,10 +450,10 @@ class GameScene extends Phaser.Scene {
     const sf = (obj) => { obj.setScrollFactor(0); return obj; };
 
     sf(this.add.rectangle(0, 0, W, 28, C.HIGHLIGHT, 0.96).setOrigin(0,0).setDepth(90));
-    sf(this.add.text(12, 7, 'FORK', { fontFamily: F.FAMILY, fontSize: '12px', color: F.COLOR_BRIGHT }).setDepth(91));
+    sf(this.add.text(12, 5, 'FORK', { fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: F.COLOR_BRIGHT }).setDepth(91));
 
-    this._hudLoop  = sf(this.add.text(W/2, 7, 'LOOP 01', { fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_MID }).setOrigin(0.5,0).setDepth(91));
-    this._hudTimer = sf(this.add.text(W-12, 7, 'TIME: 05:00', { fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_PRIMARY }).setOrigin(1,0).setDepth(91));
+    this._hudLoop  = sf(this.add.text(W/2, 4, 'LOOP 01', { fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: F.COLOR_MID }).setOrigin(0.5,0).setDepth(91));
+    this._hudTimer = sf(this.add.text(W-12, 4, 'TIME: 05:00', { fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: F.COLOR_PRIMARY }).setOrigin(1,0).setDepth(91));
     this._timerBar = sf(this.add.rectangle(0, 28, W, 3, C.ACCENT, 1).setOrigin(0,0).setDepth(91));
 
     sf(this.add.rectangle(0, H-22, W, 22, C.HIGHLIGHT, 0.92).setOrigin(0,0).setDepth(90));

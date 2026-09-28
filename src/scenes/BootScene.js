@@ -39,8 +39,8 @@ class BootScene extends Phaser.Scene {
     lines.forEach((line, i) => {
       this.time.delayedCall(delay, () => {
         this.add.text(W / 2, H / 2 - 80 + i * 20, line.t, {
-          fontFamily: FORK_CONFIG.FONT.FAMILY,
-          fontSize: '13px',
+          fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE,
+          fontSize: '20px',
           color: line.c,
         }).setOrigin(0.5, 0);
       });

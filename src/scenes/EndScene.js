@@ -128,7 +128,7 @@ class EndScene extends Phaser.Scene {
     });
 
     this._typeLines([
-      { text: 'PROJECT BUTTERFLY',                          color: FORK_CONFIG.FONT.COLOR_PRIMARY, delay: 0,    size: '18px' },
+      { text: 'PROJECT BUTTERFLY',                          color: FORK_CONFIG.FONT.COLOR_PRIMARY, delay: 0,    size: '28px' },
       { text: '──────────────────────────────────',         color: FORK_CONFIG.FONT.COLOR_DIM, delay: 600  },
       { text: 'OBJETIVO: Simular o efeito borboleta.',      color: FORK_CONFIG.FONT.COLOR_SYSTEM, delay: 1200 },
       { text: 'VARIÁVEL: comportamento do sujeito.',        color: FORK_CONFIG.FONT.COLOR_SYSTEM, delay: 2000 },
@@ -140,7 +140,7 @@ class EndScene extends Phaser.Scene {
       { text: '            to happen.',                     color: FORK_CONFIG.FONT.COLOR_DANGER, delay: 5900 },
       { text: '',                                           color: '#000',    delay: 6600 },
       { text: 'Parabéns.',                                  color: FORK_CONFIG.FONT.COLOR_PRIMARY, delay: 7200 },
-      { text: 'Você é a anomalia.',                         color: FORK_CONFIG.FONT.COLOR_PRIMARY, delay: 8000, size: '16px' },
+      { text: 'Você é a anomalia.',                         color: FORK_CONFIG.FONT.COLOR_PRIMARY, delay: 8000, size: '22px' },
     ], H / 2 - 140);
 
     this.time.delayedCall(9600, () => {

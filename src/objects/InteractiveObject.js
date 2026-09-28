@@ -26,19 +26,19 @@ class InteractiveObject {
 
     // Label
     this._label = scene.add.text(x, y - h / 2 - 8, this.label, {
-      fontFamily: FORK_CONFIG.FONT.FAMILY, fontSize: '9px', color: FORK_CONFIG.FONT.COLOR_DIM,
+      fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE, fontSize: '16px', color: FORK_CONFIG.FONT.COLOR_MID,
     }).setOrigin(0.5, 1).setDepth(6);
 
     // Ícone
     this._icon = scene.add.text(x, y, this._getTypeIcon(), {
-      fontFamily: FORK_CONFIG.FONT.FAMILY, fontSize: '11px', color: FORK_CONFIG.FONT.COLOR_MID,
+      fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE, fontSize: '16px', color: FORK_CONFIG.FONT.COLOR_MID,
     }).setOrigin(0.5, 0.5).setDepth(6);
 
     // Indicador [E] — começa invisível
     // FIX: posição inicial correta para o tween
     this._indicatorY = y - h / 2 - 20;
     this._indicator  = scene.add.text(x, this._indicatorY, '[E]', {
-      fontFamily: FORK_CONFIG.FONT.FAMILY, fontSize: '10px', color: FORK_CONFIG.FONT.COLOR_PRIMARY,
+      fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE, fontSize: '18px', color: FORK_CONFIG.FONT.COLOR_BRIGHT,
     }).setOrigin(0.5, 1).setDepth(7).setVisible(false);
 
     // FIX: hitbox usando zone + physics.add.existing em vez de staticImage sem texture

@@ -26,15 +26,15 @@ class MenuScene extends Phaser.Scene {
     // Título
     const titleY = H / 2 - 100;
     this.add.text(W / 2, titleY, 'F O R K', {
-      fontFamily: F.FAMILY,
-      fontSize: '60px',
+      fontFamily: F.FAMILY_TITLE,
+      fontSize: '90px',
       color: F.COLOR_BRIGHT,
       stroke: '#003300',
       strokeThickness: 2,
     }).setOrigin(0.5, 0);
 
     this.add.text(W / 2, titleY + 68, '[ ESCAPE ROOM  //  LOOP SYSTEM  //  BUTTERFLY EFFECT ]', {
-      fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM,
+      fontFamily: F.FAMILY_TITLE, fontSize: '16px', color: F.COLOR_DIM,
     }).setOrigin(0.5, 0);
 
     this.add.rectangle(W / 2, titleY + 88, 340, 1, C.ACCENT_DIM, 0.6).setOrigin(0.5, 0);
@@ -65,7 +65,7 @@ class MenuScene extends Phaser.Scene {
     const color = enabled ? F.COLOR_PRIMARY : F.COLOR_DIM;
 
     const btn = this.add.text(x, y, label, {
-      fontFamily: F.FAMILY, fontSize: '15px', color,
+      fontFamily: F.FAMILY_TITLE, fontSize: '22px', color,
     }).setOrigin(0.5, 0);
 
     if (enabled) {
