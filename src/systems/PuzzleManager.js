@@ -284,7 +284,9 @@ class PuzzleManager {
             },
             onExecute: () => {
               GameState.executeCommand('READ_SYSTEM_NOTES');
-              GameState.set('system_notes_read', true);
+              if (!GameState.get('filesystem_wiped') || GameState.get('system_notes_read')) {
+                GameState.set('system_notes_read', true);
+              }
             },
           },
 
