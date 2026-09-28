@@ -748,8 +748,13 @@ class GameScene extends Phaser.Scene {
 
     this.dialogManager.show([
       'PROJECT_B.enc — ENCRYPTED',
-      'Decryption key required.',
-      'Hint: the codename of the project.',
+      'A coordinate was left in the fragment:',
+      '',
+      'COORDINATE',
+      '-15.7939 / -47.8828',
+      '',
+      '// The key is the place.',
+      '// Do not enter the coordinates.',
     ], {
       title: 'SECRET FILE',
       onClose: () => this.uiManager.openWordInput({
@@ -763,10 +768,10 @@ class GameScene extends Phaser.Scene {
           this.animationManager.flash('success');
           this._setSystemMessage('PROJECT BUTTERFLY — FILE DECRYPTED');
           this.dialogManager.show([
-            'DECRYPTION SUCCESSFUL.',
-            'PROJECT BUTTERFLY',
-            'The simulation was built to study consequences.',
-            'A new directory appeared: /observer/',
+            'LOCATION IDENTIFIED.',
+            'BRASÍLIA // -15.7939 / -47.8828',
+            'A hidden directory has been mounted.',
+            '// The system did not expect you to look outside the simulation.',
           ], { title: 'PROJECT_B.enc' });
         },
       }),
@@ -852,7 +857,7 @@ class GameScene extends Phaser.Scene {
     if (GameState.get('identity_fragment_found')) {
       this.dialogManager.show([
         'IDENTITY FRAGMENT — ALREADY EXTRACTED.',
-        'SUBJECT: YOU.',
+        'ORIGIN: YOU.',
         '// The system predicted your escape attempt before you made it.',
       ], { title: 'IDENTITY' });
       return;
@@ -861,9 +866,9 @@ class GameScene extends Phaser.Scene {
     this.dialogManager.show([
       'IDENTITY FRAGMENT',
       'A label appears on the monitor:',
-      'SUBJECT',
-      '// The word feels familiar.',
-      '// Maybe because the system has used it for every loop.',
+      '01001111 01010010 01001001 01000111 01001001 01001110',
+      '// Six bytes. ASCII.',
+      '// Decode the label before the system does.',
     ], {
       title: 'IDENTITY',
       onClose: () => this.uiManager.openWordInput({
