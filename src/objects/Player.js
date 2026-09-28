@@ -144,6 +144,10 @@ class Player {
     return nearest;
   }
 
+  getNearestObject() {
+    return this._nearestObject;
+  }
+
   setPosition(x, y) {
     this._sprite.setPosition(x, y);
   }
