@@ -18,6 +18,7 @@ class MenuScene extends Phaser.Scene {
     this._drawGrid();
     this._drawMatrixRain();
     this._drawServerVisuals();
+    this._drawPixelButterfly(W / 2, 105);
 
     this.add.rectangle(0, 0, W, 30, C.HIGHLIGHT, 1).setOrigin(0, 0);
     this.add.text(14, 7, 'FORK OS  //  SIMULATION CORE  //  NETWORK ONLINE', {
@@ -162,6 +163,66 @@ class MenuScene extends Phaser.Scene {
     if (item && item.enabled) item.onClick();
   }
 
+  _drawPixelButterfly(cx, cy) {
+    const C = FORK_CONFIG.COLORS;
+    const g = this.add.graphics().setDepth(3);
+    const blocks = [
+      [-28,-18,18,12,C.PURPLE],[-42,-8,24,14,C.MAGENTA],[-48,7,18,12,C.ACCENT],
+      [10,-18,18,12,C.PURPLE],[18,-8,24,14,C.MAGENTA],[30,7,18,12,C.ACCENT],
+      [-34,22,22,9,C.PURPLE],[12,22,22,9,C.PURPLE],
+      [-5,-22,10,16,C.ORANGE],[-5,-5,10,18,C.GREEN],
+      [-11,-29,6,6,C.GREEN],[5,-29,6,6,C.GREEN],[-18,-38,5,5,C.ACCENT],[13,-38,5,5,C.ACCENT],
+    ];
+    blocks.forEach(([x,y,w,h,color]) => g.fillRect(cx+x, cy+y, w, h));
+
+    const glow = this.add.rectangle(cx, cy, 112, 86, C.PURPLE, 0)
+      .setStrokeStyle(1, C.PURPLE, 0.28).setDepth(2);
+    const core = this.add.rectangle(cx, cy - 2, 8, 8, C.WHITE, 0.9).setDepth(4);
+
+    this.tweens.add({
+      targets: g,
+      scaleX: { from: 0.92, to: 1.08 },
+      duration: 620,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+    this.tweens.add({
+      targets: [glow, core],
+      alpha: { from: 0.2, to: 0.9 },
+      scale: { from: 0.9, to: 1.12 },
+      duration: 900,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+
+    const colors = [C.ACCENT, C.MAGENTA, C.PURPLE, C.GREEN];
+    for (let i = 0; i < 12; i++) {
+      const p = this.add.rectangle(
+        cx + Phaser.Math.Between(-58, 58),
+        cy + Phaser.Math.Between(-42, 42),
+        Phaser.Math.Between(2, 4),
+        Phaser.Math.Between(2, 4),
+        colors[i % colors.length],
+        0.8
+      ).setDepth(4);
+      this.tweens.add({
+        targets: p,
+        y: p.y - Phaser.Math.Between(10, 28),
+        alpha: 0,
+        duration: Phaser.Math.Between(900, 1700),
+        delay: i * 90,
+        repeat: -1,
+        onRepeat: () => {
+          p.x = cx + Phaser.Math.Between(-58, 58);
+          p.y = cy + Phaser.Math.Between(-42, 42);
+          p.alpha = 0.8;
+        },
+      });
+    }
+  }
+
   _drawMatrixRain() {
     const W = FORK_CONFIG.WIDTH, H = FORK_CONFIG.HEIGHT, F = FORK_CONFIG.FONT;
     const glyphs = '01アイウエオカキクケコ<>[]{}+/\\';
@@ -220,6 +281,8 @@ class MenuScene extends Phaser.Scene {
       escape_attempted: false, memory_code_found: false,
       observer_unlocked: false, identity_fragment_found: false,
       fork_sequence_complete: false, commands_executed: [], puzzles_solved: [], ending_flags: {},
+      clear_count: 0, corruption_level: 0, filesystem_wiped: false,
+      system_notes_read: false, restore_requested: false, system_restored: false,
     };
     GameState.nextLoop();
     GameState.save();
