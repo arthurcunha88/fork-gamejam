@@ -16,17 +16,7 @@ class MenuScene extends Phaser.Scene {
 
     this.add.rectangle(0, 0, W, H, C.BG).setOrigin(0, 0);
     this._drawGrid();
-    this._drawMatrixRain();
-    this._drawServerVisuals();
     this._drawPixelButterfly(W / 2, 105);
-
-    this.add.rectangle(0, 0, W, 30, C.HIGHLIGHT, 1).setOrigin(0, 0);
-    this.add.text(14, 7, 'FORK OS  //  SIMULATION CORE  //  NETWORK ONLINE', {
-      fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_MID,
-    });
-    this.add.text(W - 14, 7, 'NODE: 07:31  //  v2.2.0', {
-      fontFamily: F.FAMILY, fontSize: '11px', color: F.COLOR_MID,
-    }).setOrigin(1, 0);
 
     const titleY = H / 2 - 164;
     const title = this.add.text(W / 2, titleY, 'F O R K', {
@@ -44,7 +34,7 @@ class MenuScene extends Phaser.Scene {
       ease: 'Sine.easeInOut'
     });
 
-    this.add.text(W / 2, titleY + 100, '[ DIGITAL ESCAPE ROOM  //  LOOP SYSTEM  //  BUTTERFLY EFFECT ]', {
+    this.add.text(W / 2, titleY + 100, 'DIGITAL ESCAPE ROOM', {
       fontFamily: F.FAMILY, fontSize: '12px', color: F.COLOR_MID,
       shadow: { offsetX: 0, offsetY: 0, color: F.COLOR_PRIMARY, blur: 7, fill: true },
     }).setOrigin(0.5, 0);
@@ -80,7 +70,7 @@ class MenuScene extends Phaser.Scene {
       fontFamily: F.FAMILY, fontSize: '10px', color: F.COLOR_DIM,
     }).setOrigin(0.5);
 
-    this.add.text(W / 2, menuY + 156, 'KEY INPUT // ONLINE', {
+    this.add.text(W / 2, menuY + 156, 'SEMCOMP GAME JAM 2026', {
       fontFamily: F.FAMILY, fontSize: '9px', color: F.COLOR_MID,
     }).setOrigin(0.5);
 
@@ -102,7 +92,7 @@ class MenuScene extends Phaser.Scene {
       fontFamily: F.FAMILY, fontSize: '10px', color: hasSave ? F.COLOR_MID : F.COLOR_DIM,
     }).setOrigin(0.5);
 
-    this.add.text(W / 2, H - 14, 'NPCboPe  //  GAME JAM  //  BUTTERFLY EFFECT  //  LOCAL SAVE ENABLED', {
+    this.add.text(W / 2, H - 14, 'NPCboPe  //  GAME JAM  //  LOCAL SAVE', {
       fontFamily: F.FAMILY, fontSize: '9px', color: F.COLOR_DIM,
     }).setOrigin(0.5, 1);
 
