@@ -65,6 +65,7 @@ class ResetScene extends Phaser.Scene {
     const totalDelay = awareness >= 3 ? 3800 : 3200;
     this.time.delayedCall(totalDelay, () => {
       GameState.nextLoop();
+      GameState.save();
       this.scene.start('GameScene');
     });
   }
