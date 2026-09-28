@@ -103,9 +103,9 @@ class GameScene extends Phaser.Scene {
     const duration = Math.max(360, 620 - urgency * 180);
 
     this._criticalAlert.setColor('#ff9aa6');
-    this._criticalAlert.setAlpha(alphaMax);
 
     if (!this._criticalAlertTween || !this._criticalAlertTween.isPlaying()) {
+      this._criticalAlert.setAlpha(alphaMax);
       this._criticalAlertTween = this.tweens.add({
         targets: this._criticalAlert,
         alpha: { from: alphaMax, to: alphaMin },
