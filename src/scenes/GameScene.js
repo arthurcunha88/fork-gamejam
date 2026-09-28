@@ -69,15 +69,15 @@ class GameScene extends Phaser.Scene {
     this._showLoopStart();
 
     this.input.keyboard.addCapture([
-      Phaser.Input.Keyboard.KeyCodes.ESC,
       Phaser.Input.Keyboard.KeyCodes.P
     ]);
 
     this._pauseKeyHandler = (event) => {
-      if (event.keyCode !== Phaser.Input.Keyboard.KeyCodes.ESC &&
-          event.keyCode !== Phaser.Input.Keyboard.KeyCodes.P) return;
-
+      if (event.keyCode !== Phaser.Input.Keyboard.KeyCodes.P) return;
       if (this._hardCorruption) return;
+
+      // P é exclusivamente o atalho de pausa. O ESC fica reservado
+      // para voltar/fechar a interação que estiver em primeiro plano.
       if (GameState.volatile.dialog_open ||
           GameState.volatile.terminal_open ||
           GameState.volatile.modal_open) return;
@@ -97,6 +97,8 @@ class GameScene extends Phaser.Scene {
 
     this.input.on('pointerdown', (ptr) => {
       if (this._isPaused || this._hardCorruption) return;
+      // Não deixa o clique do HUD atravessar para o mundo.
+      if (ptr.y <= 34 && ptr.x >= FORK_CONFIG.WIDTH - 120) return;
       this._handleClick(ptr);
     });
   }
@@ -208,7 +210,7 @@ class GameScene extends Phaser.Scene {
       return b;
     });
 
-    const close = this.add.text(W / 2, H / 2 + 122, '[ ESC / P ]', {
+    const close = this.add.text(W / 2, H / 2 + 122, '[ ESC ] VOLTAR   //   [ P ] PAUSAR', {
       fontFamily: F.FAMILY,
       fontSize: '10px',
       color: F.COLOR_DIM,
@@ -233,7 +235,10 @@ class GameScene extends Phaser.Scene {
 
     this._pauseOverlay.keyHandler = (event) => {
       if (!this._pauseOverlay || this._pauseOverlay.settings) return;
-      if (event.key === 'ArrowUp') {
+      if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ESC) {
+        event.preventDefault();
+        this._closePause();
+      } else if (event.key === 'ArrowUp') {
         event.preventDefault();
         this._pauseOverlay.selectedIndex = (this._pauseOverlay.selectedIndex + 2) % 3;
         updateSelection();
@@ -619,7 +624,9 @@ class GameScene extends Phaser.Scene {
 
     const door = new InteractiveObject(this, 780, 250, {
       id: 'door_security', type: FORK_CONFIG.OBJECT_TYPES.DOOR,
-      label: GameState.get('door_unlocked') ? 'PORTA // ABERTA' : 'PORTA // BLOQUEADA', width: 58, height: 12,
+      label: GameState.get('door_unlocked') ? 'PORTA // ABERTA' : 'PORTA // BLOQUEADA',
+      width: 84, height: 30,
+      visual: 'door',
       color: GameState.get('door_unlocked') ? C.ACCENT : 0x36424c,
       onInteract: (obj) => this._interactDoor(obj),
     });
@@ -661,7 +668,8 @@ class GameScene extends Phaser.Scene {
 
     const cam = new InteractiveObject(this, 855, 70, {
       id: 'camera_01', type: FORK_CONFIG.OBJECT_TYPES.CAMERA,
-      label: 'CAM-01', width: 20, height: 14,
+      label: 'CAM-01', width: 44, height: 32,
+      visual: 'camera',
       color: C.DANGER,
       onInteract: () => this._interactCamera(),
     });
@@ -876,10 +884,7 @@ class GameScene extends Phaser.Scene {
         if (doorObj) {
           doorObj._label.setText('PORTA // ABERTA');
           doorObj._body.clear();
-          doorObj._body.fillStyle(0x1a3540, 0.72);
-          doorObj._body.fillRoundedRect(780 - 29, 250 - 6, 58, 12, 4);
-          doorObj._body.lineStyle(2, FORK_CONFIG.COLORS.ACCENT_BRIGHT, 0.95);
-          doorObj._body.strokeRoundedRect(780 - 29, 250 - 6, 58, 12, 4);
+          doorObj._drawVisual(84, 30, FORK_CONFIG.COLORS.ACCENT);
           doorObj.setEnabled(true);
         }
 
@@ -1213,7 +1218,44 @@ class GameScene extends Phaser.Scene {
     sf(this.add.text(12, 4, 'FORK', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#39ff14', shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:12, fill:true } }).setDepth(91));
 
     this._hudLoop  = sf(this.add.text(W/2, 4, 'LOOP 01', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#33aa33', shadow: { offsetX:0, offsetY:0, color:'#00ff41', blur:6, fill:true } }).setOrigin(0.5,0).setDepth(91));
-    this._hudTimer = sf(this.add.text(W-12, 4, 'TIME: 07:31', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#9be8ff', shadow: { offsetX:0, offsetY:0, color:'#59d8ff', blur:8, fill:true } }).setOrigin(1,0).setDepth(91));
+    this._hudTimer = sf(this.add.text(W-132, 4, 'TIME: 07:31', { fontFamily: F.FAMILY_TITLE, fontSize: '22px', color: '#9be8ff', shadow: { offsetX:0, offsetY:0, color:'#59d8ff', blur:8, fill:true } }).setOrigin(1,0).setDepth(91));
+
+    // Controle de pausa fixo no HUD. O botão não depende da câmera do mundo.
+    const pauseButton = sf(this.add.rectangle(W - 54, 14, 92, 22, 0x0b151d, 0.94)
+      .setStrokeStyle(1, C.ACCENT_DIM, 0.85)
+      .setDepth(92)
+      .setInteractive({ useHandCursor: true }));
+    const pauseIcon = sf(this.add.graphics().setDepth(93));
+    pauseIcon.fillStyle(C.ACCENT_BRIGHT, 1);
+    pauseIcon.fillRoundedRect(W - 69, 8, 4, 12, 1);
+    pauseIcon.fillRoundedRect(W - 61, 8, 4, 12, 1);
+    const pauseLabel = sf(this.add.text(W - 50, 6, 'PAUSE', {
+      fontFamily: F.FAMILY_TITLE,
+      fontSize: '12px',
+      color: F.COLOR_PRIMARY,
+      shadow: { offsetX: 0, offsetY: 0, color: F.COLOR_PRIMARY, blur: 6, fill: true },
+    }).setOrigin(0, 0).setDepth(93));
+
+    pauseButton.on('pointerover', () => {
+      pauseButton.setFillStyle(0x11232d, 1).setStrokeStyle(1, C.ACCENT_BRIGHT, 1);
+      pauseLabel.setColor(F.COLOR_BRIGHT);
+      pauseIcon.setAlpha(1);
+    });
+    pauseButton.on('pointerout', () => {
+      pauseButton.setFillStyle(0x0b151d, 0.94).setStrokeStyle(1, C.ACCENT_DIM, 0.85);
+      pauseLabel.setColor(F.COLOR_PRIMARY);
+    });
+    pauseButton.on('pointerdown', () => {
+      if (this._hardCorruption || GameState.volatile.dialog_open ||
+          GameState.volatile.terminal_open || GameState.volatile.modal_open) return;
+      if (this._isPaused) this._closePause();
+      else this._openPause();
+    });
+
+    this._pauseButton = pauseButton;
+    this._pauseButtonIcon = pauseIcon;
+    this._pauseButtonLabel = pauseLabel;
+
     this._timerBar = sf(this.add.rectangle(0, 28, W, 3, C.ACCENT, 1).setOrigin(0,0).setDepth(91));
 
     sf(this.add.rectangle(0, H-22, W, 22, C.HIGHLIGHT, 0.92).setOrigin(0,0).setDepth(90));
