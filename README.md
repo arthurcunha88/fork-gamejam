@@ -1,11 +1,8 @@
-# FORK — Dev Notes
-**NPCboPe  //  Game Jam  //  Butterfly Effect**
-
+FORK — Dev Notes
+NPCboPe  //  Game Jam  //  Butterfly Effect
 ---
-
-## Como rodar
+Como rodar
 Abra `index.html` em um servidor local. Não funciona com `file://` por restrições do browser.
-
 ```bash
 # Opção 1 — Python
 python -m http.server 8080
@@ -16,11 +13,8 @@ npx serve .
 # Opção 3 — VS Code
 Instale "Live Server" e clique em "Go Live"
 ```
-
 ---
-
-## Estrutura do projeto
-
+Estrutura do projeto
 ```
 fork-game/
 ├── index.html
@@ -45,23 +39,16 @@ fork-game/
         ├── ResetScene.js      ← Transição entre loops
         └── EndScene.js        ← Os 5 finais
 ```
-
 ---
-
-## Fluxo do jogo
-
+Fluxo do jogo
 ```
 BootScene → MenuScene → GameScene ←→ ResetScene
                                 ↓
                             EndScene
 ```
-
 ---
-
-## Sistema de estado (GameState)
-
+Sistema de estado (GameState)
 O coração do Efeito Borboleta. Tudo que precisa persistir entre loops fica aqui.
-
 ```js
 // Ler
 GameState.get('log07_deleted')       // → false
@@ -79,35 +66,24 @@ GameState.addButterflyStep('delete_log07')   // conta para Final 5
 // Sistema consciente
 GameState.increaseSystemAwareness(1)         // 0-5, muda diálogos
 ```
-
 ---
-
-## Puzzles e consequências
-
-| Puzzle | Trigger | Consequência |
-|---|---|---|
-| Terminal Main | Explorar comandos | Revela lore, deleta LOG_07 |
-| Door Code `0731` | `log07_deleted = true` | `door_unlocked = true` |
-| Server Sequence `A,C,B,D` | Qualquer hora | `server_rebooted = true` |
-| Hidden File `BUTTERFLY` | server+log deletados | `secret_area_found = true` |
-| Butterfly Sequence | 4 steps coletados | Desbloqueia Final 5 |
-
+Puzzles e consequências
+Puzzle	Trigger	Consequência
+Terminal Main	Explorar comandos	Revela lore, deleta LOG_07
+Door Code `0731`	`log07_deleted = true`	`door_unlocked = true`
+Server Sequence `A,C,B,D`	Qualquer hora	`server_rebooted = true`
+Hidden File `BUTTERFLY`	server+log deletados	`secret_area_found = true`
+Butterfly Sequence	4 steps coletados	Desbloqueia Final 5
 ---
-
-## Os 5 finais
-
-| Final | Condição |
-|---|---|
-| 1 — Escape | `door_unlocked` + 3 puzzles |
-| 2 — Reset | `escape_attempted` + `awareness >= 2` |
-| 3 — Loop Eterno | `loop_count >= 10` |
-| 4 — Controlado | `awareness >= 4` + `identity_known` |
-| 5 — Butterfly ★ | 4 butterfly_steps coletados |
-
+Os 5 finais
+Final	Condição
+1 — Escape	`door_unlocked` + 3 puzzles
+2 — Reset	`escape_attempted` + `awareness >= 2`
+3 — Loop Eterno	`loop_count >= 10`
+4 — Controlado	`awareness >= 4` + `identity_known`
+5 — Butterfly ★	4 butterfly_steps coletados
 ---
-
-## Adicionando novos objetos
-
+Adicionando novos objetos
 ```js
 // Em GameScene._buildObjects():
 const novoObjeto = new InteractiveObject(this, x, y, {
@@ -123,11 +99,8 @@ const novoObjeto = new InteractiveObject(this, x, y, {
 });
 this._objects.push(novoObjeto);
 ```
-
 ---
-
-## Adicionando comandos ao terminal
-
+Adicionando comandos ao terminal
 ```js
 // Em PuzzleManager._buildPuzzles() → commands:
 'MEU_COMANDO': {
@@ -137,32 +110,25 @@ this._objects.push(novoObjeto);
   }
 }
 ```
-
 ---
-
-## Próximos passos (P2 — Polimento)
-
-- [ ] Spritesheet do player (16x16 ou 32x32)
-- [ ] Tileset do laboratório
-- [ ] Efeitos de glitch (shader ou canvas filter)
-- [ ] Transições entre cenas (fade)
-- [ ] Áudio: sons de terminal, alarme, reset
-- [ ] Música ambiente (loop + intensidade por timer)
-- [ ] Pequenas mudanças visuais entre loops
-- [ ] Área secreta desbloqueável (sala adicional)
-- [ ] Mais variações de diálogo por awareness
-
+Próximos passos (P2 — Polimento)
+[ ] Spritesheet do player (16x16 ou 32x32)
+[ ] Tileset do laboratório
+[ ] Efeitos de glitch (shader ou canvas filter)
+[ ] Transições entre cenas (fade)
+[ ] Áudio: sons de terminal, alarme, reset
+[ ] Música ambiente (loop + intensidade por timer)
+[ ] Pequenas mudanças visuais entre loops
+[ ] Área secreta desbloqueável (sala adicional)
+[ ] Mais variações de diálogo por awareness
 ---
-
-## Paleta FORK
-
-| Nome | Hex |
-|---|---|
-| BG | `#050810` |
-| Accent | `#00ffe0` |
-| Accent Dim | `#00886a` |
-| Danger | `#ff2244` |
-| Warning | `#ffaa00` |
-| Text | `#88ffdd` |
-| Text Dim | `#446655` |
-| Terminal BG | `#020c10` |
+Paleta FORK
+Nome	Hex
+BG	`#050810`
+Accent	`#00ffe0`
+Accent Dim	`#00886a`
+Danger	`#ff2244`
+Warning	`#ffaa00`
+Text	`#88ffdd`
+Text Dim	`#446655`
+Terminal BG	`#020c10`
