@@ -315,6 +315,43 @@ class PuzzleManager {
         ],
       },
 
+      // ── FASE 4: CÂMARA DO OBSERVADOR ─────────────────────
+      [FORK_CONFIG.PUZZLES.MEMORY_CODE]: {
+        id: FORK_CONFIG.PUZZLES.MEMORY_CODE,
+        type: 'code',
+        requires: { secret_area_found: true },
+        validator: answer => answer === '4217',
+        consequences: [
+          { key: 'memory_code_found', value: true },
+          { key: 'observer_unlocked', value: true },
+          { key: 'phase', value: FORK_CONFIG.PHASES.OBSERVER },
+          { awareness: 1 },
+        ],
+      },
+
+      [FORK_CONFIG.PUZZLES.OBSERVER_SEQUENCE]: {
+        id: FORK_CONFIG.PUZZLES.OBSERVER_SEQUENCE,
+        type: 'sequence',
+        requires: { observer_unlocked: true },
+        validator: answer => JSON.stringify(answer) === JSON.stringify(['PAUSE', 'WATCH', 'RELEASE']),
+        consequences: [
+          { butterfly: 'observer_truth' },
+          { awareness: 1 },
+        ],
+      },
+
+      [FORK_CONFIG.PUZZLES.IDENTITY_WORD]: {
+        id: FORK_CONFIG.PUZZLES.IDENTITY_WORD,
+        type: 'word',
+        requires: { observer_unlocked: true },
+        validator: answer => answer.trim().toUpperCase() === 'SUBJECT',
+        consequences: [
+          { key: 'identity_fragment_found', value: true },
+          { key: 'player_identity_known', value: true },
+          { awareness: 1 },
+        ],
+      },
+
       // ── PUZZLE 5: Sequência Borboleta ─────────────────────
       [FORK_CONFIG.PUZZLES.BUTTERFLY]: {
         id:    FORK_CONFIG.PUZZLES.BUTTERFLY,
