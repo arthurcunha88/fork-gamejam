@@ -28,6 +28,9 @@ const GameState = {
     commands_executed:     [],      // histórico de comandos
     puzzles_solved:        [],      // IDs de puzzles resolvidos
     ending_flags:          {},      // flags dos finais
+    clear_count:            0,       // quantas vezes o terminal foi limpo
+    corruption_level:      0,       // 0-5: degradação da simulação
+    filesystem_wiped:      false,   // DELETE ALL
   },
 
   // ── Estado volátil (reseta a cada loop) ──────────────────
@@ -154,6 +157,31 @@ const GameState = {
   addButterflyStep(step) {
     this.push('butterfly_steps', step);
     console.log(`[FORK] Butterfly step: ${step} (${this.persistent.butterfly_steps.length} total)`);
+  },
+
+  /** Registra o efeito borboleta de limpar o terminal. */
+  registerClear() {
+    this.persistent.clear_count += 1;
+    this.persistent.corruption_level = Math.min(5, this.persistent.corruption_level + 1);
+
+    const step = 'clear_' + this.persistent.clear_count;
+    this.addButterflyStep(step);
+
+    if (this.persistent.corruption_level >= 3) {
+      this.persistent.system_awareness = Math.min(5, this.persistent.system_awareness + 1);
+    }
+
+    this.save();
+  },
+
+  /** Apaga o sistema de arquivos e força a simulação a entrar em corrupção. */
+  wipeFilesystem() {
+    this.persistent.filesystem_wiped = true;
+    this.persistent.corruption_level = 5;
+    this.persistent.clear_count += 5;
+    this.addButterflyStep('filesystem_wiped');
+    this.increaseSystemAwareness(2);
+    this.save();
   },
 
   /** Aumenta consciência do sistema */
