@@ -376,6 +376,7 @@ class MenuScene extends Phaser.Scene {
       observer_unlocked: false, identity_fragment_found: false,
       fork_sequence_complete: false, commands_executed: [], puzzles_solved: [], ending_flags: {},
       clear_count: 0, corruption_level: 0, filesystem_wiped: false,
+      loop_error_count: 0, last_loop_error: null,
       system_notes_read: false, restore_requested: false, system_restored: false,
     };
 
