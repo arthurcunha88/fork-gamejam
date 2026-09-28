@@ -22,6 +22,10 @@ const FORK_CONFIG = {
     ACCENT:       0x59d8ff,  // ciano
     ACCENT_DIM:   0x2e718b,
     ACCENT_BRIGHT:0x9be8ff,  // ciano claro
+    MAGENTA:      0xff4fd8,
+    PURPLE:       0x9b7bff,
+    GREEN:        0x55e6a5,
+    ORANGE:       0xff9d4d,
     DANGER:       0xff2244,
     WARNING:      0xffaa00,
     TEXT:         0x7ed6ff,
@@ -41,14 +45,18 @@ const FORK_CONFIG = {
     // VT323 — títulos grandes, FORK logo, tela de reset, finais
     FAMILY_TITLE: "'VT323', 'Share Tech Mono', monospace",
 
-    COLOR_PRIMARY:  '#59d8ff',   // verde matrix principal
-    COLOR_DIM:      '#1a4d1a',   // verde escuro (labels secundários)
-    COLOR_MID:      '#33aa33',   // verde médio (subtítulos, labels mapa)
-    COLOR_SYSTEM:   '#00cc33',   // verde sistema (diálogos, prompts)
-    COLOR_BRIGHT:   '#39ff14',   // verde neon vivo (destaques, hover)
-    COLOR_DANGER:   '#ff2244',   // vermelho perigo
-    COLOR_WARNING:  '#ffaa00',   // amarelo alerta
-    COLOR_WHITE:    '#ffffff',   // branco puro
+    COLOR_PRIMARY:  '#59d8ff',
+    COLOR_DIM:      '#40515f',
+    COLOR_MID:      '#76a7ba',
+    COLOR_SYSTEM:   '#72d2ee',
+    COLOR_BRIGHT:   '#9be8ff',
+    COLOR_MAGENTA:  '#ff4fd8',
+    COLOR_PURPLE:   '#9b7bff',
+    COLOR_GREEN:    '#55e6a5',
+    COLOR_ORANGE:   '#ff9d4d',
+    COLOR_DANGER:   '#ff2244',
+    COLOR_WARNING:  '#ffaa00',
+    COLOR_WHITE:    '#ffffff'
   },
 
   // Velocidade do player
