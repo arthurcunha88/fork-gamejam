@@ -1,13 +1,11 @@
 // ============================================================
-// FORK — GameScene.js
+// FORK — GameScene.js  [FIXED]
 // Cena principal: mapa, HUD, sistemas, gameplay
 // ============================================================
 
 class GameScene extends Phaser.Scene {
 
   constructor() { super({ key: 'GameScene' }); }
-
-  // ── Lifecycle ─────────────────────────────────────────────
 
   create() {
     const W = FORK_CONFIG.WIDTH;
@@ -20,6 +18,7 @@ class GameScene extends Phaser.Scene {
     this.finalManager  = new FinalManager(this);
 
     // Mapa
+    this._wallRects = []; // FIX: guardar rects de parede para colisão
     this._buildMap();
 
     // Objetos interativos
@@ -29,10 +28,12 @@ class GameScene extends Phaser.Scene {
     // Player
     this.player = new Player(this, 200, 300);
 
-    // Colisão player ↔ paredes
-    this.physics.add.collider(this.player.getPhysicsBody(), this._wallGroup);
+    // FIX: colisão com array de rects em vez de staticGroup com staticImage
+    this._wallRects.forEach(wall => {
+      this.physics.add.collider(this.player.getPhysicsBody(), wall);
+    });
 
-    // HUD (por cima de tudo)
+    // HUD — criado por último para ficar acima de tudo
     this._buildHUD();
 
     // Câmera
@@ -43,28 +44,24 @@ class GameScene extends Phaser.Scene {
     this._setupLoopCallbacks();
     this.loopManager.start();
 
-    // Mensagem de início do loop
+    // Mensagem de início
     this._showLoopStart();
 
-    // Click em objeto (point-and-click)
+    // FIX: _handleClick agora existe — point-and-click em objetos
     this.input.on('pointerdown', (ptr) => this._handleClick(ptr));
   }
 
   update(time, delta) {
     if (!this.player) return;
 
-    // Atualiza sistemas
     this.loopManager.update(delta);
     this.dialogManager.update();
     this.finalManager.check();
 
-    // Atualiza player
     this.player.update(this._objects);
 
-    // Atualiza objetos interativos
     this._objects.forEach(obj => obj.update(this.player.x, this.player.y));
 
-    // Atualiza HUD
     this._updateHUD();
   }
 
@@ -76,89 +73,67 @@ class GameScene extends Phaser.Scene {
     const C = FORK_CONFIG.COLORS;
     const gfx = this.add.graphics().setDepth(0);
 
-    // Chão
+    // Chão base
     gfx.fillStyle(C.BG_ALT, 1);
     gfx.fillRect(0, 0, W, H);
 
-    // Grid de chão
+    // Grid
     gfx.lineStyle(1, C.GRID, 0.25);
     for (let x = 0; x < W; x += 32) { gfx.moveTo(x, 0).lineTo(x, H); }
     for (let y = 0; y < H; y += 32) { gfx.moveTo(0, y).lineTo(W, y); }
     gfx.strokePath();
 
-    // ── Sala principal ──────────────────────────────────────
-    // Paredes externas
-    this._wallGroup = this.physics.add.staticGroup();
-    this._drawRoom(gfx, 60, 50, 840, 540); // x, y, w, h
+    // Salas
+    this._drawRoom(gfx, 60,  50,  840, 540);        // lab principal
+    this._drawRoom(gfx, 660, 50,  240, 200, true);  // sala de controle
+    this._drawRoom(gfx, 60,  390, 220, 200, true);  // armazenamento
 
-    // ── Sala de controle (canto superior direito) ───────────
-    this._drawRoom(gfx, 660, 50, 240, 200, true);
-
-    // ── Área de armazenamento (canto inferior esquerdo) ────
-    this._drawRoom(gfx, 60, 390, 220, 200, true);
-
-    // Decorações de chão — marcações digitais
-    gfx.lineStyle(1, C.ACCENT_DIM, 0.12);
-    for (let x = 80; x < 900; x += 80) {
-      gfx.moveTo(x, 70).lineTo(x, 570);
-    }
-    for (let y = 70; y < 580; y += 80) {
-      gfx.moveTo(80, y).lineTo(880, y);
-    }
+    // Marcações de chão
+    gfx.lineStyle(1, C.ACCENT_DIM, 0.10);
+    for (let x = 80; x < 900; x += 80) { gfx.moveTo(x, 70).lineTo(x, 570); }
+    for (let y = 70; y < 580; y += 80) { gfx.moveTo(80, y).lineTo(880, y); }
     gfx.strokePath();
 
-    // Labels das salas
-    this.add.text(120, 60, 'MAIN LAB', {
-      fontFamily: 'monospace', fontSize: '9px', color: '#1a3322',
-    });
-    this.add.text(672, 60, 'CONTROL ROOM', {
-      fontFamily: 'monospace', fontSize: '9px', color: '#1a3322',
-    });
-    this.add.text(72, 400, 'STORAGE', {
-      fontFamily: 'monospace', fontSize: '9px', color: '#1a3322',
-    });
+    // Labels
+    this.add.text(120, 62,  'MAIN LAB',     { fontFamily:'monospace', fontSize:'9px', color:'#1a3322' });
+    this.add.text(672, 62,  'CONTROL ROOM', { fontFamily:'monospace', fontSize:'9px', color:'#1a3322' });
+    this.add.text(72,  400, 'STORAGE',      { fontFamily:'monospace', fontSize:'9px', color:'#1a3322' });
   }
 
-  /**
-   * Desenha uma sala e adiciona paredes ao grupo de física.
-   * @param {boolean} isSecondary — salas secundárias têm cor diferente
-   */
   _drawRoom(gfx, x, y, w, h, isSecondary = false) {
-    const C = FORK_CONFIG.COLORS;
+    const C         = FORK_CONFIG.COLORS;
     const wallColor = isSecondary ? C.ACCENT_DIM : C.ACCENT;
     const wallAlpha = isSecondary ? 0.3 : 0.5;
+    const thick     = 12;
 
     // Chão da sala
     gfx.fillStyle(isSecondary ? C.BG : C.BG_ALT, 1);
     gfx.fillRect(x + 4, y + 4, w - 8, h - 8);
 
-    // Paredes
+    // Borda visual
     gfx.lineStyle(2, wallColor, wallAlpha);
     gfx.strokeRect(x, y, w, h);
 
-    const thick = 10;
-
-    // Paredes físicas (invisíveis, apenas colisão)
-    const walls = [
-      { rx: x,         ry: y,         rw: w,     rh: thick },  // topo
-      { rx: x,         ry: y + h,     rw: w,     rh: thick },  // base
-      { rx: x,         ry: y,         rw: thick, rh: h     },  // esquerda
-      { rx: x + w,     ry: y,         rw: thick, rh: h     },  // direita
+    // FIX: paredes como rectangles com physics.add.existing (static)
+    // Deixamos abertura em uma parede para o jogador entrar nas salas secundárias
+    const wallDefs = [
+      { wx: x + w/2,        wy: y,            ww: w,     wh: thick }, // topo
+      { wx: x + w/2,        wy: y + h,        ww: w,     wh: thick }, // base
+      { wx: x,              wy: y + h/2,      ww: thick, wh: h     }, // esquerda
+      { wx: x + w,          wy: y + h/2,      ww: thick, wh: h     }, // direita
     ];
 
-    walls.forEach(({ rx, ry, rw, rh }) => {
-      const wall = this.physics.add.staticImage(rx + rw / 2, ry + rh / 2)
-        .setDisplaySize(rw, rh)
-        .refreshBody();
-      wall.setVisible(false);
-      this._wallGroup.add(wall);
+    wallDefs.forEach(({ wx, wy, ww, wh }) => {
+      const rect = this.add.rectangle(wx, wy, ww, wh, 0x000000, 0);
+      this.physics.add.existing(rect, true); // static
+      this._wallRects.push(rect);
     });
   }
 
   // ── Objetos interativos ───────────────────────────────────
 
   _buildObjects() {
-    // ── Terminal principal (centro-esquerda) ────────────────
+    // Terminal principal
     const terminal = new Terminal(this, 180, 220, {
       id:            'terminal_main',
       label:         'TERMINAL',
@@ -168,20 +143,18 @@ class GameScene extends Phaser.Scene {
     });
     this._objects.push(terminal);
 
-    // ── Porta de segurança (parede direita) ─────────────────
-    const door = new InteractiveObject(this, 840, 300, {
+    // Porta de segurança
+    const door = new InteractiveObject(this, 878, 300, {
       id:    'door_security',
       type:  FORK_CONFIG.OBJECT_TYPES.DOOR,
       label: 'SECURITY DOOR',
-      width: 20, height: 60,
-      color: GameState.get('door_unlocked')
-        ? FORK_CONFIG.COLORS.ACCENT
-        : FORK_CONFIG.COLORS.DANGER,
+      width: 16, height: 60,
+      color: GameState.get('door_unlocked') ? FORK_CONFIG.COLORS.ACCENT : FORK_CONFIG.COLORS.DANGER,
       onInteract: (obj) => this._interactDoor(obj),
     });
     this._objects.push(door);
 
-    // ── Servidor (sala de controle) ─────────────────────────
+    // Servidor
     const server = new InteractiveObject(this, 750, 130, {
       id:    'server_main',
       type:  FORK_CONFIG.OBJECT_TYPES.SERVER,
@@ -192,7 +165,7 @@ class GameScene extends Phaser.Scene {
     });
     this._objects.push(server);
 
-    // ── Painel de sequência (sala de controle) ──────────────
+    // Painel
     const panel = new InteractiveObject(this, 820, 130, {
       id:    'panel_sequence',
       type:  FORK_CONFIG.OBJECT_TYPES.PANEL,
@@ -203,8 +176,8 @@ class GameScene extends Phaser.Scene {
     });
     this._objects.push(panel);
 
-    // ── Arquivo na área de armazenamento ────────────────────
-    const file = new InteractiveObject(this, 140, 450, {
+    // Arquivo de notas
+    const file = new InteractiveObject(this, 140, 460, {
       id:    'file_notes',
       type:  FORK_CONFIG.OBJECT_TYPES.FILE,
       label: 'NOTES',
@@ -214,8 +187,8 @@ class GameScene extends Phaser.Scene {
     });
     this._objects.push(file);
 
-    // ── Entidade secundária (canto escuro) ──────────────────
-    const entity = new InteractiveObject(this, 200, 490, {
+    // Entidade
+    const entity = new InteractiveObject(this, 160, 510, {
       id:    'entity',
       type:  FORK_CONFIG.OBJECT_TYPES.OBJECT,
       label: '???',
@@ -225,8 +198,8 @@ class GameScene extends Phaser.Scene {
     });
     this._objects.push(entity);
 
-    // ── Câmera de segurança ─────────────────────────────────
-    const camera = new InteractiveObject(this, 860, 80, {
+    // Câmera de segurança
+    const cam = new InteractiveObject(this, 855, 70, {
       id:    'camera_01',
       type:  FORK_CONFIG.OBJECT_TYPES.CAMERA,
       label: 'CAM-01',
@@ -234,9 +207,9 @@ class GameScene extends Phaser.Scene {
       color: FORK_CONFIG.COLORS.DANGER,
       onInteract: () => this._interactCamera(),
     });
-    this._objects.push(camera);
+    this._objects.push(cam);
 
-    // ── Objeto secreto (só aparece se server_rebooted E log07_deleted) ──
+    // Arquivo secreto (só aparece no loop correto)
     if (GameState.get('server_rebooted') && GameState.get('log07_deleted')) {
       const secret = new InteractiveObject(this, 700, 490, {
         id:    'secret_file',
@@ -250,7 +223,27 @@ class GameScene extends Phaser.Scene {
     }
   }
 
-  // ── Interações específicas ────────────────────────────────
+  // ── Interações ────────────────────────────────────────────
+
+  // FIX: _handleClick implementado — detecta objeto mais próximo do clique
+  _handleClick(ptr) {
+    if (GameState.volatile.dialog_open || GameState.volatile.terminal_open) return;
+
+    // Converte coordenadas de tela para mundo
+    const worldX = ptr.worldX;
+    const worldY = ptr.worldY;
+
+    let nearest  = null;
+    let minDist  = FORK_CONFIG.INTERACT_RANGE;
+
+    this._objects.forEach(obj => {
+      if (!obj.enabled) return;
+      const d = Phaser.Math.Distance.Between(worldX, worldY, obj.x, obj.y);
+      if (d < minDist) { minDist = d; nearest = obj; }
+    });
+
+    if (nearest) nearest.interact();
+  }
 
   _interactDoor(obj) {
     if (GameState.get('door_unlocked')) {
@@ -266,64 +259,67 @@ class GameScene extends Phaser.Scene {
         ], { title: 'SECURITY DOOR' });
       }
     } else {
-      // Mostra puzzle de código
       this._showCodePuzzle();
     }
   }
 
   _showCodePuzzle() {
-    if (!this.puzzleManager.isAvailable(FORK_CONFIG.PUZZLES.DOOR_CODE)) {
-      if (GameState.get('log07_deleted')) {
-        this._showCodeInput();
-      } else {
-        this.dialogManager.show([
-          'ACCESS DENIED.',
-          'Código de acesso necessário.',
-          'Formato: XXXX',
-        ], { title: 'SECURITY DOOR' });
-      }
+    if (!GameState.get('log07_deleted')) {
+      this.dialogManager.show([
+        'ACCESS DENIED.',
+        'Código de acesso necessário.',
+        'Formato: XXXX',
+        'Talvez haja uma pista em algum arquivo.',
+      ], { title: 'SECURITY DOOR' });
       return;
     }
     this._showCodeInput();
   }
 
   _showCodeInput() {
-    // UI simples de input de código
     const W = FORK_CONFIG.WIDTH;
     const H = FORK_CONFIG.HEIGHT;
     const C = FORK_CONFIG.COLORS;
 
-    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.75)
-      .setOrigin(0, 0).setDepth(150).setInteractive();
+    // Pausa o loop enquanto o puzzle está aberto
+    this.loopManager.pause();
 
-    const box = this.add.rectangle(W / 2, H / 2, 320, 180, C.TERMINAL_BG, 0.98)
-      .setStrokeStyle(1, C.ACCENT_DIM).setDepth(151);
+    const container = this.add.container(0, 0).setDepth(150).setScrollFactor(0);
 
-    this.add.text(W / 2, H / 2 - 60, 'SECURITY DOOR', {
+    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.75).setOrigin(0, 0);
+    const box     = this.add.rectangle(W/2, H/2, 320, 200, C.TERMINAL_BG, 0.98)
+      .setStrokeStyle(1, C.ACCENT_DIM);
+    const title   = this.add.text(W/2, H/2 - 74, 'SECURITY DOOR — ACCESS CODE', {
       fontFamily: 'monospace', fontSize: '11px', color: '#446655',
-    }).setOrigin(0.5, 0).setDepth(152);
-
-    this.add.text(W / 2, H / 2 - 38, 'Enter access code:', {
+    }).setOrigin(0.5, 0);
+    const prompt  = this.add.text(W/2, H/2 - 48, 'Enter 4-digit code:', {
       fontFamily: 'monospace', fontSize: '13px', color: '#88ffdd',
-    }).setOrigin(0.5, 0).setDepth(152);
+    }).setOrigin(0.5, 0);
 
     let code = '';
-    const codeDisplay = this.add.text(W / 2, H / 2 - 6, '_ _ _ _', {
-      fontFamily: 'monospace', fontSize: '24px', color: '#00ffe0',
-    }).setOrigin(0.5, 0).setDepth(152);
+    const codeDisplay = this.add.text(W/2, H/2 - 14, '_ _ _ _', {
+      fontFamily: 'monospace', fontSize: '28px', color: '#00ffe0', letterSpacing: 6,
+    }).setOrigin(0.5, 0);
 
-    const feedback = this.add.text(W / 2, H / 2 + 36, '', {
+    const feedback = this.add.text(W/2, H/2 + 38, '', {
       fontFamily: 'monospace', fontSize: '11px', color: '#ff2244',
-    }).setOrigin(0.5, 0).setDepth(152);
+    }).setOrigin(0.5, 0);
 
-    const closeUI = () => {
-      overlay.destroy(); box.destroy();
-      keyHandler.remove();
-    };
+    const hint = this.add.text(W/2, H/2 + 60, '[ ESC ] Cancel', {
+      fontFamily: 'monospace', fontSize: '10px', color: '#1a3322',
+    }).setOrigin(0.5, 0);
+
+    container.add([overlay, box, title, prompt, codeDisplay, feedback, hint]);
 
     const updateDisplay = () => {
       const shown = code.padEnd(4, '_').split('').join(' ');
       codeDisplay.setText(shown);
+    };
+
+    const closeUI = () => {
+      container.destroy(true);
+      keyHandler.remove();
+      this.loopManager.resume();
     };
 
     const keyHandler = this.input.keyboard.on('keydown', (e) => {
@@ -342,7 +338,7 @@ class GameScene extends Phaser.Scene {
         const correct = this.puzzleManager.checkAnswer(FORK_CONFIG.PUZZLES.DOOR_CODE, code);
         if (correct) {
           feedback.setColor('#00ffe0').setText('ACCESS GRANTED');
-          this.time.delayedCall(800, () => {
+          this.time.delayedCall(700, () => {
             closeUI();
             this.dialogManager.show([
               'DOOR UNLOCKED.',
@@ -379,52 +375,71 @@ class GameScene extends Phaser.Scene {
     const H = FORK_CONFIG.HEIGHT;
     const C = FORK_CONFIG.COLORS;
 
-    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.75)
-      .setOrigin(0, 0).setDepth(150).setInteractive();
+    this.loopManager.pause();
 
-    this.add.rectangle(W / 2, H / 2, 380, 260, C.TERMINAL_BG, 0.98)
-      .setStrokeStyle(1, C.ACCENT_DIM).setDepth(151);
+    const container = this.add.container(0, 0).setDepth(150).setScrollFactor(0);
 
-    this.add.text(W / 2, H / 2 - 100, 'SERVER SEQUENCE', {
+    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.75).setOrigin(0, 0);
+    const box     = this.add.rectangle(W/2, H/2, 400, 280, C.TERMINAL_BG, 0.98)
+      .setStrokeStyle(1, C.ACCENT_DIM);
+
+    this.add.text(W/2, H/2 - 114, 'SERVER SEQUENCE', {
       fontFamily: 'monospace', fontSize: '11px', color: '#446655',
-    }).setOrigin(0.5, 0).setDepth(152);
-
-    this.add.text(W / 2, H / 2 - 78, 'Activate panels in correct order:', {
+    }).setOrigin(0.5, 0);
+    this.add.text(W/2, H/2 - 90, 'Activate panels in the correct order:', {
       fontFamily: 'monospace', fontSize: '12px', color: '#88ffdd',
-    }).setOrigin(0.5, 0).setDepth(152);
+    }).setOrigin(0.5, 0);
 
-    const panels = ['A', 'B', 'C', 'D'];
+    container.add([overlay, box]);
+
+    const panels   = ['A', 'B', 'C', 'D'];
     const selected = [];
-    const btnRefs = {};
+
+    const seqDisplay = this.add.text(W/2, H/2 + 50, 'Sequence: [ ]', {
+      fontFamily: 'monospace', fontSize: '11px', color: '#446655',
+    }).setOrigin(0.5, 0);
+    container.add(seqDisplay);
+
+    const feedback = this.add.text(W/2, H/2 + 76, '', {
+      fontFamily: 'monospace', fontSize: '11px', color: '#ff2244',
+    }).setOrigin(0.5, 0);
+    container.add(feedback);
 
     panels.forEach((p, i) => {
-      const bx = W / 2 - 90 + i * 60;
-      const by = H / 2 - 30;
+      const bx = W/2 - 90 + i * 60;
+      const by = H/2 - 20;
 
-      const btn = this.add.rectangle(bx, by, 44, 44, C.ACCENT_DIM, 0.5)
-        .setStrokeStyle(1, C.ACCENT_DIM).setDepth(152).setInteractive({ useHandCursor: true });
+      const btn = this.add.rectangle(bx, by, 44, 44, C.ACCENT_DIM, 0.4)
+        .setStrokeStyle(1, C.ACCENT_DIM).setInteractive({ useHandCursor: true });
 
-      this.add.text(bx, by, p, {
-        fontFamily: 'monospace', fontSize: '16px', color: '#00ffe0',
-      }).setOrigin(0.5, 0.5).setDepth(153);
+      const lbl = this.add.text(bx, by, p, {
+        fontFamily: 'monospace', fontSize: '18px', color: '#00ffe0',
+      }).setOrigin(0.5, 0.5);
 
-      btnRefs[p] = btn;
+      container.add([btn, lbl]);
 
-      btn.on('pointerdown', () => {
+      btn.on('pointerover',  () => btn.setFillStyle(C.ACCENT, 0.3));
+      btn.on('pointerout',   () => {
+        if (!selected.includes(p)) btn.setFillStyle(C.ACCENT_DIM, 0.4);
+      });
+      btn.on('pointerdown',  () => {
+        if (selected.includes(p)) return;
         selected.push(p);
         btn.setFillStyle(C.ACCENT, 0.6);
+        seqDisplay.setText(`Sequence: [ ${selected.join(' → ')} ]`);
 
         if (selected.length === 4) {
           const correct = this.puzzleManager.checkAnswer(
             FORK_CONFIG.PUZZLES.SERVER_SEQUENCE, [...selected]
           );
-          this.time.delayedCall(400, () => {
-            overlay.destroy();
+          this.time.delayedCall(300, () => {
+            container.destroy(true);
+            this.loopManager.resume();
             if (correct) {
               this.dialogManager.show([
                 'SEQUENCE ACCEPTED.',
                 'Server rebooting...',
-                'SYSTEM NOTE: Reboot logged.',
+                'SYSTEM NOTE: Modification logged.',
                 'Algo vai mudar no próximo loop.',
               ], { title: 'SERVER A' });
             } else {
@@ -438,18 +453,16 @@ class GameScene extends Phaser.Scene {
       });
     });
 
-    // Sequência atual
-    const seqDisplay = this.add.text(W / 2, H / 2 + 40, 'Sequence: [ ]', {
-      fontFamily: 'monospace', fontSize: '11px', color: '#446655',
-    }).setOrigin(0.5, 0).setDepth(152);
-
-    // ESC para fechar
+    // ESC cancela
     const escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-    escKey.once('down', () => overlay.destroy());
+    escKey.once('down', () => {
+      container.destroy(true);
+      this.loopManager.resume();
+    });
 
-    this.add.text(W / 2, H / 2 + 90, '[ ESC ] Cancel', {
-      fontFamily: 'monospace', fontSize: '10px', color: '#446655',
-    }).setOrigin(0.5, 0).setDepth(152);
+    this.add.text(W/2, H/2 + 108, '[ ESC ] Cancel', {
+      fontFamily: 'monospace', fontSize: '10px', color: '#1a3322',
+    }).setOrigin(0.5, 0);
   }
 
   _interactPanel() {
@@ -463,43 +476,33 @@ class GameScene extends Phaser.Scene {
   _interactFile() {
     this.dialogManager.show([
       'NOTES — HAND WRITTEN',
-      '────────────────────',
+      '─────────────────────────────',
       '"A porta nunca abre na primeira vez.',
       ' Mas sempre abre na segunda."',
       '',
       '"Delete o que o sistema não quer',
       ' que você veja."',
-      '────────────────────',
+      '─────────────────────────────',
     ], { title: 'NOTES' });
     GameState.addButterflyStep('read_notes');
   }
 
   _interactEntity() {
     const trust = GameState.get('entity_trust');
-    const msgs = NARRATIVE.entity;
+    const msgs  = NARRATIVE.entity;
 
-    if (trust === 0) {
-      this.dialogManager.show(msgs.first_contact, { title: '???' });
-      GameState.increment('entity_trust');
-    } else if (trust === 1) {
-      this.dialogManager.show(msgs.hint_log07, { title: '???' });
-      GameState.increment('entity_trust');
-    } else if (trust === 2) {
-      this.dialogManager.show(msgs.hint_butterfly, { title: '???' });
-      GameState.increment('entity_trust');
-    } else {
-      this.dialogManager.show(msgs.warning, { title: '???' });
-    }
+    if      (trust === 0) { this.dialogManager.show(msgs.first_contact, { title: '???' }); GameState.increment('entity_trust'); }
+    else if (trust === 1) { this.dialogManager.show(msgs.hint_log07,    { title: '???' }); GameState.increment('entity_trust'); }
+    else if (trust === 2) { this.dialogManager.show(msgs.hint_butterfly, { title: '???' }); GameState.increment('entity_trust'); }
+    else                  { this.dialogManager.show(msgs.warning,        { title: '???' }); }
   }
 
   _interactCamera() {
     const awareness = GameState.get('system_awareness');
     this.dialogManager.show([
       'CAMERA-01  //  ACTIVE',
-      `Monitoring status: ${awareness >= 3 ? 'ENHANCED' : 'STANDARD'}`,
-      awareness >= 2
-        ? 'The system is watching you closely.'
-        : 'Recording...',
+      `Monitoring: ${awareness >= 3 ? 'ENHANCED' : 'STANDARD'}`,
+      awareness >= 2 ? 'The system is watching you closely.' : 'Recording...',
     ], { title: 'SECURITY CAMERA' });
     GameState.increaseSystemAwareness(1);
   }
@@ -507,14 +510,12 @@ class GameScene extends Phaser.Scene {
   _interactSecretFile() {
     if (GameState.isPuzzleSolved(FORK_CONFIG.PUZZLES.HIDDEN_FILE)) {
       this.dialogManager.show([
-        'PROJECT_B.enc',
-        'File already accessed.',
+        'PROJECT_B.enc — Already accessed.',
         'You know what this is.',
       ], { title: 'SECRET FILE' });
       return;
     }
 
-    // Puzzle de associação — resposta é "BUTTERFLY"
     const W = FORK_CONFIG.WIDTH;
     const H = FORK_CONFIG.HEIGHT;
     const C = FORK_CONFIG.COLORS;
@@ -527,33 +528,33 @@ class GameScene extends Phaser.Scene {
     ], {
       title: 'SECRET FILE',
       onClose: () => {
-        // Mostra input de palavra
-        const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.75)
-          .setOrigin(0, 0).setDepth(150).setInteractive();
+        this.loopManager.pause();
+        const container = this.add.container(0, 0).setDepth(150).setScrollFactor(0);
 
-        this.add.rectangle(W / 2, H / 2, 360, 160, C.TERMINAL_BG, 0.98)
-          .setStrokeStyle(1, C.ACCENT_DIM).setDepth(151);
-
-        this.add.text(W / 2, H / 2 - 50, 'DECRYPTION KEY:', {
+        const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.75).setOrigin(0, 0);
+        const box     = this.add.rectangle(W/2, H/2, 360, 180, C.TERMINAL_BG, 0.98)
+          .setStrokeStyle(1, C.ACCENT_DIM);
+        const title   = this.add.text(W/2, H/2 - 66, 'DECRYPTION KEY:', {
           fontFamily: 'monospace', fontSize: '12px', color: '#88ffdd',
-        }).setOrigin(0.5, 0).setDepth(152);
+        }).setOrigin(0.5, 0);
+
+        container.add([overlay, box, title]);
 
         let input = '';
-        const display = this.add.text(W / 2, H / 2 - 14, '_', {
-          fontFamily: 'monospace', fontSize: '16px', color: '#00ffe0',
-        }).setOrigin(0.5, 0).setDepth(152);
-
-        const feedback = this.add.text(W / 2, H / 2 + 30, '', {
+        const display  = this.add.text(W/2, H/2 - 28, '_', {
+          fontFamily: 'monospace', fontSize: '18px', color: '#00ffe0',
+        }).setOrigin(0.5, 0);
+        const feedback = this.add.text(W/2, H/2 + 20, '', {
           fontFamily: 'monospace', fontSize: '11px', color: '#ff2244',
-        }).setOrigin(0.5, 0).setDepth(152);
+        }).setOrigin(0.5, 0);
+        container.add([display, feedback]);
 
-        const closeUI = () => { overlay.destroy(); keyH.remove(); };
+        const closeUI = () => { container.destroy(true); keyH.remove(); this.loopManager.resume(); };
 
         const keyH = this.input.keyboard.on('keydown', (e) => {
           if (e.keyCode === 27) { closeUI(); return; }
           if (e.keyCode === 8)  { input = input.slice(0, -1); }
-          else if (e.key.length === 1) { input += e.key.toUpperCase(); }
-
+          else if (e.key.length === 1 && input.length < 20) { input += e.key.toUpperCase(); }
           display.setText(input || '_');
 
           if (e.keyCode === 13) {
@@ -576,7 +577,7 @@ class GameScene extends Phaser.Scene {
             }
           }
         });
-      }
+      },
     });
   }
 
@@ -584,64 +585,47 @@ class GameScene extends Phaser.Scene {
 
   _buildHUD() {
     const W = FORK_CONFIG.WIDTH;
+    const H = FORK_CONFIG.HEIGHT;
     const C = FORK_CONFIG.COLORS;
 
-    // Container fixo (não segue câmera)
-    this._hudContainer = this.add.container(0, 0).setDepth(90).setScrollFactor(0);
+    // FIX: cada elemento do HUD tem setScrollFactor(0) individualmente
+    const sf = (obj) => { obj.setScrollFactor(0); return obj; };
 
-    // Barra superior
-    const topBar = this.add.rectangle(0, 0, W, 28, C.HIGHLIGHT, 0.95).setOrigin(0, 0);
+    const topBar  = sf(this.add.rectangle(0, 0, W, 28, C.HIGHLIGHT, 0.95).setOrigin(0,0).setDepth(90));
+    const forkLbl = sf(this.add.text(12, 7, 'FORK', { fontFamily:'monospace', fontSize:'11px', color:'#00ffe0' }).setDepth(91));
 
-    // Título
-    const titleText = this.add.text(12, 7, 'FORK', {
-      fontFamily: 'monospace', fontSize: '11px', color: '#00ffe0',
-    });
+    this._hudLoop  = sf(this.add.text(W/2, 7, 'LOOP 01', {
+      fontFamily:'monospace', fontSize:'11px', color:'#446655',
+    }).setOrigin(0.5, 0).setDepth(91));
 
-    // Loop counter
-    this._hudLoop = this.add.text(W / 2, 7, `LOOP 01`, {
-      fontFamily: 'monospace', fontSize: '11px', color: '#446655',
-    }).setOrigin(0.5, 0);
+    this._hudTimer = sf(this.add.text(W - 12, 7, 'TIME: 05:00', {
+      fontFamily:'monospace', fontSize:'11px', color:'#00ffe0',
+    }).setOrigin(1, 0).setDepth(91));
 
-    // Timer
-    this._hudTimer = this.add.text(W - 12, 7, 'TIME: 05:00', {
-      fontFamily: 'monospace', fontSize: '11px', color: '#00ffe0',
-    }).setOrigin(1, 0);
+    this._timerBar = sf(this.add.rectangle(0, 28, W, 3, C.ACCENT, 1).setOrigin(0,0).setDepth(91));
 
-    // Barra de tempo (embaixo do header)
-    this._timerBar = this.add.rectangle(0, 28, W, 3, C.ACCENT, 1).setOrigin(0, 0);
+    const botBar = sf(this.add.rectangle(0, H - 22, W, 22, C.HIGHLIGHT, 0.9).setOrigin(0,0).setDepth(90));
 
-    // Barra inferior (mensagens do sistema)
-    const bottomBar = this.add.rectangle(0, FORK_CONFIG.HEIGHT - 22, W, 22, C.HIGHLIGHT, 0.9)
-      .setOrigin(0, 0);
-    this._hudSystemMsg = this.add.text(12, FORK_CONFIG.HEIGHT - 15, 'SYSTEM: Awaiting input.', {
-      fontFamily: 'monospace', fontSize: '10px', color: '#446655',
-    });
+    this._hudSystemMsg = sf(this.add.text(12, H - 15, 'SYSTEM: Awaiting input.', {
+      fontFamily:'monospace', fontSize:'10px', color:'#446655',
+    }).setDepth(91));
 
-    // Awareness indicator
-    this._hudAwareness = this.add.text(W - 12, FORK_CONFIG.HEIGHT - 15, '', {
-      fontFamily: 'monospace', fontSize: '10px', color: '#ff2244',
-    }).setOrigin(1, 0);
-
-    this._hudContainer.add([
-      topBar, titleText, this._hudLoop, this._hudTimer,
-      this._timerBar, bottomBar, this._hudSystemMsg, this._hudAwareness,
-    ]);
+    this._hudAwareness = sf(this.add.text(W - 12, H - 15, '', {
+      fontFamily:'monospace', fontSize:'10px', color:'#ff2244',
+    }).setOrigin(1, 0).setDepth(91));
   }
 
   _updateHUD() {
-    const loop     = GameState.get('loop_count');
-    const time     = this.loopManager.getFormattedTime();
-    const progress = this.loopManager.getProgress();
+    const loop      = GameState.get('loop_count');
+    const time      = this.loopManager.getFormattedTime();
+    const progress  = this.loopManager.getProgress();
     const awareness = GameState.get('system_awareness');
-    const W = FORK_CONFIG.WIDTH;
+    const W         = FORK_CONFIG.WIDTH;
 
     this._hudLoop.setText(`LOOP ${String(loop).padStart(2, '0')}`);
     this._hudTimer.setText(`TIME: ${time}`);
-
-    // Barra de tempo
     this._timerBar.setDisplaySize(W * progress, 3);
 
-    // Cor muda conforme urgência
     if (this.loopManager.isCritical()) {
       this._hudTimer.setColor('#ff2244');
       this._timerBar.setFillStyle(FORK_CONFIG.COLORS.DANGER);
@@ -653,7 +637,6 @@ class GameScene extends Phaser.Scene {
       this._timerBar.setFillStyle(FORK_CONFIG.COLORS.ACCENT);
     }
 
-    // Awareness
     if (awareness > 0) {
       const bars = '|'.repeat(awareness) + '·'.repeat(5 - awareness);
       this._hudAwareness.setText(`SYS [${bars}]`);
@@ -661,7 +644,7 @@ class GameScene extends Phaser.Scene {
   }
 
   _setSystemMessage(msg) {
-    this._hudSystemMsg.setText(`SYSTEM: ${msg}`);
+    if (this._hudSystemMsg) this._hudSystemMsg.setText(`SYSTEM: ${msg}`);
   }
 
   // ── Loop callbacks ────────────────────────────────────────
@@ -670,7 +653,7 @@ class GameScene extends Phaser.Scene {
     this.loopManager
       .on('onWarning', () => {
         this._setSystemMessage('WARNING: Loop reset imminent.');
-        this.dialogManager.showSystem('WARNING: 60 seconds remaining.', null);
+        this.dialogManager.showSystem('WARNING: 60 seconds remaining.');
       })
       .on('onCritical', () => {
         this._setSystemMessage('CRITICAL: System resetting soon.');
@@ -684,14 +667,9 @@ class GameScene extends Phaser.Scene {
     const loopNum = GameState.get('loop_count');
     const msgs    = NARRATIVE.loopStart(loopNum);
 
-    // Reage ações anteriores
     if (loopNum > 1) {
-      if (GameState.get('log07_deleted')) {
-        msgs.push(...NARRATIVE.systemReactions.log07_deleted);
-      }
-      if (GameState.get('server_rebooted')) {
-        msgs.push(...NARRATIVE.systemReactions.server_rebooted);
-      }
+      if (GameState.get('log07_deleted'))   msgs.push(...NARRATIVE.systemReactions.log07_deleted);
+      if (GameState.get('server_rebooted')) msgs.push(...NARRATIVE.systemReactions.server_rebooted);
     }
 
     this.time.delayedCall(400, () => {
