@@ -227,6 +227,14 @@ class GameScene extends Phaser.Scene {
         onInteract: () => this._interactObserver(),
       });
       this._objects.push(observer);
+
+      const identity = new InteractiveObject(this, 620, 350, {
+        id: 'identity_terminal', type: FORK_CONFIG.OBJECT_TYPES.FILE,
+        label: 'IDENTITY', width: 30, height: 26,
+        color: FORK_CONFIG.COLORS.WARNING,
+        onInteract: () => this._interactIdentity(),
+      });
+      this._objects.push(identity);
     }
   }
 
@@ -499,6 +507,45 @@ class GameScene extends Phaser.Scene {
           if (!GameState.isPuzzleSolved(FORK_CONFIG.PUZZLES.BUTTERFLY)) {
             this.puzzleManager.checkAnswer(FORK_CONFIG.PUZZLES.BUTTERFLY, []);
           }
+        },
+      }),
+    });
+  }
+
+  _interactIdentity() {
+    if (GameState.get('identity_fragment_found')) {
+      this.dialogManager.show([
+        'IDENTITY FRAGMENT — ALREADY EXTRACTED.',
+        'SUBJECT: YOU.',
+        '// The system predicted your escape attempt before you made it.',
+      ], { title: 'IDENTITY' });
+      return;
+    }
+
+    this.dialogManager.show([
+      'IDENTITY FRAGMENT',
+      'A label appears on the monitor:',
+      'SUBJECT',
+      '// The word feels familiar.',
+      '// Maybe because the system has used it for every loop.',
+    ], {
+      title: 'IDENTITY',
+      onClose: () => this.uiManager.openWordInput({
+        title: '// IDENTITY VERIFICATION',
+        maxLength: 16,
+        validator: value => this.puzzleManager.checkAnswer(
+          FORK_CONFIG.PUZZLES.IDENTITY_WORD,
+          value
+        ),
+        onSuccess: () => {
+          this.animationManager.glitch(700, 12);
+          this._setSystemMessage('IDENTITY CONFIRMED — SYSTEM PREDICTION EXPOSED');
+          this.dialogManager.show([
+            'IDENTITY CONFIRMED.',
+            'You were not an unknown user.',
+            'You were the subject the entire time.',
+            'Now ask the final question: who is controlling whom?',
+          ], { title: 'IDENTITY' });
         },
       }),
     });
