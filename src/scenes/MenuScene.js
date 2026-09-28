@@ -120,7 +120,10 @@ class MenuScene extends Phaser.Scene {
       loop_count: 0, log07_deleted: false, server_rebooted: false,
       door_unlocked: false, secret_area_found: false, entity_trust: 0,
       system_awareness: 0, butterfly_steps: [], player_identity_known: false,
-      escape_attempted: false, commands_executed: [], puzzles_solved: [], ending_flags: {},
+      phase: FORK_CONFIG.PHASES.AWAKENING,
+      escape_attempted: false, memory_code_found: false,
+      observer_unlocked: false, identity_fragment_found: false,
+      fork_sequence_complete: false, commands_executed: [], puzzles_solved: [], ending_flags: {},
     };
     GameState.nextLoop();
     this.scene.start('GameScene');
