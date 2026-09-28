@@ -286,14 +286,14 @@ class PuzzleManager {
       },
 
       // ── PUZZLE 3: Sequência do Servidor ──────────────────
-      // CADEIA: LEDs piscam em padrão — A(1x) C(3x) B(2x) D(4x) → ordem A C B D
-      // Pista: interagir com o servidor mostra o padrão dos LEDs
+      // CADEIA: LOG_07 deletado → servidor fica acessível → ordem A B C D
+      // Pista: interagir com o servidor mostra 1, 2, 3 e 4 pulsos
       [FORK_CONFIG.PUZZLES.SERVER_SEQUENCE]: {
         id:    FORK_CONFIG.PUZZLES.SERVER_SEQUENCE,
         type:  'sequence',
-        requires: null,
-        // Pista visual: LEDs piscam 1, 3, 2, 4 vezes → ordem por frequência = A C B D
-        validator: (answer) => JSON.stringify(answer) === JSON.stringify(['A', 'C', 'B', 'D']),
+        requires: { log07_deleted: true },
+        // Pista visual: LEDs representam 1, 2, 3 e 4 pulsos → ordem crescente = A B C D
+        validator: (answer) => JSON.stringify(answer) === JSON.stringify(['A', 'B', 'C', 'D']),
         consequences: [
           { key: 'server_rebooted', value: true },
           { butterfly: 'reboot_server' },
