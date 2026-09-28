@@ -4,7 +4,7 @@
 // Singleton acessível globalmente
 // ============================================================
 
-const FORK_SAVE_KEY = 'fork_gamejam_save_v2';
+const FORK_SAVE_KEY = 'fork_gamejam_legacy_save';
 
 const GameState = {
 
@@ -49,64 +49,32 @@ const GameState = {
 
   // ── Persistência local ──────────────────────────────────
 
+  // FORK não possui save de progresso.
+  // O estado atravessa apenas os loops da sessão atual.
+  // Fechar/reiniciar o jogo significa começar novamente.
   hasSave() {
-    try {
-      return !!window.localStorage.getItem(FORK_SAVE_KEY);
-    } catch (error) {
-      console.warn('[FORK] Local save unavailable:', error);
-      return false;
-    }
+    return false;
   },
 
   save() {
-    try {
-      const payload = {
-        version: 2,
-        saved_at: new Date().toISOString(),
-        persistent: JSON.parse(JSON.stringify(this.persistent)),
-      };
-      window.localStorage.setItem(FORK_SAVE_KEY, JSON.stringify(payload));
-      return true;
-    } catch (error) {
-      console.warn('[FORK] Could not save game:', error);
-      return false;
-    }
+    return false;
   },
 
   load() {
-    try {
-      const raw = window.localStorage.getItem(FORK_SAVE_KEY);
-      if (!raw) return false;
-
-      const payload = JSON.parse(raw);
-      if (!payload || payload.version !== 2 || !payload.persistent) return false;
-
-      this.persistent = { ...this.persistent, ...payload.persistent };
-      return true;
-    } catch (error) {
-      console.warn('[FORK] Could not load save:', error);
-      return false;
-    }
+    return false;
   },
 
   clearSave() {
     try {
       window.localStorage.removeItem(FORK_SAVE_KEY);
-      return true;
     } catch (error) {
-      console.warn('[FORK] Could not clear save:', error);
-      return false;
+      console.warn('[FORK] Could not clear legacy save:', error);
     }
+    return true;
   },
 
   getSaveDate() {
-    try {
-      const raw = window.localStorage.getItem(FORK_SAVE_KEY);
-      if (!raw) return null;
-      return JSON.parse(raw).saved_at || null;
-    } catch (error) {
-      return null;
-    }
+    return null;
   },
 
   // ── API pública ──────────────────────────────────────────
@@ -191,18 +159,9 @@ const GameState = {
     this.save();
   },
 
-  /** Restaura a simulação usando a chave descoberta em SYSTEM_NOTES. */
+  /** A corrupção crítica não possui restauração nem save de recuperação. */
   restoreSystem() {
-    if (!this.persistent.system_notes_read) return false;
-    if (this.persistent.corruption_level < 3) return false;
-
-    this.persistent.corruption_level = 0;
-    this.persistent.filesystem_wiped = false;
-    this.persistent.restore_requested = true;
-    this.persistent.system_restored = true;
-    this.addButterflyStep('system_restored');
-    this.save();
-    return true;
+    return false;
   },
 
   /** Aumenta consciência do sistema */
