@@ -80,7 +80,8 @@ class GameScene extends Phaser.Scene {
     this.dialogManager.update();
     this.finalManager.check();
     this.player.update(this._objects);
-    this._objects.forEach(obj => obj.update(this.player.x, this.player.y));
+    const selectedObject = this.player.getNearestObject();
+    this._objects.forEach(obj => obj.update(this.player.x, this.player.y, selectedObject));
     this._updateCorruptionEffects();
 
     if (GameState.get('restore_requested')) {
@@ -199,50 +200,40 @@ class GameScene extends Phaser.Scene {
     const W = FORK_CONFIG.WIDTH;
     const H = FORK_CONFIG.HEIGHT;
 
+    // Circuitos ambientais: poucos elementos lentos para não competir com o player.
     const routes = [
       { color: C.ACCENT, points: [[90,150],[230,150],[230,215],[320,215]] },
       { color: C.PURPLE, points: [[470,90],[470,160],[610,160],[610,250]] },
-      { color: C.MAGENTA, points: [[110,335],[260,335],[260,455],[430,455]] },
       { color: C.GREEN, points: [[520,540],[640,540],[640,430],[760,430]] },
-      { color: C.ORANGE, points: [[850,95],[850,180],[790,180]] },
     ];
 
-    routes.forEach((route, index) => {
+    routes.forEach(route => {
       const g = this.add.graphics().setDepth(1);
-      g.lineStyle(2, route.color, 0.16);
+      g.lineStyle(1, route.color, 0.10);
       route.points.forEach(([x,y], i) => {
         if (i === 0) g.moveTo(x,y);
         else g.lineTo(x,y);
       });
       g.strokePath();
-
-      const pulse = this.add.circle(route.points[0][0], route.points[0][1], 3, route.color, 0.95).setDepth(2);
-      let segment = 0;
-      const moveNext = () => {
-        const [sx,sy] = route.points[segment];
-        const [tx,ty] = route.points[(segment + 1) % route.points.length];
-        pulse.setPosition(sx,sy);
-        this.tweens.add({
-          targets: pulse, x: tx, y: ty, duration: 650 + index * 80,
-          ease: 'Sine.easeInOut',
-          onComplete: () => { segment = (segment + 1) % route.points.length; moveNext(); },
-        });
-      };
-      moveNext();
     });
 
     const nodes = [
-      [230,150,C.ACCENT],[470,160,C.PURPLE],[610,250,C.MAGENTA],
-      [260,335,C.GREEN],[640,430,C.ORANGE],[850,180,C.ACCENT_BRIGHT],
-      [500,480,C.MAGENTA],[300,270,C.PURPLE],[700,95,C.GREEN],
+      [230,150,C.ACCENT],
+      [610,250,C.PURPLE],
+      [640,430,C.GREEN],
+      [850,180,C.ACCENT_BRIGHT],
     ];
 
-    nodes.forEach(([x,y,color], i) => {
-      const core = this.add.rectangle(x, y, 5, 5, color, 0.95).setDepth(2);
-      const ring = this.add.rectangle(x, y, 12, 12, color, 0).setStrokeStyle(1, color, 0.55).setDepth(2);
+    nodes.forEach(([x,y,color]) => {
+      const node = this.add.circle(x, y, 2, color, 0.45).setDepth(2);
       this.tweens.add({
-        targets: [core, ring], alpha: { from: 0.9, to: 0.15 }, scale: { from: 0.8, to: 1.5 },
-        duration: 700 + i * 90, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+        targets: node,
+        alpha: { from: 0.18, to: 0.55 },
+        scale: { from: 0.9, to: 1.15 },
+        duration: 1500,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
       });
     });
 
@@ -259,10 +250,10 @@ class GameScene extends Phaser.Scene {
   _drawDigitalRain(x, y, w, h) {
     const F = FORK_CONFIG.FONT;
     const C = FORK_CONFIG.COLORS;
-    const layer = this.add.container(0, 0).setDepth(0).setAlpha(0.14);
+    const layer = this.add.container(0, 0).setDepth(0).setAlpha(0.08);
     const glyphs = '01アイウエオカキクケコ<>[]{}+/\\';
 
-    for (let i = 0; i < 28; i++) {
+    for (let i = 0; i < 8; i++) {
       const tx = x + Phaser.Math.Between(10, w - 10);
       const ty = y + Phaser.Math.Between(0, h);
       const text = this.add.text(tx, ty, '', {
@@ -282,7 +273,7 @@ class GameScene extends Phaser.Scene {
       this.tweens.add({
         targets: text,
         y: ty + Phaser.Math.Between(90, 220),
-        alpha: { from: 0.08, to: 0.34 },
+        alpha: { from: 0.04, to: 0.16 },
         duration: Phaser.Math.Between(3500, 7000),
         delay: Phaser.Math.Between(0, 2500),
         repeat: -1,
