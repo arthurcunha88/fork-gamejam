@@ -248,13 +248,13 @@ const NARRATIVE = {
 
   // Servidor — pista dos LEDs para o puzzle de sequência
   serverLEDs: [
-    'SERVER A — DIAGNOSTIC',
+    'SERVIDOR A — DIAGNÓSTICO',
     '──────────────────────────────',
-    'LED status report:',
-    '  Panel A: [ . ]          — 1 pulse',
-    '  Panel B: [ . . ]        — 2 pulses',
-    '  Panel C: [ . . . ]      — 3 pulses',
-    '  Panel D: [ . . . . ]    — 4 pulses',
+    'Relatório dos LEDs:',
+    '  Painel A: [ . ]          — 1 pulso',
+    '  Painel B: [ . . ]        — 2 pulsos',
+    '  Painel C: [ . . . ]      — 3 pulsos',
+    '  Painel D: [ . . . . ]    — 4 pulsos',
     '──────────────────────────────',
     '// Os painéis piscam em sequência.',
     '// A ordem de ativação importa.',
@@ -264,12 +264,12 @@ const NARRATIVE = {
   // Porta — feedback contextual
   door: {
     locked_no_clue: [
-      'SECURITY DOOR — LOCKED.',
+      'PORTA DE SEGURANÇA — BLOQUEADA.',
       'Código de acesso necessário. Formato: XXXX',
       '// Talvez o terminal tenha uma pista.',
     ],
     locked_has_clue: [
-      'SECURITY DOOR — LOCKED.',
+      'PORTA DE SEGURANÇA — BLOQUEADA.',
       'Código de acesso necessário.',
       '// Você deletou LOG_07 às 07:31.',
       '// O sistema registrou esse momento.',
