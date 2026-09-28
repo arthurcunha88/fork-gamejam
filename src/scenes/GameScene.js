@@ -786,8 +786,9 @@ class GameScene extends Phaser.Scene {
     this.dialogManager.show([
       'MEMORY PANEL',
       'A four-digit fragment is burned into the display.',
-      '4217',
-      '// It is not a password. It is a memory.',
+      '....-  ..---  .----  --...',
+      '// Four digits. One language. Decode before entering.',
+      '// The panel is speaking in pulses, not numbers.',
     ], {
       title: 'MEMORY PANEL',
       onClose: () => this.uiManager.openCodeInput({
