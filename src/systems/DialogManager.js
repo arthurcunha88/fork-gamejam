@@ -18,6 +18,7 @@ class DialogManager {
     this._input  = null;
 
     this._buildUI();
+    this._keyEsc = null;
   }
 
   // ── Construção da UI ──────────────────────────────────────
@@ -63,7 +64,12 @@ class DialogManager {
     });
 
     // Prompt "[ PRESSIONE E PARA CONTINUAR ]"
-    this._prompt = this.scene.add.text(W - 20, boxY + boxH - 18, '[ E / CLICK TO CONTINUE ]', {
+    this._closeBtn = this.scene.add.text(W - 20, boxY + 3, '[X]', {
+      fontFamily: FORK_CONFIG.FONT.FAMILY, fontSize: '10px', color: FORK_CONFIG.FONT.COLOR_DIM,
+    }).setOrigin(1, 0).setInteractive({ useHandCursor: true });
+    this._closeBtn.on('pointerdown', () => this.close());
+
+    this._prompt = this.scene.add.text(W - 20, boxY + boxH - 18, '[ E / CLICK ]  [ ESC / CLOSE ]', {
       fontFamily: FORK_CONFIG.FONT.FAMILY,
       fontSize: '10px',
       color: FORK_CONFIG.FONT.COLOR_DIM,
@@ -78,10 +84,17 @@ class DialogManager {
       repeat: -1,
     });
 
-    this._container.add([overlay, boxBg, titleBg, this._titleText, this._text, this._prompt]);
+    this._container.add([overlay, boxBg, titleBg, this._titleText, this._text, this._prompt, this._closeBtn]);
+
+    overlay.setInteractive();
+    overlay.on('pointerdown', () => this.close());
 
     // Input do teclado para avançar
     this._keyE = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this._keyEsc = (e) => {
+      if (this.isOpen && e.keyCode === Phaser.Input.Keyboard.KeyCodes.ESC) this.close();
+    };
+    this.scene.input.keyboard.on('keydown', this._keyEsc);
   }
 
   // ── API pública ───────────────────────────────────────────
