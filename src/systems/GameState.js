@@ -31,6 +31,9 @@ const GameState = {
     clear_count:            0,       // quantas vezes o terminal foi limpo
     corruption_level:      0,       // 0-5: degradação da simulação
     filesystem_wiped:      false,   // DELETE ALL
+    system_notes_read:     false,
+    restore_requested:     false,
+    system_restored:       false,
   },
 
   // ── Estado volátil (reseta a cada loop) ──────────────────
@@ -186,6 +189,20 @@ const GameState = {
     this.addButterflyStep('filesystem_wiped');
     this.increaseSystemAwareness(2);
     this.save();
+  },
+
+  /** Restaura a simulação usando a chave descoberta em SYSTEM_NOTES. */
+  restoreSystem() {
+    if (!this.persistent.system_notes_read) return false;
+    if (this.persistent.corruption_level < 3) return false;
+
+    this.persistent.corruption_level = 0;
+    this.persistent.filesystem_wiped = false;
+    this.persistent.restore_requested = true;
+    this.persistent.system_restored = true;
+    this.addButterflyStep('system_restored');
+    this.save();
+    return true;
   },
 
   /** Aumenta consciência do sistema */
