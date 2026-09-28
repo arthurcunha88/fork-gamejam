@@ -8,6 +8,23 @@ class AudioManager {
     this.ctx = null;
     this.master = 0.07;
     this._ambient = null;
+    this._boundInput = false;
+    this._lastInputAt = 0;
+    this._bindGlobalInput();
+  }
+
+  _bindGlobalInput() {
+    if (this._boundInput || typeof document === 'undefined') return;
+    this._boundInput = true;
+
+    document.addEventListener('keydown', (event) => {
+      if (event.repeat) return;
+      this.playKey(event.code || event.key || '');
+    });
+
+    document.addEventListener('pointerdown', () => {
+      this.playInterfaceClick();
+    });
   }
 
   _ensure() {
@@ -55,6 +72,59 @@ class AudioManager {
   }
 
   playBeep() { this._tone(520, 0.05, 'square', 0.7); }
+
+  playInterfaceClick() {
+    const now = performance.now();
+    if (now - this._lastInputAt < 28) return;
+    this._lastInputAt = now;
+
+    const ctx = this._ensure();
+    if (!ctx) return;
+
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
+
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(980, t);
+    osc.frequency.exponentialRampToValueAtTime(420, t + 0.055);
+    filter.type = 'highpass';
+    filter.frequency.value = 520;
+
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(this.master * 0.45, t + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.075);
+
+    osc.connect(filter).connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.08);
+  }
+
+  playKey(code = '') {
+    const now = performance.now();
+    if (now - this._lastInputAt < 18) return;
+    this._lastInputAt = now;
+
+    const special = {
+      Enter: 880,
+      NumpadEnter: 880,
+      Backspace: 430,
+      Escape: 310,
+      ArrowUp: 700,
+      ArrowDown: 560,
+      ArrowLeft: 620,
+      ArrowRight: 620,
+      Space: 760,
+    };
+
+    const base = special[code] || (code.startsWith('Key') ? 690 : 610);
+    this._tone(base, 0.035, 'square', 0.22, base * 0.72);
+
+    if (code === 'Enter' || code === 'NumpadEnter') {
+      setTimeout(() => this._tone(1120, 0.045, 'sine', 0.16, 760), 28);
+    }
+  }
 
   playType() {
     this._tone(780 + Math.random() * 80, 0.025, 'square', 0.25);
