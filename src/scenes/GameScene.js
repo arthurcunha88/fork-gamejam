@@ -30,6 +30,10 @@ class GameScene extends Phaser.Scene {
     });
 
     this._buildHUD();
+    this._saveKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+    this._saveKey.on('down', () => {
+      if (GameState.save()) this._setSystemMessage('SAVE COMPLETE — LOCAL STATE STORED.');
+    });
 
     this.cameras.main.setBounds(0, 0, W, H);
     this.cameras.main.startFollow(this.player.getPhysicsBody(), true, 0.1, 0.1);
