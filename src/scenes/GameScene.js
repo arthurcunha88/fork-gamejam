@@ -383,7 +383,7 @@ class GameScene extends Phaser.Scene {
 
     const door = new InteractiveObject(this, 780, 250, {
       id: 'door_security', type: FORK_CONFIG.OBJECT_TYPES.DOOR,
-      label: GameState.get('door_unlocked') ? 'PORTA // ABERTA' : 'PORTA // FECHADA', width: 58, height: 12,
+      label: GameState.get('door_unlocked') ? 'PORTA // ABERTA' : 'PORTA // BLOQUEADA', width: 58, height: 12,
       color: GameState.get('door_unlocked') ? C.ACCENT : 0x36424c,
       onInteract: (obj) => this._interactDoor(obj),
     });
@@ -582,29 +582,45 @@ class GameScene extends Phaser.Scene {
 
   _showCodePuzzle() {
     if (!GameState.get('log07_deleted')) {
-      this.dialogManager.show(NARRATIVE.door.locked_no_clue, { title: 'SECURITY DOOR' });
+      this.dialogManager.show([
+        'CONTROL SERVER // ACESSO NEGADO',
+        'O protocolo de abertura está oculto.',
+        '',
+        'O sistema registrou uma alteração no LOG_07.',
+        'Descubra o que mudou antes de tentar a porta novamente.',
+      ], { title: 'CONTROL SERVER // GATE' });
       return;
     }
-    // Efeito borboleta: porta dá pista só porque LOG_07 foi deletado
+
     this.dialogManager.show([
-      ...NARRATIVE.door.locked_has_clue,
+      'CONTROL SERVER // HANDSHAKE',
       '',
-      'AVISO DO SISTEMA:',
-      'NÃO ABRA A PORTA.',
-      'A simulação ainda não está pronta para o que existe além dela.',
+      'O código numérico não é mais aceito.',
+      'A porta exige quatro operações em sequência.',
+      '',
+      'TRACE precisa acontecer antes de AUTH.',
+      'AUTH precisa acontecer antes de SYNC.',
+      'OPEN sempre encerra o handshake.',
+      '',
+      '// Reproduza a sequência para liberar o acesso.',
     ], {
-      title: 'PORTA DE SEGURANÇA // AVISO',
-      onClose: () => this._showCodeInput(),
+      title: 'PORTA DE SEGURANÇA // PROTOCOLO',
+      onClose: () => this._showDoorSequence(),
     });
   }
 
-  _showCodeInput() {
-    this.uiManager.openCodeInput({
-      title: '// PORTA DE SEGURANÇA — CÓDIGO DE ACESSO',
-      length: 4,
-      validator: value => this.puzzleManager.checkAnswer(FORK_CONFIG.PUZZLES.DOOR_CODE, value),
+  _showDoorSequence() {
+    this.uiManager.openSequence({
+      title: '// CONTROL SERVER // HANDSHAKE',
+      items: ['TRACE', 'AUTH', 'SYNC', 'OPEN'],
+      validator: answer => this.puzzleManager.checkAnswer(
+        FORK_CONFIG.PUZZLES.DOOR_SEQUENCE,
+        answer
+      ),
       onSuccess: () => {
         if (window.AudioManagerInstance) window.AudioManagerInstance.playDoor();
+
+        GameState.save();
 
         if (this._controlRoomGate) {
           this.tweens.add({
@@ -639,14 +655,15 @@ class GameScene extends Phaser.Scene {
         this.animationManager.doorOpen(780, 250);
         this.cameras.main.flash(180, 90, 220, 255, false);
         this.cameras.main.shake(220, 0.004);
-        this._setSystemMessage('PORTA ABERTA // SALA DO SERVIDOR LIBERADA');
+        this._setSystemMessage('HANDSHAKE ACEITO // CONTROL SERVER LIBERADO');
         this.time.delayedCall(450, () => {
           this.dialogManager.show([
-            'ACESSO CONCEDIDO.',
-            'A porta abriu porque você alterou um loop anterior.',
-            'O sistema registrou a mudança.',
-            'Há algo além desta porta que ele não quer que você veja.',
-          ], { title: 'SECURITY DOOR' });
+            'HANDSHAKE ACEITO.',
+            'A porta do Control Server foi liberada.',
+            'O sistema registrou cada etapa do acesso.',
+            '',
+            '// SERVER A está aguardando dentro da sala.',
+          ], { title: 'CONTROL SERVER // ACCESS GRANTED' });
         });
       },
     });
