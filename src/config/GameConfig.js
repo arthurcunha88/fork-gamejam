@@ -81,6 +81,7 @@ const FORK_CONFIG = {
     LOG_FILE:         'puzzle_log_file',
     DOOR_CODE:        'puzzle_door_code',
     EXIT_CODE:        'puzzle_exit_code',
+    EXIT_CODE:        'puzzle_exit_code',
     DOOR_SEQUENCE:    'puzzle_door_sequence',
     SERVER_SEQUENCE:  'puzzle_server_sequence',
     HIDDEN_FILE:      'puzzle_hidden_file',
