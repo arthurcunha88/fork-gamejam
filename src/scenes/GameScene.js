@@ -3,7 +3,7 @@
 const NARRATIVE = {
   door: {
     locked_no_clue: ['PORTA DE SEGURANÇA','O acesso está sincronizado com um evento que ainda não aconteceu.','// O sistema não entrega a resposta diretamente.'],
-    locked_has_clue: ['PORTA DE SEGURANÇA','LOG_07 desapareceu.','O horário do desaparecimento continua registrado.','// O que o sistema registrou quando você agiu?'],
+    locked_has_clue: ['PORTA DE SEGURANÇA','Uma alteração anterior deixou um rastro no sistema.','O relógio continua registrando o momento da mudança.','// Descubra o que mudou antes de tentar abrir.'],
   },
   serverLEDs: ['SERVER A','Os quatro canais não pulsam da mesma forma.','','Canal A  [ • ]','Canal B  [ • • ]','Canal C  [ • • • ]','Canal D  [ • • • • ]','','// Os canais não estão em ordem.','// A ordem de ativação importa.','// Toda fuga começa pelo pulso mais forte.'],
   entity: {
@@ -871,15 +871,15 @@ class GameScene extends Phaser.Scene {
     // Elementos sem importância narrativa: servem para a simulação parecer
     // habitada e são os primeiros a desaparecer com CLEAR.
     const decor = [
-      ['cabinet_01', 330, 150, 'ARMÁRIO A', 46, 64, 'cabinet'],
-      ['cabinet_02', 430, 150, 'ARMÁRIO B', 46, 64, 'cabinet'],
-      ['monitor_01', 330, 250, 'MONITOR 01', 46, 30, 'monitor'],
-      ['monitor_02', 430, 250, 'MONITOR 02', 46, 30, 'monitor'],
-      ['rack_01', 330, 505, 'RACK AUX', 50, 56, 'rack'],
-      ['monitor_03', 455, 505, 'MONITOR 03', 46, 30, 'monitor'],
+      ['cabinet_01', 330, 150, 'ARMÁRIO A', 46, 64, 'cabinet', null],
+      ['cabinet_02', 430, 150, 'ARMÁRIO B', 46, 64, 'cabinet', null],
+      ['monitor_01', 330, 250, 'MONITOR 01', 46, 30, 'monitor', () => this._interactMonitor(1)],
+      ['monitor_02', 430, 250, 'MONITOR 02', 46, 30, 'monitor', () => this._interactMonitor(2)],
+      ['rack_01', 330, 505, 'RACK AUX', 50, 56, 'rack', null],
+      ['monitor_03', 455, 505, 'MONITOR 03', 46, 30, 'monitor', () => this._interactMonitor(3)],
     ];
 
-    decor.forEach(([id, x, y, label, width, height, visual]) => {
+    decor.forEach(([id, x, y, label, width, height, visual, onInteract]) => {
       const object = new InteractiveObject(this, x, y, {
         id,
         type: FORK_CONFIG.OBJECT_TYPES.OBJECT,
@@ -889,6 +889,7 @@ class GameScene extends Phaser.Scene {
         visual,
         color: 0x26313b,
         showLabel: false,
+        onInteract,
       });
       this._objects.push(object);
     });
@@ -1018,25 +1019,11 @@ class GameScene extends Phaser.Scene {
 
   _showCodePuzzle() {
     if (!GameState.get('log07_deleted')) {
-      this.dialogManager.show([
-        'RESTRICTED WING // ACCESS DENIED',
-        'A alteração necessária ainda não aconteceu.',
-        '',
-        'LOG_07 precisa desaparecer antes que o relógio revele a chave.',
-        '// The system will not accept the door code yet.',
-      ], { title: 'SERVER SECURITY' });
+      this.dialogManager.show(NARRATIVE.door.locked_no_clue, { title: 'SERVER SECURITY' });
       return;
     }
 
-    this.dialogManager.show([
-      'RESTRICTED WING // SECURITY GATE',
-      '',
-      'NUMERIC ACCESS REQUIRED.',
-      'Four digits.',
-      '',
-      'The clock anchor was recorded when LOG_07 disappeared.',
-      '// Enter the access code.',
-    ], {
+    this.dialogManager.show(NARRATIVE.door.locked_has_clue, {
       title: 'PORTA DE SEGURANÇA',
       onClose: () => this.uiManager.openCodeInput({
         title: '// RESTRICTED WING // ACCESS CODE',
@@ -1307,6 +1294,23 @@ class GameScene extends Phaser.Scene {
     } else {
       this.dialogManager.show(msgs.warning, { title: '???' });
     }
+  }
+
+  _interactMonitor(index) {
+    const easterEggs = {
+      1: 'essa aula de aed tava barril sacana...',
+      2: 'certinhooooooo!!!!!',
+      3: 'o careca nem desconfia disso...',
+    };
+
+    const message = easterEggs[index] || 'Nenhum registro relevante encontrado.';
+    this.dialogManager.show([
+      'MONITOR ' + String(index).padStart(2, '0'),
+      '',
+      message,
+      '',
+      '// Registro local — sem sincronização com o sistema.',
+    ], { title: 'MONITOR ' + String(index).padStart(2, '0') });
   }
 
   _interactCamera() {
