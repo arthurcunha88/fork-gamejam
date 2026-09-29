@@ -1,168 +1,470 @@
-# FORK — Dev Notes
-**NPCboPe  //  Game Jam  //  Butterfly Effect**
+# FORK
+
+**NPCboPe // SEMCOMP Game Jam 2026 // Tema: Efeito Borboleta**
+
+> Um escape room digital sobre escolhas, consequências e um sistema que talvez já soubesse o que você faria.
 
 ---
 
-## Como rodar
-Abra `index.html` em um servidor local. Não funciona com `file://` por restrições do browser.
+## Sobre o jogo
 
-```bash
-# Opção 1 — Python
-python -m http.server 8080
+**FORK** é um jogo 2D de investigação e escape room desenvolvido para a **SEMCOMP Game Jam 2026**, a partir do tema **Efeito Borboleta**.
 
-# Opção 2 — Node
-npx serve .
+A proposta nasceu de uma pergunta simples:
 
-# Opção 3 — VS Code
-Instale "Live Server" e clique em "Go Live"
-```
+> **E se uma pequena decisão dentro de um sistema fosse capaz de alterar completamente o seu desfecho?**
+
+Em vez de transformar o tema em uma representação literal de uma borboleta, o projeto utiliza a ideia de causa e consequência como parte da própria estrutura do jogo.
+
+O jogador acorda dentro de uma simulação aparentemente controlada, explora um laboratório digital, encontra arquivos, terminais e sistemas de segurança e precisa interpretar pistas para descobrir como avançar.
+
+Ao longo da experiência, as decisões do jogador alteram o estado da simulação e podem levar a **cinco finais diferentes**.
 
 ---
 
-## Estrutura do projeto
+## Conceito
+
+FORK mistura:
+
+- escape room;
+- investigação;
+- puzzles;
+- exploração top-down;
+- narrativa ambiental;
+- ficção científica;
+- estética de terminal e interface digital;
+- sistema de loops;
+- múltiplos finais.
+
+O jogo foi pensado para que o jogador não receba toda a história diretamente.
+
+Grande parte da narrativa é descoberta através de:
+
+- arquivos;
+- comandos;
+- mensagens do sistema;
+- objetos interativos;
+- sequências de códigos;
+- alterações no ambiente;
+- consequências das próprias ações.
+
+A ideia central é fazer com que o jogador perceba gradualmente que **resolver os puzzles não significa necessariamente entender o sistema**.
+
+---
+
+# Processo criativo
+
+## 1. Partindo do tema "Efeito Borboleta"
+
+O primeiro desafio foi evitar uma interpretação superficial do tema.
+
+Em vez de simplesmente representar uma borboleta causando mudanças no cenário, a ideia foi utilizar o conceito de **efeito em cadeia**:
+
+`ação → consequência → nova ação → nova consequência`
+
+Essa estrutura acabou se tornando a base da narrativa e também da programação do jogo.
+
+Cada descoberta poderia desbloquear outra descoberta, enquanto determinadas ações alterariam o comportamento do sistema.
+
+---
+
+## 2. A ideia de um escape room digital
+
+A partir disso, o conceito foi direcionado para um **escape room digital**.
+
+A inspiração veio da ideia de estar preso dentro de um sistema que apresenta regras próprias, com uma atmosfera de ficção científica semelhante à de histórias sobre simulações e controle.
+
+O objetivo não era criar um jogo de ação complexo.
+
+A prioridade passou a ser:
+
+**explorar → observar → interpretar → testar → descobrir.**
+
+Isso também permitiu manter o escopo adequado para uma Game Jam.
+
+---
+
+## 3. O sistema de loops
+
+O conceito evoluiu para um sistema em que determinados erros podem provocar o colapso do loop.
+
+O jogador pode:
+
+- descobrir informações;
+- cometer erros em protocolos críticos;
+- aumentar o nível de consciência do sistema;
+- alterar o estado da simulação;
+- chegar a diferentes desfechos.
+
+O loop, portanto, não existe apenas como mecânica.
+
+Ele também faz parte da narrativa.
+
+O sistema lembra ações realizadas anteriormente e utiliza essas informações para alterar a experiência.
+
+---
+
+## 4. Os cinco finais
+
+Durante o desenvolvimento, percebemos que o próprio tema da Game Jam poderia ser representado através dos finais.
+
+Uma mesma experiência pode gerar consequências diferentes dependendo das decisões tomadas.
+
+O jogo possui cinco finais:
+
+### Final 1 — ESCAPE
+
+O jogador consegue completar a cadeia principal e alcançar a saída.
+
+Mas a fuga traz uma última informação:
+
+**SYSTEM USERS: 2**
+
+A pergunta passa a ser quem, exatamente, escapou junto.
+
+### Final 2 — RESET
+
+O jogador tenta escapar antes de compreender completamente o sistema.
+
+A tentativa é registrada e o sistema reinicia o loop.
+
+### Final 3 — ETERNAL LOOP
+
+O jogador descobre que o ciclo não começou com ele.
+
+Existe um histórico muito maior por trás da simulação.
+
+### Final 4 — CONTROLLED
+
+O jogador descobre que suas próprias decisões estavam sendo previstas.
+
+A revelação transforma as escolhas anteriores em parte do próprio experimento.
+
+### Final 5 — PROJECT BUTTERFLY
+
+É o desfecho secreto.
+
+O jogador conecta diferentes pistas e percebe que a sequência de ações formou uma cadeia deliberada.
+
+O sistema conseguiu prever quase tudo.
+
+A variável que permaneceu fora da previsão foi a própria decisão de compreender o que estava acontecendo.
+
+---
+
+## 5. A construção dos puzzles
+
+Os puzzles foram desenvolvidos para que as respostas não fossem simplesmente entregues ao jogador.
+
+Um exemplo importante é a sequência envolvendo:
+
+`LOG_07 → 07:31 → PORTA → SERVER A → STORAGE → PROJECT_B → NOTES → SAÍDA`
+
+O objetivo foi fazer com que cada descoberta servisse de contexto para a próxima.
+
+A hora **07:31**, por exemplo, não funciona apenas como um código: ela faz parte da linguagem interna da simulação.
+
+Da mesma forma, o `NOTES.txt` apresenta o horário local do computador como uma referência para o protocolo de saída.
+
+Assim, os puzzles tentam funcionar simultaneamente como:
+
+1. desafios;
+2. pistas;
+3. elementos narrativos.
+
+---
+
+## 6. Desenvolvimento visual
+
+A direção visual foi construída em torno de uma estética de laboratório tecnológico e simulação digital.
+
+A primeira versão utilizava principalmente elementos desenhados proceduralmente.
+
+Durante o desenvolvimento, o projeto passou a incorporar assets pixel-art e elementos de interface para enriquecer o ambiente sem abandonar a identidade original.
+
+A escolha visual buscou manter:
+
+- tons escuros;
+- azul/ciano como cor de interface;
+- pequenos pontos de iluminação;
+- elementos industriais;
+- equipamentos tecnológicos;
+- interfaces minimalistas;
+- contraste entre áreas normais e áreas corrompidas.
+
+Parte importante da ambientação continua sendo criada diretamente pelo código, enquanto assets externos são utilizados como complemento visual.
+
+---
+
+# Características
+
+- Escape room 2D top-down.
+- Exploração livre dentro do laboratório.
+- Sistema de interação com objetos.
+- Terminal com comandos.
+- Puzzles de código, sequência e investigação.
+- Sistema de loops.
+- Estado persistente entre loops.
+- Sistema de consciência do sistema.
+- Corrupção progressiva do ambiente.
+- Narrativa descoberta através de arquivos e objetos.
+- Cinco finais.
+- Final secreto relacionado ao Projeto Butterfly.
+- Controles por teclado e mouse.
+- Telas finais estáticas com escolha manual do próximo passo.
+- Áudio procedural utilizando Web Audio API.
+- Efeitos visuais e partículas criados em código.
+- Assets pixel-art utilizados para complementar a ambientação.
+
+---
+
+# Tecnologia
+
+O jogo foi desenvolvido principalmente com:
+
+- **JavaScript**
+- **Phaser 3**
+- **HTML5**
+- **CSS**
+- **Web Audio API**
+- **Git / GitHub**
+
+O **Phaser 3** foi utilizado como framework principal para a criação do jogo. Phaser é um framework 2D para jogos HTML5, com suporte a renderização via WebGL e Canvas e execução diretamente no navegador. citeturn0search0
+
+A estrutura do projeto utiliza cenas, objetos interativos, sistemas independentes e um estado central para separar as principais responsabilidades do jogo.
+
+---
+
+# Arquitetura do projeto
 
 ```
-fork-game/
+fork-gamejam/
+│
 ├── index.html
+│
+├── assets/
+│   ├── tilemap/
+│   │   └── CosmicLilac_Tiles.png
+│   ├── fork-lab-props.svg
+│   └── fork-emblem.svg
+│
 └── src/
     ├── config/
-    │   ├── GameConfig.js      ← Constantes globais (cores, timers, IDs)
-    │   └── PhaserConfig.js    ← Inicialização do Phaser
+    │   ├── GameConfig.js
+    │   └── PhaserConfig.js
+    │
     ├── systems/
-    │   ├── GameState.js       ← Estado central (persiste entre loops) ★
-    │   ├── LoopManager.js     ← Timer, reset, callbacks de urgência
-    │   ├── PuzzleManager.js   ← Definição e validação de todos os puzzles
-    │   ├── DialogManager.js   ← Caixas de texto + banco de narrativa
-    │   └── FinalManager.js    ← Verifica e dispara os 5 finais
+    │   ├── GameState.js
+    │   ├── LoopManager.js
+    │   ├── UIManager.js
+    │   ├── AudioManager.js
+    │   ├── AnimationManager.js
+    │   ├── PuzzleManager.js
+    │   ├── DialogManager.js
+    │   └── FinalManager.js
+    │
     ├── objects/
-    │   ├── InteractiveObject.js ← Base de todos os objetos do mapa
-    │   ├── Terminal.js          ← Terminal com sistema de comandos
-    │   └── Player.js            ← Movimento + detecção de interação
+    │   ├── InteractiveObject.js
+    │   ├── Player.js
+    │   └── Terminal.js
+    │
     └── scenes/
-        ├── BootScene.js       ← Tela de boot simulada
-        ├── MenuScene.js       ← Menu principal
-        ├── GameScene.js       ← Gameplay principal ★
-        ├── ResetScene.js      ← Transição entre loops
-        └── EndScene.js        ← Os 5 finais
+        ├── BootScene.js
+        ├── MenuScene.js
+        ├── GameScene.js
+        ├── ResetScene.js
+        └── EndScene.js
+```
+
+### Principais sistemas
+
+**GameState**
+
+Centraliza as informações que precisam sobreviver aos loops, como descobertas, consciência do sistema, puzzles resolvidos e progresso dos finais.
+
+**LoopManager**
+
+Controla o tempo do loop, estados de alerta, pausa e colapsos provocados por erros críticos.
+
+**PuzzleManager**
+
+Concentra os puzzles e suas regras de validação e consequências.
+
+**InteractiveObject**
+
+É a base dos objetos que podem ser examinados ou utilizados pelo jogador.
+
+**AudioManager**
+
+Produz efeitos sonoros proceduralmente através da Web Audio API.
+
+**AnimationManager**
+
+Controla efeitos como glitch, flash, partículas, portas e outras respostas visuais.
+
+**FinalManager**
+
+Verifica continuamente as condições necessárias para cada um dos cinco finais.
+
+---
+
+# Fluxo geral
+
+```
+                    ┌───────────────┐
+                    │    MENU       │
+                    └───────┬───────┘
+                            ↓
+                    ┌───────────────┐
+                    │    GAME       │
+                    │  EXPLORAÇÃO   │
+                    └───────┬───────┘
+                            ↓
+                    ┌───────────────┐
+                    │    PUZZLES    │
+                    │  CONSEQUÊNCIAS│
+                    └───────┬───────┘
+                            ↓
+                  ┌─────────┴─────────┐
+                  ↓                   ↓
+             LOOP RESET            FINAL
+                  │             ┌────┴────┐
+                  │             │ 1 → 5   │
+                  │             └────┬────┘
+                  │                  ↓
+                  └────────────→ ESCOLHA
+                                 │  │  │
+                                 ↓  ↓  ↓
+                               JOGO LOOP MENU
 ```
 
 ---
 
-## Fluxo do jogo
+# Como executar
 
-```
-BootScene → MenuScene → GameScene ←→ ResetScene
-                                ↓
-                            EndScene
-```
+O jogo pode ser executado através de um servidor local.
 
----
+Não é recomendado abrir diretamente o `index.html` com `file://`, devido às restrições de segurança do navegador para carregamento de recursos.
 
-## Sistema de estado (GameState)
+### Python
 
-O coração do Efeito Borboleta. Tudo que precisa persistir entre loops fica aqui.
-
-```js
-// Ler
-GameState.get('log07_deleted')       // → false
-
-// Escrever
-GameState.set('log07_deleted', true) // persiste no próximo loop
-
-// Puzzle
-GameState.solvePuzzle('puzzle_door_code')
-GameState.isPuzzleSolved('puzzle_door_code') // → true
-
-// Borboleta
-GameState.addButterflyStep('delete_log07')   // conta para Final 5
-
-// Sistema consciente
-GameState.increaseSystemAwareness(1)         // 0-5, muda diálogos
+```bash
+python -m http.server 8080
 ```
 
----
+### Node.js
 
-## Puzzles e consequências
-
-| Puzzle | Trigger | Consequência |
-|---|---|---|
-| Terminal Main | Explorar comandos | Revela lore, deleta LOG_07 |
-| Door Code `0731` | `log07_deleted = true` | `door_unlocked = true` |
-| Server Sequence `A,C,B,D` | Qualquer hora | `server_rebooted = true` |
-| Hidden File `BUTTERFLY` | server+log deletados | `secret_area_found = true` |
-| Butterfly Sequence | 4 steps coletados | Desbloqueia Final 5 |
-
----
-
-## Os 5 finais
-
-| Final | Condição |
-|---|---|
-| 1 — Escape | `door_unlocked` + 3 puzzles |
-| 2 — Reset | `escape_attempted` + `awareness >= 2` |
-| 3 — Loop Eterno | `loop_count >= 10` |
-| 4 — Controlado | `awareness >= 4` + `identity_known` |
-| 5 — Butterfly ★ | 4 butterfly_steps coletados |
-
----
-
-## Adicionando novos objetos
-
-```js
-// Em GameScene._buildObjects():
-const novoObjeto = new InteractiveObject(this, x, y, {
-  id:    'meu_objeto',
-  type:  FORK_CONFIG.OBJECT_TYPES.FILE,
-  label: 'ARQUIVO',
-  width: 24, height: 24,
-  color: FORK_CONFIG.COLORS.ACCENT_DIM,
-  onInteract: () => {
-    this.dialogManager.show(['Texto aqui'], { title: 'ARQUIVO' });
-    GameState.set('minha_flag', true);
-  },
-});
-this._objects.push(novoObjeto);
+```bash
+npx serve .
 ```
 
----
+### VS Code
 
-## Adicionando comandos ao terminal
-
-```js
-// Em PuzzleManager._buildPuzzles() → commands:
-'MEU_COMANDO': {
-  output: ['> Saída do comando'],
-  onExecute: () => {
-    GameState.set('algo', true);
-  }
-}
-```
+Utilize a extensão **Live Server** e abra o projeto através de **Go Live**.
 
 ---
 
-## Próximos passos (P2 — Polimento)
+# Equipe
 
-- [ ] Spritesheet do player (16x16 ou 32x32)
-- [ ] Tileset do laboratório
-- [ ] Efeitos de glitch (shader ou canvas filter)
-- [ ] Transições entre cenas (fade)
-- [ ] Áudio: sons de terminal, alarme, reset
-- [ ] Música ambiente (loop + intensidade por timer)
-- [ ] Pequenas mudanças visuais entre loops
-- [ ] Área secreta desbloqueável (sala adicional)
-- [ ] Mais variações de diálogo por awareness
+### Desenvolvimento
+
+**Arthur Andrade Cunha**  
+Programação, arquitetura, sistemas de jogo, integração, design de mecânicas e processo criativo.
+
+**Andre Rangel**  
+Desenvolvimento e colaboração na construção do projeto.
+
+**Pedro Andrade**  
+Desenvolvimento e colaboração na construção do projeto.
 
 ---
 
-## Paleta FORK
+# Uso de inteligência artificial
 
-| Nome | Hex |
-|---|---|
-| BG | `#050810` |
-| Accent | `#00ffe0` |
-| Accent Dim | `#00886a` |
-| Danger | `#ff2244` |
-| Warning | `#ffaa00` |
-| Text | `#88ffdd` |
-| Text Dim | `#446655` |
-| Terminal BG | `#020c10` |
+Durante o desenvolvimento, utilizamos **ChatGPT como ferramenta de apoio ao desenvolvimento**.
+
+A IA foi utilizada principalmente para:
+
+- brainstorming e desenvolvimento de ideias;
+- discussão e refinamento do conceito;
+- estruturação de sistemas;
+- auxílio na implementação e depuração de código;
+- análise de erros;
+- revisão de lógica;
+- sugestões de arquitetura;
+- refinamento de narrativa e puzzles;
+- discussão de experiência do jogador.
+
+A direção criativa, decisões de design, integração do projeto, testes e decisões finais sobre implementação foram realizadas pela equipe.
+
+O uso de IA fez parte do processo de desenvolvimento como uma ferramenta de apoio, e não como substituição das decisões da equipe.
+
+---
+
+# Créditos e assets
+
+Agradecemos aos criadores dos recursos utilizados no desenvolvimento de FORK.
+
+### Tilemap — Cosmic Lilac
+
+**Autor:** PetricakeGames  
+**Asset:** Cosmic Lilac! Sci-Fi Tileset  
+**Fonte:** itch.io
+
+O tileset foi utilizado para complementar a ambientação sci-fi do laboratório. O autor permite o uso em projetos comerciais ou gratuitos mediante as condições apresentadas na página do asset, incluindo a atribuição de crédito. citeturn1search11
+
+### UI — Sci Fi Game UI collection FREE version
+
+**Autor:** SunGraphica  
+**Asset:** Sci Fi Game UI collection FREE version  
+**Fonte:** itch.io
+
+O pacote fornece elementos de interface e recursos visuais de temática sci-fi. A versão gratuita é disponibilizada sob **Creative Commons Attribution 4.0 International**, com exigência de atribuição ao autor. citeturn1search1
+
+### Character — The Adventurer - Male
+
+**Autor:** Sscary  
+**Asset:** The Adventurer - Male  
+**Fonte:** itch.io
+
+Recurso utilizado como base visual para o personagem do jogo. citeturn1search10
+
+---
+
+# Créditos especiais
+
+**Phaser**
+
+Framework utilizado para a construção do jogo 2D e execução no navegador.  
+Documentação oficial: https://docs.phaser.io/ citeturn0search0
+
+**ChatGPT / OpenAI**
+
+Utilizado como ferramenta de apoio durante o processo de criação, programação, depuração, brainstorming e documentação.
+
+---
+
+# Sobre o projeto
+
+FORK foi desenvolvido como um projeto de **Game Jam**, com foco em transformar uma ideia relativamente simples em uma experiência narrativa completa dentro de um escopo limitado.
+
+O projeto começou a partir do tema **Efeito Borboleta** e evoluiu gradualmente para uma experiência sobre:
+
+> **decisão, consequência, repetição e controle.**
+
+A principal intenção do desenvolvimento foi fazer com que o próprio jogador percebesse o efeito borboleta através das suas ações, em vez de apenas observar uma história sobre ele.
+
+Cada pequena descoberta pode modificar a interpretação da próxima.
+
+Cada erro pode alterar o loop.
+
+Cada escolha pode mudar o final.
+
+E, no fim, a própria tentativa de entender o sistema passa a fazer parte dele.
+
+---
+
+**FORK — NPCboPe**  
+**SEMCOMP Game Jam 2026**
+
+Desenvolvido por **Arthur Andrade Cunha, Andre Rangel e Pedro Andrade**.
