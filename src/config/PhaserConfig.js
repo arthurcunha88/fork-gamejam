@@ -9,7 +9,9 @@ const config = {
   height: FORK_CONFIG.HEIGHT,
   backgroundColor: '#070b10',
   pixelArt: true,
+  antialias: false,
   roundPixels: true,
+  mipmapFilter: 'NEAREST',
   parent: document.body,
   // FIX 404: desabilita loader de textura padrão
   loader: {

@@ -19,6 +19,16 @@ const NARRATIVE = {
     morse: ['CAM-01','Sinal auxiliar detectado.','...- .. --. .. .-','// A transmissão não está usando palavras.'],
   },
   loopStart: loop => ['FORK OS // LOOP ' + String(loop).padStart(2,'0'), loop === 1 ? 'Ambiente carregado.' : 'A simulação lembra do que você fez.','// Algumas consequências chegam antes da causa.'],
+  playerIntro: [
+    'Eu estava brincando com alguns servidores.',
+    'Era para ser só um teste. Eu estava explorando os limites da simulação.',
+    'Em algum momento, alguma coisa mudou.',
+    'Quando percebi, eu já estava preso dentro da própria Matrix.',
+    'O pior é que os servidores parecem ter sido modificados.',
+    'Há processos e alterações aqui que eu não reconheço como minhas.',
+    'Se alguém mexeu neste sistema, talvez tenha mexido também na saída.',
+    'Preciso descobrir o que aconteceu antes que o sistema perceba que eu acordei.'
+  ],
   systemReactions: {
     both: ['O sistema detectou duas alterações persistentes.','// A cadeia de consequências está se acumulando.'],
     log07_deleted: ['LOG_07 continua ausente.','// O sistema sabe que você o removeu.'],
@@ -90,7 +100,8 @@ class GameScene extends Phaser.Scene {
     this._buildHUD();
 
     this.cameras.main.setBounds(0, 0, W, H);
-    this.cameras.main.startFollow(this.player.getPhysicsBody(), true, 0.1, 0.1);
+    this.cameras.main.startFollow(this.player.getPhysicsBody(), true, 1, 1);
+    this.cameras.main.roundPixels = true;
 
     this._setupLoopCallbacks();
     this.loopManager.start();
@@ -1857,6 +1868,10 @@ class GameScene extends Phaser.Scene {
     const rebooted = GameState.get('server_rebooted');
 
     let msgs = NARRATIVE.loopStart(loopNum);
+
+    if (loopNum === 1) {
+      msgs = msgs.concat(NARRATIVE.playerIntro);
+    }
 
     // Adiciona reações específicas às ações do loop anterior
     if (loopNum > 1) {
