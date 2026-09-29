@@ -185,13 +185,21 @@ class EndScene extends Phaser.Scene {
       },
     }).setOrigin(0.5);
 
+    const panelX = 150;
+    const panelY = 205;
+    const lineHeight = 20;
+    const panelHeight = Math.min(
+      340,
+      Math.max(180, 40 + ending.lines.length * lineHeight)
+    );
+
     const panel = this.add.graphics();
     panel.fillStyle(0x071018, 0.94);
-    panel.fillRect(150, 205, FORK_CONFIG.WIDTH - 300, 330);
+    panel.fillRect(panelX, panelY, FORK_CONFIG.WIDTH - 300, panelHeight);
     panel.lineStyle(1, C.ACCENT_DIM, 0.38);
-    panel.strokeRect(150, 205, FORK_CONFIG.WIDTH - 300, 330);
+    panel.strokeRect(panelX, panelY, FORK_CONFIG.WIDTH - 300, panelHeight);
 
-    const startY = 235;
+    const startY = panelY + 30;
     ending.lines.forEach((line, index) => {
       let color = C.TEXT_MID;
       let size = '14px';
@@ -207,12 +215,12 @@ class EndScene extends Phaser.Scene {
         size = '17px';
       }
 
-      this.add.text(W / 2, startY + index * 25, line, {
+      this.add.text(W / 2, startY + index * lineHeight, line, {
         fontFamily: FORK_CONFIG.FONT.FAMILY,
         fontSize: size,
         color,
         align: 'center',
-        wordWrap: { width: FORK_CONFIG.WIDTH - 360 },
+        wordWrap: { width: FORK_CONFIG.WIDTH - 340 },
       }).setOrigin(0.5);
     });
 
