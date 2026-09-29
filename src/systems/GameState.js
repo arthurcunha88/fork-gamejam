@@ -246,7 +246,7 @@ const GameState = {
         p.door_unlocked &&
         p.server_rebooted &&
         p.secret_area_found &&
-        p.system_notes_read &&
+        p.butterfly_steps.includes('read_notes') &&
         p.phase >= FORK_CONFIG.PHASES.INFILTRATION) {
       return FORK_CONFIG.ENDINGS.ESCAPE;
     }
