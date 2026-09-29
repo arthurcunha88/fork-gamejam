@@ -397,7 +397,7 @@ class PuzzleManager {
         id: FORK_CONFIG.PUZZLES.BOOT_CODE,
         type: 'code',
         requires: null,
-        validator: answer => answer === '0731',
+        validator: answer => String(answer).trim() === '0731',
         consequences: [
           { key: 'boot_code_found', value: true },
           { key: 'phase', value: FORK_CONFIG.PHASES.ANOMALY },
