@@ -824,8 +824,8 @@ class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5, 0).setDepth(62);
 
     const lines = bodyText.split('\\n').length;
-    const fontSize = lines >= 38 ? '9px' : lines >= 32 ? '10px' : '11px';
-    const lineSpacing = lines >= 38 ? 1 : 2;
+    const fontSize = lines >= 44 ? '8px' : lines >= 38 ? '9px' : lines >= 32 ? '10px' : '11px';
+    const lineSpacing = lines >= 38 ? 0 : 2;
 
     const text = this.add.text(W / 2 - 320, 88, bodyText, {
       fontFamily: F.FAMILY,
@@ -835,7 +835,7 @@ class MenuScene extends Phaser.Scene {
       wordWrap: { width: 640 },
     }).setDepth(62);
 
-    const closeButton = this._panelButton(W / 2, 592, '> FECHAR', () => close());
+    const closeButton = this._panelButton(W / 2, 606, '> FECHAR', () => close());
     closeButton.setDepth(63);
 
     const close = () => {
