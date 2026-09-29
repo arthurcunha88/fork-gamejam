@@ -692,7 +692,7 @@ class MenuScene extends Phaser.Scene {
         '',
         'A Matrix está tentando esconder alguma coisa.',
         'Investigue, conecte as pistas e descubra a verdade.'
-      ].join('\\n'),
+      ].join('\n'),
       returnToSettings
     );
   }
@@ -740,7 +740,7 @@ class MenuScene extends Phaser.Scene {
         'ChatGPT / OpenAI foi utilizado como ferramenta de apoio',
         'para brainstorming, programação, depuração, arquitetura,',
         'narrativa, puzzles e documentação.'
-      ].join('\\n'),
+      ].join('\n'),
       returnToSettings
     );
   }
@@ -794,7 +794,7 @@ class MenuScene extends Phaser.Scene {
         'atual do projeto para a Game Jam e ainda pode receber',
         'ajustes de gameplay, balanceamento, narrativa, arte',
         'e interface.'
-      ].join('\\n'),
+      ].join('\n'),
       returnToSettings
     );
   }
