@@ -153,6 +153,7 @@ class EndScene extends Phaser.Scene {
       GameState.persistent = {
         loop_count: 0,
         phase: FORK_CONFIG.PHASES.AWAKENING,
+        boot_code_found: false,
         log07_deleted: false,
         server_rebooted: false,
         door_unlocked: false,
@@ -172,6 +173,11 @@ class EndScene extends Phaser.Scene {
         clear_count: 0,
         corruption_level: 0,
         filesystem_wiped: false,
+        system_notes_read: false,
+        restore_requested: false,
+        system_restored: false,
+        loop_error_count: 0,
+        last_loop_error: null,
       };
       GameState.clearSave();
       this.scene.start('MenuScene');
