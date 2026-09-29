@@ -141,6 +141,12 @@ class GameScene extends Phaser.Scene {
 
     this.input.on('pointerdown', (ptr) => {
       if (this._isPaused || this._hardCorruption) return;
+
+      // Enquanto um diálogo estiver aberto, o clique pertence ao diálogo.
+      // O DialogManager já trata esse clique como avanço de mensagem,
+      // exatamente como a tecla E. Nunca deixe o clique "vazar" para o mundo.
+      if (GameState.volatile.dialog_open) return;
+
       // Não deixa o clique do HUD atravessar para o mundo.
       if (ptr.y <= 34 && ptr.x >= FORK_CONFIG.WIDTH - 120) return;
       this._handleClick(ptr);
