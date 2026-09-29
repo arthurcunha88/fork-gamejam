@@ -398,6 +398,20 @@ class PuzzleManager {
         ],
       },
 
+      // ── PUZZLE 1B: Código físico da porta do servidor ───────
+      // A porta física do Server Room só aceita 0731.
+      [FORK_CONFIG.PUZZLES.DOOR_CODE]: {
+        id: FORK_CONFIG.PUZZLES.DOOR_CODE,
+        type: 'code',
+        requires: { boot_code_found: true, log07_deleted: true },
+        validator: answer => answer.trim() === '0731',
+        consequences: [
+          { key: 'door_unlocked', value: true },
+          { key: 'phase', value: FORK_CONFIG.PHASES.INFILTRATION },
+          { butterfly: 'unlock_door' },
+        ],
+      },
+
       // ── PUZZLE 2: Handshake da Porta ───────────────────────
       // CADEIA: LOG_07 removido → protocolo de acesso é exposto →
       // jogador precisa reproduzir o handshake do Control Server.
