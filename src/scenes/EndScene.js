@@ -163,17 +163,29 @@ class EndScene extends Phaser.Scene {
 
   _drawEnding(ending) {
     const W = FORK_CONFIG.WIDTH;
+    const H = FORK_CONFIG.HEIGHT;
     const C = FORK_CONFIG.COLORS;
+    const F = FORK_CONFIG.FONT;
+
+    // Layout fixo para todas as telas finais.
+    // A área de texto nunca invade o título nem as opções inferiores.
+    const panelX = 120;
+    const panelY = 198;
+    const panelWidth = W - 240;
+    const panelHeight = 326;
+    const panelPaddingX = 34;
+    const panelPaddingY = 28;
+    const lineHeight = 20;
 
     this.add.text(W / 2, 72, ending.code, {
-      fontFamily: FORK_CONFIG.FONT.FAMILY,
+      fontFamily: F.FAMILY,
       fontSize: '11px',
-      color: FORK_CONFIG.FONT.COLOR_DIM,
+      color: F.COLOR_DIM,
       letterSpacing: 2,
     }).setOrigin(0.5);
 
     this.add.text(W / 2, 158, ending.title, {
-      fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE,
+      fontFamily: F.FAMILY_TITLE,
       fontSize: '26px',
       color: ending.accent,
       shadow: {
@@ -185,21 +197,16 @@ class EndScene extends Phaser.Scene {
       },
     }).setOrigin(0.5);
 
-    const panelX = 150;
-    const panelY = 205;
-    const lineHeight = 20;
-    const panelHeight = Math.min(
-      340,
-      Math.max(180, 40 + ending.lines.length * lineHeight)
-    );
-
     const panel = this.add.graphics();
     panel.fillStyle(0x071018, 0.94);
-    panel.fillRect(panelX, panelY, FORK_CONFIG.WIDTH - 300, panelHeight);
+    panel.fillRect(panelX, panelY, panelWidth, panelHeight);
     panel.lineStyle(1, C.ACCENT_DIM, 0.38);
-    panel.strokeRect(panelX, panelY, FORK_CONFIG.WIDTH - 300, panelHeight);
+    panel.strokeRect(panelX, panelY, panelWidth, panelHeight);
 
-    const startY = panelY + 30;
+    // O conteúdo fica dentro de uma margem interna constante.
+    const textX = W / 2;
+    const startY = panelY + panelPaddingY;
+
     ending.lines.forEach((line, index) => {
       let color = C.TEXT_MID;
       let size = '14px';
@@ -215,21 +222,27 @@ class EndScene extends Phaser.Scene {
         size = '17px';
       }
 
-      this.add.text(W / 2, startY + index * lineHeight, line, {
-        fontFamily: FORK_CONFIG.FONT.FAMILY,
+      this.add.text(textX, startY + index * lineHeight, line, {
+        fontFamily: F.FAMILY,
         fontSize: size,
         color,
         align: 'center',
-        wordWrap: { width: FORK_CONFIG.WIDTH - 340 },
-      }).setOrigin(0.5);
+        wordWrap: { width: panelWidth - (panelPaddingX * 2) },
+        lineSpacing: 0,
+      }).setOrigin(0.5, 0);
     });
 
-    this.add.text(W / 2, 566, 'SELECIONE UMA OPÇÃO', {
-      fontFamily: FORK_CONFIG.FONT.FAMILY,
+    // Mantém uma distância clara entre o painel, a instrução e os controles.
+    this.add.text(W / 2, 548, 'SELECIONE UMA OPÇÃO', {
+      fontFamily: F.FAMILY,
       fontSize: '10px',
       color: C.TEXT_DIM,
       letterSpacing: 2,
     }).setOrigin(0.5);
+
+    // Área segura inferior: os controles ficam separados da mensagem final.
+    // H é usado aqui apenas para deixar explícito que o layout respeita a altura da tela.
+    const choiceY = H - 62;
   }
 
   _createChoices() {
