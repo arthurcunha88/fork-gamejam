@@ -1045,7 +1045,7 @@ class GameScene extends Phaser.Scene {
       return;
     }
 
-    if (!GameState.get('system_notes_read')) {
+    if (!GameState.get('butterfly_steps').includes('read_notes')) {
       this.dialogManager.show([
         'SAÍDA BLOQUEADA.',
         'O sistema exige uma referência temporal.',
