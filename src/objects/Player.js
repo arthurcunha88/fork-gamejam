@@ -44,19 +44,19 @@ class Player {
 
   _createAnimations() {
     const animations = [
-      ['player_idle_down', 'player_idle_down', 0, 5, 7],
-      ['player_idle_up', 'player_idle_up', 0, 5, 7],
-      ['player_idle_left_down', 'player_idle_left_down', 0, 5, 7],
-      ['player_idle_left_up', 'player_idle_left_up', 0, 5, 7],
-      ['player_idle_right_down', 'player_idle_right_down', 0, 5, 7],
-      ['player_idle_right_up', 'player_idle_right_up', 0, 5, 7],
+      ['player_idle_down', 'player_idle_down', 0, 11, 1],
+      ['player_idle_up', 'player_idle_up', 0, 11, 1],
+      ['player_idle_left_down', 'player_idle_left_down', 0, 11, 1],
+      ['player_idle_left_up', 'player_idle_left_up', 0, 11, 1],
+      ['player_idle_right_down', 'player_idle_right_down', 0, 11, 1],
+      ['player_idle_right_up', 'player_idle_right_up', 0, 11, 1],
 
-      ['player_walk_down', 'player_walk_down', 0, 5, 10],
-      ['player_walk_up', 'player_walk_up', 0, 5, 10],
-      ['player_walk_left_down', 'player_walk_left_down', 0, 5, 10],
-      ['player_walk_left_up', 'player_walk_left_up', 0, 5, 10],
-      ['player_walk_right_down', 'player_walk_right_down', 0, 5, 10],
-      ['player_walk_right_up', 'player_walk_right_up', 0, 5, 10],
+      ['player_walk_down', 'player_walk_down', 0, 11, 7],
+      ['player_walk_up', 'player_walk_up', 0, 11, 7],
+      ['player_walk_left_down', 'player_walk_left_down', 0, 11, 7],
+      ['player_walk_left_up', 'player_walk_left_up', 0, 11, 7],
+      ['player_walk_right_down', 'player_walk_right_down', 0, 11, 7],
+      ['player_walk_right_up', 'player_walk_right_up', 0, 11, 7],
     ];
 
     animations.forEach(([key, texture, start, end, frameRate]) => {
@@ -77,6 +77,14 @@ class Player {
 
     this._sprite.anims.play(key, true);
     this._currentAnimation = key;
+  }
+
+  _showIdleFrame() {
+    const key = 'player_idle_' + this.direction;
+    this._sprite.anims.stop();
+    this._sprite.setTexture(key);
+    this._sprite.setFrame(0);
+    this._currentAnimation = null;
   }
 
   get x() { return this._sprite.x; }
@@ -140,7 +148,7 @@ class Player {
         window.AudioManagerInstance.playBeep();
       }
     } else {
-      this._playAnimation('idle_' + this.direction);
+      this._showIdleFrame();
     }
 
     this._lastMoving = moving;
@@ -148,7 +156,7 @@ class Player {
 
   _stopMovement() {
     this.body.setVelocity(0, 0);
-    this._playAnimation('idle_' + this.direction);
+    this._showIdleFrame();
     this._lastMoving = false;
   }
 
