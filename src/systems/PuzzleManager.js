@@ -399,12 +399,18 @@ class PuzzleManager {
       },
 
       // ── PUZZLE 1B: Código físico da porta do servidor ───────
-      // A porta física do Server Room só aceita 0731.
+      // O segundo código é a hora local do computador do jogador, em HHMM.
+      // Assim, a mesma chave não funciona para todas as pessoas nem em todos os momentos.
       [FORK_CONFIG.PUZZLES.DOOR_CODE]: {
         id: FORK_CONFIG.PUZZLES.DOOR_CODE,
         type: 'code',
         requires: { boot_code_found: true, log07_deleted: true },
-        validator: answer => answer.trim() === '0731',
+        validator: answer => {
+          const now = new Date();
+          const localTime = String(now.getHours()).padStart(2, '0') +
+            String(now.getMinutes()).padStart(2, '0');
+          return answer.trim() === localTime;
+        },
         consequences: [
           { key: 'door_unlocked', value: true },
           { key: 'phase', value: FORK_CONFIG.PHASES.INFILTRATION },
