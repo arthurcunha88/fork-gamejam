@@ -5,6 +5,12 @@
 class MenuScene extends Phaser.Scene {
   constructor() { super({ key: 'MenuScene' }); }
 
+  preload() {
+    // Emblema oficial do FORK usado também como elemento de identidade
+    // na tela inicial.
+    this.load.image('fork_emblem_menu', 'assets/fork-emblem.svg');
+  }
+
   create() {
     const W = FORK_CONFIG.WIDTH;
     const H = FORK_CONFIG.HEIGHT;
@@ -17,7 +23,26 @@ class MenuScene extends Phaser.Scene {
 
     this.add.rectangle(0, 0, W, H, C.BG).setOrigin(0, 0);
     this._drawGrid();
-    this._drawPixelButterfly(W / 2, 105);
+
+    // Emblema FORK no topo da tela inicial. Ele substitui o elemento
+    // decorativo anterior e reforça a identidade visual do jogo.
+    if (this.textures.exists('fork_emblem_menu')) {
+      const emblem = this.add.image(W / 2, 96, 'fork_emblem_menu')
+        .setOrigin(0.5)
+        .setScale(0.58)
+        .setAlpha(0.96)
+        .setDepth(4);
+
+      this.tweens.add({
+        targets: emblem,
+        alpha: { from: 0.96, to: 0.70 },
+        scale: { from: 0.58, to: 0.62 },
+        duration: 1500,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+      });
+    }
 
     const titleY = H / 2 - 164;
     const title = this.add.text(W / 2, titleY, 'F O R K', {
