@@ -1813,7 +1813,7 @@ class GameScene extends Phaser.Scene {
       fontFamily: F.FAMILY,
       fontSize: '15px',
       color: F.COLOR_PRIMARY,
-    }).setOrigin(0.5).setDepth(301).setScrollFactor(0).setInteractive({ useHandCursor: true);
+    }).setOrigin(0.5).setDepth(301).setScrollFactor(0).setInteractive({ useHandCursor: true });
 
     restart.on('pointerover', () => restart.setColor(F.COLOR_WHITE).setScale(1.05));
     restart.on('pointerout', () => restart.setColor(F.COLOR_PRIMARY).setScale(1));
