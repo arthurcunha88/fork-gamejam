@@ -19,6 +19,8 @@ class Player {
     scene.physics.add.existing(this._sprite);
 
     this.body = this._sprite.body;
+    this.body.enable = true;
+    this.body.setAllowGravity(false);
     this.body.setSize(26, 22);
     this.body.setOffset(19, 30);
     this.body.setCollideWorldBounds(true);
@@ -29,12 +31,12 @@ class Player {
     this._currentAnimation = null;
 
     this._cursors = scene.input.keyboard.createCursorKeys();
-    this._wasd = {
-      up: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-      down: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-      left: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-      right: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-    };
+    this._wasd = scene.input.keyboard.addKeys({
+      up: Phaser.Input.Keyboard.KeyCodes.W,
+      down: Phaser.Input.Keyboard.KeyCodes.S,
+      left: Phaser.Input.Keyboard.KeyCodes.A,
+      right: Phaser.Input.Keyboard.KeyCodes.D,
+    });
     this._keyE = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
 
     this._playAnimation('idle_down');
@@ -128,7 +130,7 @@ class Player {
       this.direction = 'down';
     }
 
-    this._sprite.body.setVelocity(vx, vy);
+    this.body.setVelocity(vx, vy);
 
     const moving = vx !== 0 || vy !== 0;
 
@@ -145,7 +147,7 @@ class Player {
   }
 
   _stopMovement() {
-    this._sprite.body.setVelocity(0, 0);
+    this.body.setVelocity(0, 0);
     this._playAnimation('idle_' + this.direction);
     this._lastMoving = false;
   }
