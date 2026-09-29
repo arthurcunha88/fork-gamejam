@@ -1093,6 +1093,17 @@ class GameScene extends Phaser.Scene {
       return;
     }
 
+    if (!GameState.get('boot_code_found')) {
+      this.dialogManager.show([
+        'PORTA DE SEGURANÇA',
+        'O acesso ainda não foi inicializado.',
+        '',
+        '// O sistema espera a chave de BOOT antes deste protocolo.',
+        '// Consulte NOTES.txt e confirme 07:31 primeiro.',
+      ], { title: 'SERVER SECURITY' });
+      return;
+    }
+
     this.dialogManager.show(NARRATIVE.door.locked_has_clue, {
       title: 'PORTA DE SEGURANÇA',
       onClose: () => this.uiManager.openCodeInput({
