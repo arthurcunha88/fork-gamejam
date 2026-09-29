@@ -613,34 +613,6 @@ class MenuScene extends Phaser.Scene {
     return btn;
   }
 
-  _showTutorial() {
-    this._showInfoPanel(
-      '// TUTORIAL',
-      [
-        'VOCÊ ACORDOU DENTRO DE UMA SIMULAÇÃO.',
-        '',
-        'OBJETIVO',
-        'Investigue o laboratório, encontre pistas e descubra',
-        'por que o sistema insiste em reiniciar você.',
-        '',
-        'CONTROLES',
-        'W A S D / SETAS  → mover',
-        'E / CLIQUE        → interagir',
-        'ESC               → fechar interfaces',
-        '',
-        'COMO JOGAR',
-        'Leia terminais e arquivos com atenção.',
-        'Algumas respostas não aparecem prontas: procure',
-        'códigos, padrões, coordenadas e mensagens escondidas.',
-        'Pequenas ações podem alterar acontecimentos futuros.',
-        '',
-        'DICA',
-        'Não trate CLEAR como uma ação inocente.',
-        'O sistema registra o que você faz.',
-      ].join('\n')
-    );
-  }
-
   _showCredits(returnToSettings = false) {
     this._showInfoPanel(
       '// CRÉDITOS',
@@ -684,7 +656,7 @@ class MenuScene extends Phaser.Scene {
         'ChatGPT / OpenAI foi utilizado como ferramenta de apoio',
         'para brainstorming, programação, depuração, arquitetura,',
         'narrativa, puzzles e documentação.',
-      ].join('\\n'),
+      ].join('\n'),
       returnToSettings
     );
   }
@@ -726,7 +698,7 @@ class MenuScene extends Phaser.Scene {
         'Web Audio API  •  Git / GitHub',
         '',
         'FORK // ESCAPE THE SYSTEM.',
-      ].join('\\n'),
+      ].join('\n'),
       returnToSettings
     );
   }
@@ -755,7 +727,7 @@ class MenuScene extends Phaser.Scene {
         'DICA',
         'Não trate CLEAR como uma ação inocente.',
         'O sistema registra o que você faz.',
-      ].join('\\n'),
+      ].join('\n'),
       returnToSettings
     );
   }
