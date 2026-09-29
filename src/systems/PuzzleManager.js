@@ -409,7 +409,7 @@ class PuzzleManager {
       [FORK_CONFIG.PUZZLES.DOOR_CODE]: {
         id: FORK_CONFIG.PUZZLES.DOOR_CODE,
         type: 'code',
-        requires: { boot_code_found: true, log07_deleted: true },
+        requires: { log07_deleted: true },
         validator: answer => answer.trim() === '0731',
         consequences: [
           { key: 'door_unlocked', value: true },
