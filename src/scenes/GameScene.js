@@ -1787,6 +1787,7 @@ class GameScene extends Phaser.Scene {
         corruption_level: 0,
         filesystem_wiped: false,
         system_notes_read: false,
+        exit_code_anchor: null,
         restore_requested: false,
         system_restored: false,
       };
