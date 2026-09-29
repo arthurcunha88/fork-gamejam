@@ -44,6 +44,7 @@ class GameScene extends Phaser.Scene {
 
     this._wallRects = [];
     this._buildMap();
+    this._buildRoomColliders();
     this._buildMapDynamics();
 
     this._objects = [];
@@ -530,6 +531,41 @@ class GameScene extends Phaser.Scene {
     });
   }
 
+  _buildRoomColliders() {
+    // O mapa é dividido em três espaços físicos:
+    // MAIN LAB -> SERVER ROOM -> STORAGE.
+    // Cada passagem possui uma abertura única, controlada por uma barreira.
+    const addWall = (x, y, width, height) => {
+      const wall = this.add.rectangle(x, y, width, height, 0x000000, 0)
+        .setVisible(false);
+      this.physics.add.existing(wall, true);
+      wall.body.setSize(width, height);
+      this._wallRects.push(wall);
+      return wall;
+    };
+
+    // MAIN LAB: fechado em todo o perímetro, exceto a passagem para o Server Room.
+    addWall(330, 52, 540, 12);       // topo
+    addWall(330, 580, 540, 12);      // base
+    addWall(60, 316, 12, 528);       // esquerda
+    addWall(600, 99, 12, 94);        // direita — acima da porta
+    addWall(600, 401, 12, 358);      // direita — abaixo da porta
+
+    // SERVER ROOM: única entrada pela porta da esquerda e única saída pelo Storage.
+    addWall(775, 52, 250, 12);       // topo
+    addWall(900, 166, 12, 228);      // direita
+    addWall(650, 99, 12, 94);        // esquerda — acima da porta
+    addWall(650, 250, 12, 60);       // esquerda — abaixo da porta
+    addWall(700, 280, 100, 12);      // base — antes da porta do Storage
+    addWall(850, 280, 100, 12);      // base — depois da porta do Storage
+
+    // STORAGE: fechado, com uma única passagem no topo para o Server Room.
+    addWall(775, 328, 250, 12);      // topo
+    addWall(775, 580, 250, 12);      // base
+    addWall(650, 454, 12, 252);      // esquerda
+    addWall(900, 454, 12, 252);      // direita
+  }
+
   _drawDigitalRain(x, y, w, h) {
     const F = FORK_CONFIG.FONT;
     const C = FORK_CONFIG.COLORS;
@@ -738,13 +774,11 @@ class GameScene extends Phaser.Scene {
     // Barreira física real: a partícula não atravessa a porta enquanto o código não for aceito.
     const gateLocked = !GameState.get('door_unlocked');
     this._controlRoomGate = this.add.rectangle(
-      625, 185, 48, 40,
-      0x050a0f, 0.98
-    ).setStrokeStyle(2, C.ACCENT_DIM, 0.9)
-      .setDepth(4)
-      .setVisible(gateLocked);
+      625, 185, 50, 76,
+      0x050a0f, 0
+    ).setDepth(3).setVisible(false);
     this.physics.add.existing(this._controlRoomGate, true);
-    this._controlRoomGate.body.setSize(48, 40);
+    this._controlRoomGate.body.setSize(50, 76);
     this._controlRoomGate.body.enable = gateLocked;
 
     const terminal = new Terminal(this, 185, 235, {
@@ -764,6 +798,25 @@ class GameScene extends Phaser.Scene {
       onInteract: (obj) => this._interactDoor(obj),
     });
     this._objects.push(door);
+
+    const storageGateLocked = !GameState.get('server_rebooted');
+    this._storageGate = this.add.rectangle(
+      775, 304, 80, 48,
+      0x050a0f, 0
+    ).setVisible(false);
+    this.physics.add.existing(this._storageGate, true);
+    this._storageGate.body.setSize(80, 48);
+    this._storageGate.body.enable = storageGateLocked;
+
+    const storageDoor = new InteractiveObject(this, 775, 304, {
+      id: 'storage_gate', type: FORK_CONFIG.OBJECT_TYPES.DOOR,
+      label: 'PORTA STORAGE',
+      width: 70, height: 42,
+      visual: 'door',
+      color: GameState.get('server_rebooted') ? C.ACCENT : 0x36424c,
+      onInteract: () => this._interactStorageGate(),
+    });
+    this._objects.push(storageDoor);
 
     const server = new InteractiveObject(this, 720, 145, {
       id: 'server_main', type: FORK_CONFIG.OBJECT_TYPES.SERVER,
@@ -1101,6 +1154,34 @@ class GameScene extends Phaser.Scene {
     });
   }
 
+  _interactStorageGate() {
+    if (GameState.get('server_rebooted')) {
+      this._openStorageGate();
+      return;
+    }
+
+    this.dialogManager.show([
+      'PORTA STORAGE',
+      'ACESSO BLOQUEADO.',
+      'SERVER A precisa ser reiniciado antes que esta passagem seja liberada.',
+    ], { title: 'STORAGE ACCESS' });
+  }
+
+  _openStorageGate() {
+    if (this._storageGate && this._storageGate.body) {
+      this._storageGate.body.enable = false;
+    }
+
+    const doorObj = this._objects.find(o => o.id === 'storage_gate');
+    if (doorObj) {
+      doorObj._body.clear();
+      doorObj._drawVisual(70, 42, FORK_CONFIG.COLORS.ACCENT);
+      doorObj.setEnabled(true);
+    }
+
+    this.animationManager.doorOpen(775, 304);
+  }
+
   _interactServer() {
     if (GameState.isPuzzleSolved(FORK_CONFIG.PUZZLES.SERVER_SEQUENCE)) {
       this.dialogManager.show([
@@ -1132,8 +1213,9 @@ class GameScene extends Phaser.Scene {
       ),
       onSuccess: () => {
         this.animationManager.flash('success');
+        this._openStorageGate();
         this._spawnSecretFile();
-        this._setSystemMessage('SERVER — REBOOTED // PROJECT_B DETECTED');
+        this._setSystemMessage('SERVER — REBOOTED // STORAGE ACCESS OPEN');
         this.dialogManager.show([
           'SEQUÊNCIA ACEITA.',
           'SERVIDOR A REINICIANDO...',
