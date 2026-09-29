@@ -438,17 +438,17 @@ class MenuScene extends Phaser.Scene {
 
     const tutorialButton = this._panelButton(W / 2, H / 2 + 38, '> TUTORIAL', () => {
       close();
-      this._showTutorial();
+      this._showTutorial(true);
     });
 
     const creditsButton = this._panelButton(W / 2, H / 2 + 82, '> CRÉDITOS', () => {
       close();
-      this._showCredits();
+      this._showCredits(true);
     });
 
     const aboutButton = this._panelButton(W / 2, H / 2 + 126, '> SOBRE O JOGO', () => {
       close();
-      this._showAbout();
+      this._showAbout(true);
     });
 
     const closeButton = this._panelButton(W / 2, H / 2 + 180, '> VOLTAR', () => close());
@@ -641,21 +641,40 @@ class MenuScene extends Phaser.Scene {
     );
   }
 
-  _showCredits() {
+  _showCredits(returnToSettings = false) {
     this._showInfoPanel(
       '// CRÉDITOS',
       [
         'FORK  //  SEMCOMP GAME JAM 2026',
         'TEMA: EFEITO BORBOLETA',
         '',
-        'DESENVOLVIMENTO',
-        'Arthur Andrade Cunha',
-        'Andre Rangel',
-        'Pedro Andrade',
+        'EQUIPE',
         '',
-        'O projeto foi desenvolvido em equipe para a',
-        'SEMCOMP Game Jam 2026, com foco em programação,',
-        'arquitetura, narrativa, puzzles e experiência do jogador.',
+        'Arthur Andrade Cunha',
+        'Design e Desenvolvimento',
+        '',
+        'Pedro Andrade',
+        'Desenvolvimento',
+        '',
+        'Andre Rangel',
+        'Design',
+        '',
+        'COLABORADORES',
+        '',
+        'Gustavo Maia',
+        'Colaborador',
+        '',
+        'Maria Eduarda Lombardi',
+        'Colaboradora',
+        '',
+        'PROCESSO CRIATIVO',
+        'O projeto nasceu do tema Efeito Borboleta e evoluiu',
+        'para um escape room digital sobre decisão, consequência,',
+        'repetição e controle.',
+        '',
+        'A equipe trabalhou na combinação de narrativa ambiental,',
+        'puzzles, loops, múltiplos finais e uma estética de',
+        'laboratório digital, mantendo o escopo adequado à Game Jam.',
         '',
         'TECNOLOGIA',
         'JavaScript  •  Phaser 3  •  HTML5  •  CSS',
@@ -663,39 +682,85 @@ class MenuScene extends Phaser.Scene {
         '',
         'APOIO DE IA',
         'ChatGPT / OpenAI foi utilizado como ferramenta de apoio',
-        'para brainstorming, programação, depuração e documentação.',
-      ].join('\\n')
+        'para brainstorming, programação, depuração, arquitetura,',
+        'narrativa, puzzles e documentação.',
+      ].join('\\n'),
+      returnToSettings
     );
   }
 
-  _showAbout() {
+  _showAbout(returnToSettings = false) {
     this._showInfoPanel(
       '// SOBRE FORK',
       [
         'FORK é um escape room 2D de investigação,',
         'exploração e puzzles ambientado em um laboratório digital.',
         '',
-        'O jogador acorda dentro de uma simulação aparentemente',
-        'controlada e precisa investigar arquivos, terminais,',
-        'objetos e sistemas de segurança para descobrir como sair.',
+        'A história começa quando o protagonista, enquanto',
+        'testava e explorava servidores, fica preso dentro',
+        'da própria Matrix.',
         '',
-        'As escolhas geram consequências e alteram o estado',
-        'da simulação. O jogo possui cinco finais diferentes,',
-        'incluindo um desfecho secreto ligado ao Projeto Butterfly.',
+        'Ele percebe que o sistema foi alterado por processos',
+        'que não reconhece e começa a suspeitar que até a saída',
+        'foi modificada.',
+        '',
+        'A partir daí, o jogador precisa explorar o laboratório,',
+        'interpretar arquivos, terminais e objetos e descobrir',
+        'como as pequenas decisões alteram o estado da simulação.',
         '',
         'O tema Efeito Borboleta aparece na própria estrutura:',
-        'ação → consequência → nova ação → nova consequência.',
+        'AÇÃO → CONSEQUÊNCIA → NOVA AÇÃO → NOVA CONSEQUÊNCIA.',
+        '',
+        'O jogo possui CINCO FINAIS, incluindo o desfecho secreto',
+        'PROJECT BUTTERFLY, construído a partir da cadeia de ações',
+        'realizadas durante a exploração.',
+        '',
+        'PROCESSO CRIATIVO',
+        'A proposta foi transformar o tema da Game Jam em uma',
+        'mecânica narrativa: cada descoberta pode modificar a',
+        'interpretação da próxima, enquanto erros e escolhas',
+        'alteram os loops e os possíveis desfechos.',
         '',
         'TECNOLOGIA',
         'JavaScript  •  Phaser 3  •  HTML5  •  CSS',
         'Web Audio API  •  Git / GitHub',
         '',
         'FORK // ESCAPE THE SYSTEM.',
-      ].join('\\n')
+      ].join('\\n'),
+      returnToSettings
     );
   }
 
-  _showInfoPanel(titleText, bodyText) {
+  _showTutorial(returnToSettings = false) {
+    this._showInfoPanel(
+      '// TUTORIAL',
+      [
+        'VOCÊ ACORDOU DENTRO DE UMA SIMULAÇÃO.',
+        '',
+        'OBJETIVO',
+        'Investigue o laboratório, encontre pistas e descubra',
+        'por que o sistema insiste em reiniciar você.',
+        '',
+        'CONTROLES',
+        'W A S D / SETAS  → mover',
+        'E / CLIQUE        → interagir',
+        'ESC               → fechar interfaces',
+        '',
+        'COMO JOGAR',
+        'Leia terminais e arquivos com atenção.',
+        'Algumas respostas não aparecem prontas: procure',
+        'códigos, padrões, coordenadas e mensagens escondidas.',
+        'Pequenas ações podem alterar acontecimentos futuros.',
+        '',
+        'DICA',
+        'Não trate CLEAR como uma ação inocente.',
+        'O sistema registra o que você faz.',
+      ].join('\\n'),
+      returnToSettings
+    );
+  }
+
+  _showInfoPanel(titleText, bodyText, returnToSettings = false) {
     const W = FORK_CONFIG.WIDTH;
     const H = FORK_CONFIG.HEIGHT;
     const F = FORK_CONFIG.FONT;
@@ -735,6 +800,7 @@ class MenuScene extends Phaser.Scene {
       text.destroy();
       closeButton.destroy();
       this.input.keyboard.off('keydown', esc);
+      if (returnToSettings) this._showSettings();
     };
 
     const esc = (event) => {
