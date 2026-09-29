@@ -240,7 +240,14 @@ const GameState = {
     }
 
     // FINAL 1 — ESCAPE
-    if (p.door_unlocked && p.puzzles_solved.length >= 5 && p.phase >= FORK_CONFIG.PHASES.INFILTRATION) {
+    // Rota "normal" exige a cadeia principal completa até a saída.
+    if (p.boot_code_found &&
+        p.log07_deleted &&
+        p.door_unlocked &&
+        p.server_rebooted &&
+        p.secret_area_found &&
+        p.system_notes_read &&
+        p.phase >= FORK_CONFIG.PHASES.INFILTRATION) {
       return FORK_CONFIG.ENDINGS.ESCAPE;
     }
 
