@@ -1015,36 +1015,35 @@ class GameScene extends Phaser.Scene {
       return;
     }
 
+    // A saída usa o relógio local no momento da interação.
+    // O jogador nunca precisa digitar o horário.
+    const now = new Date();
+    const localTime = String(now.getHours()).padStart(2, '0') +
+      String(now.getMinutes()).padStart(2, '0');
+
+    GameState.set('escape_attempted', true);
+
     this.dialogManager.show([
       'SAÍDA // ACCESS PROTOCOL',
       'A porta reconhece o evento de entrada.',
-      'Agora exige o horário local do servidor.',
+      'A referência temporal foi aceita.',
       '',
-      '// Quatro dígitos. HHMM.',
+      '// LOCAL TIME // ' + localTime,
     ], {
       title: 'PORTA DE SAÍDA',
-      onClose: () => this.uiManager.openCodeInput({
-        title: '// SERVER LOCAL TIME // EXIT',
-        length: 4,
-        validator: value => this.puzzleManager.checkAnswer(
-          FORK_CONFIG.PUZZLES.EXIT_CODE,
-          value
-        ),
-        onSuccess: () => {
-          GameState.set('escape_attempted', true);
-          if (window.AudioManagerInstance) window.AudioManagerInstance.playDoor();
-          this.cameras.main.flash(220, 90, 220, 255, false);
-          const ending = GameState.checkEndingConditions();
-          if (ending) this.finalManager.trigger(ending);
-          else {
-            this.dialogManager.show([
-              'EXIT PROTOCOL ACCEPTED.',
-              'A última camada foi removida.',
-              '// A saída ainda não terminou o processo.',
-            ], { title: 'SYSTEM EXIT' });
-          }
-        },
-      }),
+      onClose: () => {
+        if (window.AudioManagerInstance) window.AudioManagerInstance.playDoor();
+        this.cameras.main.flash(220, 90, 220, 255, false);
+        const ending = GameState.checkEndingConditions();
+        if (ending) this.finalManager.trigger(ending);
+        else {
+          this.dialogManager.show([
+            'EXIT PROTOCOL ACCEPTED.',
+            'A última camada foi removida.',
+            '// A saída ainda não terminou o processo.',
+          ], { title: 'SYSTEM EXIT' });
+        }
+      },
     });
   }
 
@@ -1271,7 +1270,6 @@ class GameScene extends Phaser.Scene {
         '"Delete o que o sistema não quer que você veja."',
         '',
         'CLOCK ANCHOR // 07:31',
-        'SERVER LOCAL TIME // ' + this._getServerLocalTime(),
         'BOOT ACCESS // ALREADY VERIFIED',
         '',
         '“fugir é a complexidade da existencia, deixe tudo para tras.',
@@ -1290,7 +1288,6 @@ class GameScene extends Phaser.Scene {
       '"Delete o que o sistema não quer que você veja."',
       '',
       'CLOCK ANCHOR // 07:31',
-      'SERVER LOCAL TIME // ' + this._getServerLocalTime(),
       '// O horário será usado na saída.',
       '',
       '“fugir é a complexidade da existencia, deixe tudo para tras.',
