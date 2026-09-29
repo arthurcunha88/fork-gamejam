@@ -37,6 +37,8 @@ class GameScene extends Phaser.Scene {
       'assets/tilemap/CosmicLilac_Tiles.png',
       { frameWidth: 16, frameHeight: 16 }
     );
+    this.load.image('fork_lab_props', 'assets/fork-lab-props.svg');
+    this.load.image('fork_emblem', 'assets/fork-emblem.svg');
   }
 
   create() {
@@ -56,6 +58,7 @@ class GameScene extends Phaser.Scene {
     this._buildMap();
     this._buildRoomColliders();
     this._buildMapDynamics();
+    this._buildAssetDecor();
 
     this._objects = [];
     this._lastCorruptionLevel = -1;
@@ -436,6 +439,43 @@ class GameScene extends Phaser.Scene {
     this.add.text(674, 342, '// STORAGE // RESTRICTED', labelStyle).setDepth(2);
 
 
+  }
+
+  _buildAssetDecor() {
+    if (!this.textures.exists('fork_lab_props')) return;
+
+    // Assets externos/customizados usados como elementos de ambientação.
+    // Cada sprite usa um recorte diferente da folha 256x64.
+    const props = [
+      [150, 135, 0, 'main'],
+      [245, 515, 0, 'main'],
+      [535, 135, 64, 'main'],
+      [700, 110, 128, 'server'],
+      [850, 110, 192, 'server'],
+      [700, 395, 64, 'storage'],
+      [850, 500, 128, 'storage'],
+    ];
+
+    props.forEach(([x, y, sx, zone]) => {
+      const sprite = this.add.image(x, y, 'fork_lab_props')
+        .setOrigin(0.5)
+        .setCrop(sx, 0, 64, 64)
+        .setScale(0.68)
+        .setAlpha(0.82)
+        .setDepth(0.42);
+
+      // Leve diferença de contraste por sala.
+      if (zone === 'storage') sprite.setAlpha(0.72);
+      if (zone === 'server') sprite.setAlpha(0.78);
+    });
+
+    if (this.textures.exists('fork_emblem')) {
+      this.add.image(575, 530, 'fork_emblem')
+        .setOrigin(0.5)
+        .setScale(0.42)
+        .setAlpha(0.18)
+        .setDepth(0.2);
+    }
   }
 
   _buildPixelFloorAccents() {
