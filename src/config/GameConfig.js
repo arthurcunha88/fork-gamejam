@@ -112,7 +112,7 @@ const FORK_CONFIG = {
   // Puzzles cuja falha provoca LOOP COLLAPSE.
   CRITICAL_PUZZLES: [
     'puzzle_boot_code',
-    'puzzle_door_sequence',
+    'puzzle_door_code',
     'puzzle_server_sequence',
   ],
 
