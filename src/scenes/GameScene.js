@@ -65,8 +65,8 @@ class GameScene extends Phaser.Scene {
       'assets/tilemap/CosmicLilac_Tiles.png',
       { frameWidth: 16, frameHeight: 16 }
     );
-    this.load.image('fork_lab_props', 'assets/fork-lab-props.png');
-    this.load.image('fork_emblem', 'assets/fork-emblem.png');
+    this.load.image('fork_lab_props', 'assets/fork-lab-props.svg');
+    this.load.image('fork_emblem', 'assets/fork-emblem.svg');
   }
 
   create() {
@@ -474,37 +474,44 @@ class GameScene extends Phaser.Scene {
   _buildAssetDecor() {
     if (!this.textures.exists('fork_lab_props')) return;
 
-    // Assets externos/customizados usados como elementos de ambientação.
-    // Cada sprite usa um recorte diferente da folha 256x64.
+    // Ambientação: poucos assets, posicionados nos "vazios" do mapa.
+    // A intenção é preencher os blocos escuros sem competir com puzzles,
+    // personagens ou textos.
     const props = [
-      [150, 135, 0, 'main'],
-      [245, 515, 0, 'main'],
-      [535, 135, 64, 'main'],
-      [700, 110, 128, 'server'],
-      [850, 110, 192, 'server'],
-      [700, 395, 64, 'storage'],
-      [850, 500, 128, 'storage'],
+      // MAIN LAB — infraestrutura nas bordas.
+      [118, 145, 0, 0.68],
+      [520, 145, 64, 0.62],
+      [118, 510, 128, 0.58],
+      [520, 510, 192, 0.58],
+
+      // SERVER ROOM — equipamentos nas extremidades.
+      [692, 110, 64, 0.64],
+      [850, 110, 128, 0.64],
+
+      // STORAGE — caixas e terminais mais discretos.
+      [690, 390, 0, 0.56],
+      [850, 390, 64, 0.56],
+      [690, 515, 128, 0.52],
+      [850, 515, 192, 0.52],
     ];
 
-    props.forEach(([x, y, sx, zone]) => {
-      const sprite = this.add.image(x, y, 'fork_lab_props')
+    props.forEach(([x, y, sx, alpha]) => {
+      this.add.image(x, y, 'fork_lab_props')
         .setOrigin(0.5)
         .setCrop(sx, 0, 64, 64)
-        .setScale(0.68)
-        .setAlpha(0.82)
-        .setDepth(0.42);
-
-      // Leve diferença de contraste por sala.
-      if (zone === 'storage') sprite.setAlpha(0.72);
-      if (zone === 'server') sprite.setAlpha(0.78);
+        .setScale(0.66)
+        .setAlpha(alpha)
+        .setDepth(0.45);
     });
 
+    // Emblema FORK no piso do laboratório: marca visual sutil, sem virar
+    // mais um ponto de atenção durante os puzzles.
     if (this.textures.exists('fork_emblem')) {
       this.add.image(575, 530, 'fork_emblem')
         .setOrigin(0.5)
-        .setScale(0.42)
-        .setAlpha(0.18)
-        .setDepth(0.2);
+        .setScale(0.40)
+        .setAlpha(0.12)
+        .setDepth(0.18);
     }
   }
 
@@ -515,17 +522,26 @@ class GameScene extends Phaser.Scene {
     if (!this.textures.exists('cosmic_tiles')) return;
 
     const accents = [
-      // MAIN LAB — módulos de piso próximos às áreas de trabalho.
-      [112, 104, 4], [128, 104, 4], [144, 104, 4],
-      [112, 120, 4], [128, 120, 4], [144, 120, 4],
+      // MAIN LAB — pequenos módulos preenchendo áreas vazias, sempre encostados
+      // nas paredes para manter o centro livre para exploração.
+      [96, 96, 4], [112, 96, 4], [128, 96, 4],
+      [96, 112, 4], [112, 112, 4],
+      [548, 96, 8], [564, 96, 8],
+      [548, 112, 8], [564, 112, 8],
+      [96, 544, 12], [112, 544, 12],
+      [544, 544, 12], [560, 544, 12],
 
-      // SERVER ROOM — painéis técnicos.
-      [692, 92, 14], [708, 92, 14], [724, 92, 14],
-      [692, 108, 14], [708, 108, 14], [724, 108, 14],
+      // SERVER ROOM — duas pequenas faixas técnicas.
+      [680, 92, 14], [696, 92, 14],
+      [856, 92, 14], [872, 92, 14],
+      [680, 252, 16], [696, 252, 16],
+      [856, 252, 16], [872, 252, 16],
 
-      // STORAGE — placas de piso mais claras.
-      [690, 366, 20], [706, 366, 20],
-      [690, 382, 20], [706, 382, 20],
+      // STORAGE — detalhes de piso junto às bordas.
+      [680, 368, 20], [696, 368, 20],
+      [856, 368, 20], [872, 368, 20],
+      [680, 544, 24], [696, 544, 24],
+      [856, 544, 24], [872, 544, 24],
     ];
 
     accents.forEach(([x, y, frame]) => {
