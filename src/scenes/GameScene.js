@@ -736,12 +736,16 @@ class GameScene extends Phaser.Scene {
     const C = FORK_CONFIG.COLORS;
 
     // Barreira física real: a partícula não atravessa a porta enquanto o código não for aceito.
+    const gateLocked = !GameState.get('door_unlocked');
     this._controlRoomGate = this.add.rectangle(
       625, 185, 48, 40,
       0x050a0f, 0.98
-    ).setStrokeStyle(2, C.ACCENT_DIM, 0.9).setDepth(4);
+    ).setStrokeStyle(2, C.ACCENT_DIM, 0.9)
+      .setDepth(4)
+      .setVisible(gateLocked);
     this.physics.add.existing(this._controlRoomGate, true);
     this._controlRoomGate.body.setSize(48, 40);
+    this._controlRoomGate.body.enable = gateLocked;
 
     const terminal = new Terminal(this, 185, 235, {
       id: 'terminal_main', label: 'TERMINAL',
