@@ -638,6 +638,65 @@ class MenuScene extends Phaser.Scene {
     return btn;
   }
 
+  _showTutorial(returnToSettings = false) {
+    this._showInfoPanel(
+      '// TUTORIAL',
+      [
+        'FORK // COMO JOGAR',
+        'OBJETIVO',
+        'Você está preso dentro de uma Matrix instável.',
+        'Explore o ambiente, investigue os sinais do sistema',
+        'e descubra o que realmente aconteceu com você.',
+        'Seu objetivo não é apenas encontrar uma saída:',
+        'é entender o que está acontecendo dentro da Matrix.',
+        '',
+        'CONTROLES',
+        '',
+        '[ W / A / S / D ]  ou  [ SETAS ]',
+        'Movimentar o personagem pela simulação.',
+        '',
+        '[ E ]  INTERAGIR',
+        'Use o botão E quando ele aparecer próximo a um',
+        'objeto. Terminais, arquivos, portas, servidores,',
+        'câmeras e outros elementos podem esconder pistas.',
+        '',
+        '[ P ]  PAUSAR',
+        'Abre o menu de pausa e congela o tempo do loop.',
+        '',
+        'PUZZLES E ENIGMAS',
+        '',
+        'A progressão acontece por uma série de puzzles e',
+        'enigmas espalhados pela Matrix. Nem toda resposta',
+        'está escrita de forma direta: observe mensagens,',
+        'sequências, arquivos, símbolos e consequências.',
+        '',
+        'EFEITO BORBOLETA',
+        '',
+        'Pequenas ações podem alterar eventos posteriores.',
+        'Uma escolha, uma informação descoberta ou uma',
+        'ação executada pode mudar o caminho da história',
+        'e influenciar o final encontrado.',
+        '',
+        'CUIDADO COM O CLEAR',
+        '',
+        'O comando CLEAR não é apenas uma ferramenta.',
+        'Ele pode apagar informações e provocar mudanças',
+        'persistentes na simulação. Use-o com atenção e',
+        'pense nas consequências antes de limpar algo.',
+        '',
+        'MÚLTIPLOS FINAIS',
+        '',
+        'Existem cinco finais possíveis.',
+        'Suas ações, descobertas e decisões determinam',
+        'qual consequência será revelada.',
+        '',
+        'A Matrix está tentando esconder alguma coisa.',
+        'Investigue, conecte as pistas e descubra a verdade.'
+      ].join('\\n'),
+      returnToSettings
+    );
+  }
+
   _showCredits(returnToSettings = false) {
     this._showInfoPanel(
       '// CRÉDITOS',
@@ -669,9 +728,9 @@ class MenuScene extends Phaser.Scene {
         'para um escape room digital sobre decisão, consequência,',
         'repetição e controle.',
         '',
-        'A equipe trabalhou na combinação de narrativa ambiental,',
-        'puzzles, loops, múltiplos finais e uma estética de',
-        'laboratório digital, mantendo o escopo adequado à Game Jam.',
+        'A equipe combinou narrativa ambiental, puzzles, loops,',
+        'múltiplos finais e uma estética de laboratório digital,',
+        'mantendo o escopo adequado à Game Jam.',
         '',
         'TECNOLOGIA',
         'JavaScript  •  Phaser 3  •  HTML5  •  CSS',
@@ -680,8 +739,8 @@ class MenuScene extends Phaser.Scene {
         'APOIO DE IA',
         'ChatGPT / OpenAI foi utilizado como ferramenta de apoio',
         'para brainstorming, programação, depuração, arquitetura,',
-        'narrativa, puzzles e documentação.',
-      ].join('\n'),
+        'narrativa, puzzles e documentação.'
+      ].join('\\n'),
       returnToSettings
     );
   }
@@ -695,46 +754,47 @@ class MenuScene extends Phaser.Scene {
         '',
         'POR QUE “FORK”?',
         '',
-        'Fork é uma bifurcação: um ponto em que um',
+        'Fork significa bifurcação: um ponto em que um',
         'caminho pode se dividir em outros caminhos.',
-        'No jogo, cada decisão pode alterar o estado',
-        'da simulação e criar uma nova consequência.',
+        'Esse conceito está no centro de FORK porque o jogo',
+        'trabalha com consequências, loops e diferentes finais.',
         '',
-        'O próprio título representa a ideia central:',
-        'o jogador está diante de um sistema que pode',
-        'seguir diferentes versões de si mesmo.',
+        'O título também representa a própria experiência:',
+        'o jogador está dentro de um sistema que pode gerar',
+        'diferentes versões dos acontecimentos a partir de',
+        'pequenas decisões e mudanças no estado da Matrix.',
         '',
         'EFEITO BORBOLETA',
         '',
-        'O Efeito Borboleta está presente na estrutura,',
-        'na narrativa e nos puzzles. Pequenas ações',
-        'podem modificar eventos posteriores, abrir',
-        'novos caminhos e alterar o final encontrado.',
+        'O Efeito Borboleta não aparece apenas como tema.',
+        'Ele é predominante na narrativa, na estrutura e',
+        'nos puzzles. Pequenas ações podem alterar eventos',
+        'posteriores, abrir caminhos e modificar o final.',
         '',
-        'A exploração acontece dentro de uma simulação',
-        'instável, onde loops, alterações no sistema,',
-        'processos ocultos e decisões do jogador',
-        'se conectam como uma cadeia de consequências.',
+        'A exploração acontece dentro de uma Matrix instável,',
+        'onde loops, processos ocultos, alterações no sistema',
+        'e escolhas do jogador formam uma cadeia de consequências.',
         '',
-        'O jogo possui cinco finais possíveis.',
-        'Cada um representa uma consequência diferente',
-        'das escolhas e informações descobertas.',
+        'OBJETIVO DO JOGADOR',
         '',
-        'PROCESSO CRIATIVO',
+        'Encontrar uma saída é apenas parte da experiência.',
+        'O objetivo principal é entender o que está acontecendo',
+        'dentro da Matrix, descobrir por que ela foi alterada',
+        'e conectar as pistas deixadas pelo próprio sistema.',
         '',
-        'O projeto nasceu a partir do tema Efeito',
-        'Borboleta e foi desenvolvido como um escape',
-        'room digital de escopo enxuto. A equipe buscou',
-        'combinar puzzles, exploração e narrativa para',
-        'fazer o próprio sistema parecer parte da história.',
+        'MÚLTIPLOS FINAIS',
+        '',
+        'FORK possui cinco finais possíveis.',
+        'Cada final revela uma consequência diferente das',
+        'ações, informações e caminhos percorridos pelo jogador.',
         '',
         'BETA',
         '',
-        'FORK está em BETA. Esta versão representa o',
-        'estado atual do projeto para a Game Jam e',
-        'ainda pode receber ajustes de gameplay,',
-        'balanceamento, narrativa, arte e interface.'
-      ],
+        'FORK está em BETA. Esta versão representa o estado',
+        'atual do projeto para a Game Jam e ainda pode receber',
+        'ajustes de gameplay, balanceamento, narrativa, arte',
+        'e interface.'
+      ].join('\\n'),
       returnToSettings
     );
   }
@@ -745,31 +805,37 @@ class MenuScene extends Phaser.Scene {
     const F = FORK_CONFIG.FONT;
     const C = FORK_CONFIG.COLORS;
 
-    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.92)
+    const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.94)
       .setOrigin(0, 0)
       .setDepth(60)
       .setInteractive();
 
-    const box = this.add.rectangle(W / 2, H / 2, 680, 520, C.TERMINAL_BG, 0.99)
+    // Painéis informativos usam quase toda a altura útil da resolução 960x640.
+    // O tamanho do texto se adapta à quantidade de linhas para evitar overflow.
+    const box = this.add.rectangle(W / 2, H / 2, 720, 600, C.TERMINAL_BG, 0.99)
       .setStrokeStyle(1, C.ACCENT_DIM)
       .setDepth(61);
 
-    const title = this.add.text(W / 2, H / 2 - 238, titleText, {
+    const title = this.add.text(W / 2, 46, titleText, {
       fontFamily: F.FAMILY_TITLE,
       fontSize: '27px',
       color: F.COLOR_BRIGHT,
       shadow: { offsetX: 0, offsetY: 0, color: F.COLOR_PRIMARY, blur: 10, fill: true },
-    }).setOrigin(0.5).setDepth(62);
+    }).setOrigin(0.5, 0).setDepth(62);
 
-    const text = this.add.text(W / 2 - 300, H / 2 - 190, bodyText, {
+    const lines = bodyText.split('\\n').length;
+    const fontSize = lines >= 38 ? '9px' : lines >= 32 ? '10px' : '11px';
+    const lineSpacing = lines >= 38 ? 1 : 2;
+
+    const text = this.add.text(W / 2 - 320, 88, bodyText, {
       fontFamily: F.FAMILY,
-      fontSize: '12px',
+      fontSize,
       color: F.COLOR_SYSTEM,
-      lineSpacing: 5,
-      wordWrap: { width: 600 },
+      lineSpacing,
+      wordWrap: { width: 640 },
     }).setDepth(62);
 
-    const closeButton = this._panelButton(W / 2, H / 2 + 228, '> FECHAR', () => close());
+    const closeButton = this._panelButton(W / 2, 592, '> FECHAR', () => close());
     closeButton.setDepth(63);
 
     const close = () => {
