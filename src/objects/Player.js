@@ -1,6 +1,6 @@
 // ============================================================
 // FORK — Player.js
-// O jogador é uma partícula do sistema.
+// Personagem principal com sprites de idle e caminhada.
 // ============================================================
 
 class Player {
@@ -9,68 +9,24 @@ class Player {
     this.scene = scene;
     this.speed = FORK_CONFIG.PLAYER_SPEED;
 
-    // O próprio corpo do jogador é a partícula. Não existe "bolinha"
-    // separada: ele é um fragmento luminoso minúsculo dentro da máquina.
-    this._textureKey = '__fork_player_particle_core';
-    if (!scene.textures.exists(this._textureKey)) {
-      const g = scene.add.graphics();
-      g.fillStyle(0xffffff, 0.10);
-      g.fillCircle(6, 6, 6);
-      g.fillStyle(0xffffff, 0.24);
-      g.fillCircle(6, 6, 4);
-      g.fillStyle(0xffffff, 0.95);
-      g.fillCircle(6, 6, 1.8);
-      g.generateTexture(this._textureKey, 12, 12);
-      g.destroy();
-    }
+    this._createAnimations();
 
-    this._sprite = scene.add.image(x, y, this._textureKey)
+    this._sprite = scene.add.sprite(x, y, 'player_idle_down')
       .setDepth(12)
-      .setScale(1);
+      .setScale(1)
+      .setOrigin(0.5, 0.5);
 
     scene.physics.add.existing(this._sprite);
-    this._sprite.body.setCircle(4, 2, 2);
+
     this.body = this._sprite.body;
+    this.body.setSize(26, 22);
+    this.body.setOffset(19, 30);
     this.body.setCollideWorldBounds(true);
-
-    // O rastro é parte do personagem: o movimento deixa pequenas falhas
-    // de informação para trás, reforçando a ideia de que ele é uma anomalia.
-    this._trailTextureKey = '__fork_player_trail';
-    if (!scene.textures.exists(this._trailTextureKey)) {
-      const g = scene.add.graphics();
-      g.fillStyle(0xffffff, 0.75);
-      g.fillCircle(3, 3, 3);
-      g.generateTexture(this._trailTextureKey, 6, 6);
-      g.destroy();
-    }
-
-    this._trail = scene.add.particles(x, y, this._trailTextureKey, {
-      speed: { min: 4, max: 18 },
-      angle: { min: 0, max: 360 },
-      lifespan: { min: 180, max: 420 },
-      scale: { start: 0.65, end: 0 },
-      alpha: { start: 0.45, end: 0 },
-      frequency: 70,
-      quantity: 1,
-      tint: [0x8fe8ff, 0xffffff],
-      blendMode: 'ADD',
-      emitting: true,
-    });
-    this._trail.setDepth(11);
-    this._trail.startFollow(this._sprite, 0, 0, true);
-
-    this._pulse = scene.tweens.add({
-      targets: this._sprite,
-      scale: { from: 0.85, to: 1.18 },
-      alpha: { from: 0.72, to: 1 },
-      duration: 430,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    });
 
     this.direction = 'down';
     this._nearestObject = null;
+    this._lastMoving = false;
+    this._currentAnimation = null;
 
     this._cursors = scene.input.keyboard.createCursorKeys();
     this._wasd = {
@@ -80,7 +36,41 @@ class Player {
       right: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
     };
     this._keyE = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-    this._lastMoving = false;
+
+    this._playAnimation('idle_down');
+  }
+
+  _createAnimations() {
+    const animations = [
+      ['player_idle_down', 'player_idle_down', 0, 5, 7],
+      ['player_idle_up', 'player_idle_up', 0, 5, 7],
+      ['player_idle_left_down', 'player_idle_left_down', 0, 5, 7],
+      ['player_idle_right_down', 'player_idle_right_down', 0, 5, 7],
+
+      ['player_walk_down', 'player_walk_down', 0, 5, 10],
+      ['player_walk_up', 'player_walk_up', 0, 5, 10],
+      ['player_walk_left_down', 'player_walk_left_down', 0, 5, 10],
+      ['player_walk_right_down', 'player_walk_right_down', 0, 5, 10],
+    ];
+
+    animations.forEach(([key, texture, start, end, frameRate]) => {
+      if (this.scene.anims.exists(key)) return;
+
+      this.scene.anims.create({
+        key,
+        frames: this.scene.anims.generateFrameNumbers(texture, { start, end }),
+        frameRate,
+        repeat: -1,
+      });
+    });
+  }
+
+  _playAnimation(name) {
+    const key = 'player_' + name;
+    if (this._currentAnimation === key) return;
+
+    this._sprite.anims.play(key, true);
+    this._currentAnimation = key;
   }
 
   get x() { return this._sprite.x; }
@@ -103,31 +93,56 @@ class Player {
 
   _handleMovement() {
     const speed = this.speed;
-    let vx = 0, vy = 0;
+    let vx = 0;
+    let vy = 0;
 
     const left = this._cursors.left.isDown || this._wasd.left.isDown;
     const right = this._cursors.right.isDown || this._wasd.right.isDown;
     const up = this._cursors.up.isDown || this._wasd.up.isDown;
     const down = this._cursors.down.isDown || this._wasd.down.isDown;
 
-    if (left) { vx = -speed; this.direction = 'left'; }
-    if (right) { vx = speed; this.direction = 'right'; }
-    if (up) { vy = -speed; this.direction = 'up'; }
-    if (down) { vy = speed; this.direction = 'down'; }
+    if (left) vx = -speed;
+    if (right) vx = speed;
+    if (up) vy = -speed;
+    if (down) vy = speed;
 
-    if (vx !== 0 && vy !== 0) { vx *= 0.707; vy *= 0.707; }
+    if (vx !== 0 && vy !== 0) {
+      vx *= 0.707;
+      vy *= 0.707;
+
+      if (vy < 0 && vx < 0) this.direction = 'left_up';
+      else if (vy < 0 && vx > 0) this.direction = 'right_up';
+      else if (vy > 0 && vx < 0) this.direction = 'left_down';
+      else this.direction = 'right_down';
+    } else if (vx < 0) {
+      this.direction = 'left_down';
+    } else if (vx > 0) {
+      this.direction = 'right_down';
+    } else if (vy < 0) {
+      this.direction = 'up';
+    } else if (vy > 0) {
+      this.direction = 'down';
+    }
 
     this._sprite.body.setVelocity(vx, vy);
 
     const moving = vx !== 0 || vy !== 0;
-    if (moving && !this._lastMoving && window.AudioManagerInstance) {
-      window.AudioManagerInstance.playBeep();
+
+    if (moving) {
+      this._playAnimation('walk_' + this.direction);
+      if (!this._lastMoving && window.AudioManagerInstance) {
+        window.AudioManagerInstance.playBeep();
+      }
+    } else {
+      this._playAnimation('idle_' + this.direction);
     }
+
     this._lastMoving = moving;
   }
 
   _stopMovement() {
     this._sprite.body.setVelocity(0, 0);
+    this._playAnimation('idle_' + this.direction);
     this._lastMoving = false;
   }
 
@@ -138,7 +153,10 @@ class Player {
     objects.forEach(obj => {
       if (!obj.enabled) return;
       const d = Phaser.Math.Distance.Between(this.x, this.y, obj.x, obj.y);
-      if (d < minDist) { minDist = d; nearest = obj; }
+      if (d < minDist) {
+        minDist = d;
+        nearest = obj;
+      }
     });
 
     return nearest;
@@ -157,8 +175,6 @@ class Player {
   }
 
   destroy() {
-    if (this._pulse) this._pulse.remove();
     this._sprite.destroy();
-    if (this._trail) this._trail.destroy();
   }
 }
