@@ -370,89 +370,112 @@ class GameScene extends Phaser.Scene {
     gfx.fillStyle(C.BG, 1);
     gfx.fillRect(0, 0, W, H);
 
-    // Grid arquitetural: linhas finas e coordenadas lembram uma interface
-    // de simulação, sem depender de imagens externas.
-    gfx.lineStyle(1, C.GRID, 0.55);
-    for (let x = 0; x <= W; x += 32) gfx.moveTo(x, 0).lineTo(x, H);
-    for (let y = 0; y <= H; y += 32) gfx.moveTo(0, y).lineTo(W, y);
+    // Grade discreta: arquitetura primeiro, efeitos depois.
+    gfx.lineStyle(1, C.GRID, 0.34);
+    for (let x = 0; x <= W; x += 32) gfx.moveTo(x, 28).lineTo(x, H - 22);
+    for (let y = 28; y <= H - 22; y += 32) gfx.moveTo(0, y).lineTo(W, y);
     gfx.strokePath();
+
+    // Novo layout:
+    // MAIN LAB à esquerda, SERVER ROOM no alto à direita,
+    // STORAGE embaixo à direita. O Server Room vira o ponto de passagem
+    // para o Storage depois que a porta é liberada.
+    this._drawRoom(gfx, 60, 52, 540, 528, false);
+    this._drawRoom(gfx, 650, 52, 250, 228, true);
+    this._drawRoom(gfx, 650, 328, 250, 252, true);
 
     this._drawDigitalRain(0, 28, W, H - 50);
 
-    this._drawRoom(gfx, 60, 50, 840, 540);
-    this._drawRoom(gfx, 660, 50, 240, 200, true);
-    this._drawRoom(gfx, 60, 390, 220, 200, true);
-
-    // Faixas de iluminação e circuitos no chão.
-    gfx.lineStyle(1, C.ACCENT_DIM, 0.16);
-    for (let x = 80; x < 900; x += 80) {
-      gfx.moveTo(x, 70).lineTo(x, 570);
+    // Piso da área central: linhas longas, pouco brilho.
+    gfx.lineStyle(1, C.ACCENT_DIM, 0.10);
+    for (let x = 92; x < 900; x += 96) {
+      gfx.moveTo(x, 78).lineTo(x, 555);
     }
-    for (let y = 70; y < 580; y += 80) {
-      gfx.moveTo(80, y).lineTo(880, y);
+    for (let y = 92; y < 555; y += 88) {
+      gfx.moveTo(82, y).lineTo(878, y);
     }
     gfx.strokePath();
 
-    // Trilhas de circuito decorativas.
-    gfx.lineStyle(2, C.ACCENT_DIM, 0.18);
-    [[95,115,240,115],[240,115,240,180],[400,535,560,535],
-     [560,535,560,470],[690,105,780,105],[780,105,780,160],
-     [95,350,180,350],[180,350,180,300]].forEach(([x1,y1,x2,y2]) => {
-      gfx.moveTo(x1,y1).lineTo(x2,y2);
-      gfx.strokeCircle(x2, y2, 3);
+    // Circuitos só nos cantos para não competir com os objetos.
+    gfx.lineStyle(2, C.ACCENT_DIM, 0.13);
+    [
+      [[92,125],[220,125],[220,170],[300,170]],
+      [[420,520],[520,520],[520,470],[580,470]],
+      [[680,100],[760,100],[760,150]],
+      [[700,500],[780,500],[780,450],[850,450]]
+    ].forEach(route => {
+      route.forEach(([px,py], i) => {
+        if (i === 0) gfx.moveTo(px,py);
+        else gfx.lineTo(px,py);
+      });
+      gfx.strokePath();
     });
 
     const labelStyle = {
-      fontFamily: F.FAMILY_TITLE, fontSize: '20px', color: '#7ed6ff',
+      fontFamily: F.FAMILY_TITLE,
+      fontSize: '20px',
+      color: '#7ed6ff',
       shadow: { offsetX:0, offsetY:0, color:'#3c8eac', blur:10, fill:true }
     };
-    this.add.text(120, 62, '// MAIN LAB', labelStyle).setDepth(1);
-    this.add.text(672, 62, '// SERVER ROOM // LOCKED', labelStyle).setDepth(1);
 
-    // A passagem agora parece uma entrada real, não apenas um buraco na parede.
-    const entranceX = 780;
-    const entranceY = 250;
-    gfx.lineStyle(2, C.ACCENT_BRIGHT, 0.7);
-    gfx.strokeRect(744, 244, 72, 14);
-    gfx.lineStyle(1, C.ACCENT_BRIGHT, 0.35);
-    gfx.strokeRect(748, 248, 64, 8);
-    const entranceText = this.add.text(780, 266, 'ENTRADA // CONTROL ROOM', {
-      fontFamily: F.FAMILY_TITLE,
-      fontSize: '13px',
-      color: '#9be8ff',
-      shadow: { offsetX:0, offsetY:0, color:'#4a9ab8', blur:8, fill:true },
-    }).setOrigin(0.5, 0).setDepth(2);
+    this.add.text(92, 66, '// MAIN LAB', labelStyle).setDepth(2);
+    this.add.text(674, 66, '// SERVER ROOM', labelStyle).setDepth(2);
+    this.add.text(674, 342, '// STORAGE // RESTRICTED', labelStyle).setDepth(2);
 
-    this.add.text(780, 286, '↓  PORTA FECHADA // CÓDIGO NECESSÁRIO', {
-      fontFamily: F.FAMILY,
-      fontSize: '10px',
-      color: '#6d9aaa',
-    }).setOrigin(0.5, 0).setDepth(2);
-
-    this.tweens.add({
-      targets: [entranceText],
-      alpha: { from: 1, to: 0.35 },
-      duration: 700,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    });
-    this.add.text(72, 400, '// STORAGE', labelStyle).setDepth(1);
-
-    const dimStyle = { fontFamily: F.FAMILY, fontSize: '9px', color: '#33aa33' };
-    this.add.text(65, 55, '[00,00]', dimStyle).setDepth(1);
-    this.add.text(860, 55, '[10,00]', dimStyle).setOrigin(1,0).setDepth(1);
-    this.add.text(65, 575, '[00,06]', dimStyle).setDepth(1);
-    this.add.text(860, 575, '[10,06]', dimStyle).setOrigin(1,0).setDepth(1);
-
-    // Painéis de status dão vida ao laboratório.
-    this._mapStatus = this.add.text(78, 555, 'NET // SYNCHRONIZED', {
-      fontFamily: F.FAMILY, fontSize: '9px', color: '#33aa33'
+    this.add.text(92, 91, 'PRIMARY WORKSPACE // NODE 01', {
+      fontFamily: F.FAMILY, fontSize: '9px', color: '#55717f'
     }).setDepth(2);
+
+    this.add.text(674, 91, 'CONTROL NODE // A', {
+      fontFamily: F.FAMILY, fontSize: '9px', color: '#55717f'
+    }).setDepth(2);
+
+    this.add.text(674, 367, 'ARCHIVE // PROJECT CACHE', {
+      fontFamily: F.FAMILY, fontSize: '9px', color: '#55717f'
+    }).setDepth(2);
+
+    // Porta física entre Server Room e Storage.
+    const doorX = 775;
+    const doorY = 280;
+    gfx.lineStyle(2, C.ACCENT_DIM, 0.32);
+    gfx.strokeRect(730, 272, 90, 16);
+    gfx.lineStyle(1, C.ACCENT_DIM, 0.18);
+    gfx.strokeRect(736, 275, 78, 10);
+
+    this.add.text(775, 292, 'SECURE LIFT // 0731', {
+      fontFamily: F.FAMILY,
+      fontSize: '9px',
+      color: '#5f7c88',
+    }).setOrigin(0.5, 0).setDepth(2);
+
+    // Porta de acesso lateral ao Server Room.
+    this.add.text(625, 176, 'CONTROL ACCESS', {
+      fontFamily: F.FAMILY_TITLE,
+      fontSize: '9px',
+      color: '#5f7c88',
+    }).setOrigin(1, 0.5).setDepth(2);
+
+    this.add.text(78, 555, 'NET // SYNCHRONIZED', {
+      fontFamily: F.FAMILY,
+      fontSize: '9px',
+      color: '#3c7888'
+    }).setDepth(2);
+
+    this.add.text(872, 555, 'CAM GRID // ACTIVE', {
+      fontFamily: F.FAMILY,
+      fontSize: '9px',
+      color: '#3c7888'
+    }).setOrigin(1, 0).setDepth(2);
+
+    this._mapStatus = this.add.text(480, 565, 'SIMULATION FLOOR // STABLE', {
+      fontFamily: F.FAMILY,
+      fontSize: '9px',
+      color: '#4b7582'
+    }).setOrigin(0.5).setDepth(2);
 
     this.tweens.add({
       targets: this._mapStatus,
-      alpha: { from: 1, to: 0.35 },
+      alpha: { from: 1, to: 0.42 },
       duration: 1100,
       yoyo: true,
       repeat: -1,
@@ -461,55 +484,51 @@ class GameScene extends Phaser.Scene {
 
   _buildMapDynamics() {
     const C = FORK_CONFIG.COLORS;
-    const F = FORK_CONFIG.FONT;
     const W = FORK_CONFIG.WIDTH;
     const H = FORK_CONFIG.HEIGHT;
 
-    // Circuitos ambientais: poucos elementos lentos para não competir com o player.
-    const routes = [
-      { color: C.ACCENT, points: [[90,150],[230,150],[230,215],[320,215]] },
-      { color: C.PURPLE, points: [[470,90],[470,160],[610,160],[610,250]] },
-      { color: C.GREEN, points: [[520,540],[640,540],[640,430],[760,430]] },
-    ];
-
-    routes.forEach(route => {
-      const g = this.add.graphics().setDepth(1);
-      g.lineStyle(1, route.color, 0.10);
-      route.points.forEach(([x,y], i) => {
-        if (i === 0) g.moveTo(x,y);
-        else g.lineTo(x,y);
-      });
-      g.strokePath();
-    });
-
     const nodes = [
-      [230,150,C.ACCENT],
-      [610,250,C.PURPLE],
-      [640,430,C.GREEN],
-      [850,180,C.ACCENT_BRIGHT],
+      [220,125,C.ACCENT],
+      [560,470,C.ACCENT_BRIGHT],
+      [760,110,C.PURPLE],
+      [820,430,C.GREEN],
     ];
 
     nodes.forEach(([x,y,color]) => {
-      const node = this.add.circle(x, y, 2, color, 0.45).setDepth(2);
+      const node = this.add.circle(x, y, 2.5, color, 0.35).setDepth(2);
       this.tweens.add({
         targets: node,
-        alpha: { from: 0.18, to: 0.55 },
-        scale: { from: 0.9, to: 1.15 },
-        duration: 1500,
+        alpha: { from: 0.12, to: 0.5 },
+        scale: { from: 0.85, to: 1.15 },
+        duration: 1700,
         yoyo: true,
         repeat: -1,
         ease: 'Sine.easeInOut',
       });
     });
 
-    const scan = this.add.rectangle(W / 2, 48, W - 140, 1, C.ACCENT_BRIGHT, 0.18).setDepth(2);
-    this.tweens.add({ targets: scan, y: H - 60, duration: 6200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    const scan = this.add.rectangle(W / 2, 42, W - 150, 1, C.ACCENT_BRIGHT, 0.12).setDepth(2);
+    this.tweens.add({
+      targets: scan,
+      y: H - 48,
+      duration: 7600,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
 
     const status = this.add.text(W - 82, 565, 'LIVE', {
-      fontFamily: F.FAMILY_TITLE, fontSize: '14px', color: F.COLOR_MAGENTA,
-      shadow: { offsetX: 0, offsetY: 0, color: F.COLOR_MAGENTA, blur: 10, fill: true },
+      fontFamily: "'VT323', monospace",
+      fontSize: '14px',
+      color: '#6e91a0',
     }).setDepth(2);
-    this.tweens.add({ targets: status, alpha: { from: 1, to: 0.2 }, duration: 380, yoyo: true, repeat: -1 });
+    this.tweens.add({
+      targets: status,
+      alpha: { from: 0.9, to: 0.3 },
+      duration: 900,
+      yoyo: true,
+      repeat: -1
+    });
   }
 
   _drawDigitalRain(x, y, w, h) {
@@ -549,42 +568,67 @@ class GameScene extends Phaser.Scene {
     }
   }
   _drawRoom(gfx, x, y, w, h, isSecondary = false) {
-    const C     = FORK_CONFIG.COLORS;
+    const C = FORK_CONFIG.COLORS;
     const color = isSecondary ? C.ACCENT_DIM : C.ACCENT;
-    const alpha = isSecondary ? 0.25 : 0.45;
+    const alpha = isSecondary ? 0.34 : 0.46;
     const thick = 12;
 
-    // Chão interno levemente diferente
-    gfx.fillStyle(isSecondary ? 0x020f02 : 0x030d03, 1);
+    // Cada sala recebe uma identidade visual própria.
+    gfx.fillStyle(isSecondary ? 0x080f15 : 0x071018, 0.98);
     gfx.fillRect(x + 2, y + 2, w - 4, h - 4);
 
-    // Borda da sala
-    gfx.lineStyle(isSecondary ? 1 : 2, color, alpha);
-    gfx.strokeRect(x, y, w, h);
+    gfx.lineStyle(isSecondary ? 1.5 : 2, color, alpha);
+    gfx.strokeRoundedRect(x, y, w, h, 4);
 
-    // Cantos decorativos (esquadros)
-    const cs = 10; // corner size
-    gfx.lineStyle(2, color, alpha + 0.2);
-    // TL
+    // Cantos técnicos.
+    const cs = 14;
+    gfx.lineStyle(2, color, alpha + 0.14);
     gfx.moveTo(x, y + cs).lineTo(x, y).lineTo(x + cs, y);
-    // TR
     gfx.moveTo(x + w - cs, y).lineTo(x + w, y).lineTo(x + w, y + cs);
-    // BL
     gfx.moveTo(x, y + h - cs).lineTo(x, y + h).lineTo(x + cs, y + h);
-    // BR
     gfx.moveTo(x + w - cs, y + h).lineTo(x + w, y + h).lineTo(x + w, y + h - cs);
     gfx.strokePath();
 
-    // Paredes físicas
-    const walls = [
-      { wx: x + w/2, wy: y,       ww: w,     wh: thick },
-      { wx: x,       wy: y + h/2, ww: thick, wh: h     },
-      { wx: x + w,   wy: y + h/2, ww: thick, wh: h     },
-    ];
+    // Piso diferente em cada sala.
+    if (x === 650 && y === 52) {
+      // Server: faixas horizontais + racks.
+      gfx.lineStyle(1, 0x24414e, 0.18);
+      for (let yy = y + 38; yy < y + h - 18; yy += 22) {
+        gfx.moveTo(x + 18, yy).lineTo(x + w - 18, yy);
+      }
+      gfx.strokePath();
+    } else if (x === 650 && y === 328) {
+      // Storage: células de arquivo.
+      gfx.lineStyle(1, 0x3b4851, 0.15);
+      for (let xx = x + 20; xx < x + w - 20; xx += 34) {
+        gfx.moveTo(xx, y + 42).lineTo(xx, y + h - 18);
+      }
+      for (let yy = y + 42; yy < y + h - 18; yy += 34) {
+        gfx.moveTo(x + 20, yy).lineTo(x + w - 20, yy);
+      }
+      gfx.strokePath();
+    } else {
+      gfx.lineStyle(1, C.GRID, 0.20);
+      for (let yy = y + 40; yy < y + h - 20; yy += 48) {
+        gfx.moveTo(x + 18, yy).lineTo(x + w - 18, yy);
+      }
+      gfx.strokePath();
+    }
 
-    // A CONTROL ROOM possui uma passagem física pelo centro da parede inferior.
-    if (isSecondary && x === 660 && y === 50) {
-      const gap = 72;
+    const walls = [];
+
+    // MAIN LAB abre para o corredor lateral; não cria uma parede invisível
+    // bloqueando o acesso ao Server Room.
+    if (!(x === 60 && y === 52)) {
+      walls.push({ wx: x, wy: y + h/2, ww: thick, wh: h });
+    }
+
+    walls.push({ wx: x + w, wy: y + h/2, ww: thick, wh: h });
+    walls.push({ wx: x + w/2, wy: y, ww: w, wh: thick });
+
+    // Server Room: porta inferior para Storage.
+    if (x === 650 && y === 52) {
+      const gap = 90;
       const leftW = (w - gap) / 2;
       walls.push(
         { wx: x + leftW / 2, wy: y + h, ww: leftW, wh: thick },
@@ -593,20 +637,41 @@ class GameScene extends Phaser.Scene {
     } else {
       walls.push({ wx: x + w/2, wy: y + h, ww: w, wh: thick });
     }
+
+    // Server Room: acesso lateral pela abertura central.
+    if (x === 650 && y === 52) {
+      const gap = 74;
+      const topH = 92;
+      const bottomH = h - topH - gap;
+      walls.push(
+        { wx: x, wy: y + topH/2, ww: thick, wh: topH },
+        { wx: x, wy: y + topH + gap + bottomH/2, ww: thick, wh: bottomH },
+      );
+
+      if (!GameState.get('door_unlocked')) {
+        this._controlRoomGate = this.add.rectangle(775, 280, 90, thick, 0x0b131a, 0.98)
+          .setStrokeStyle(2, C.ACCENT_DIM, 0.85)
+          .setDepth(4);
+        this.physics.add.existing(this._controlRoomGate, true);
+        this._controlRoomGate.body.setSize(90, thick);
+      }
+    }
+
+    // Storage tem uma porta de entrada própria no topo, alinhada com o Server Room.
+    if (x === 650 && y === 328) {
+      const gap = 90;
+      const leftW = (w - gap) / 2;
+      walls.push(
+        { wx: x + leftW / 2, wy: y, ww: leftW, wh: thick },
+        { wx: x + leftW + gap + leftW / 2, wy: y, ww: leftW, wh: thick },
+      );
+    }
+
     walls.forEach(({ wx, wy, ww, wh }) => {
       const rect = this.add.rectangle(wx, wy, ww, wh, 0x000000, 0);
       this.physics.add.existing(rect, true);
       this._wallRects.push(rect);
     });
-
-    // A abertura da sala do servidor só existe fisicamente depois do código.
-    if (isSecondary && x === 660 && y === 50 && !GameState.get('door_unlocked')) {
-      this._controlRoomGate = this.add.rectangle(780, 250, 72, thick, 0x111a22, 0.96)
-        .setStrokeStyle(2, 0x9be8ff, 0.8)
-        .setDepth(4);
-      this.physics.add.existing(this._controlRoomGate, true);
-      this._controlRoomGate.body.setSize(72, thick);
-    }
   }
 
   // ── Objetos interativos ───────────────────────────────────
@@ -614,7 +679,7 @@ class GameScene extends Phaser.Scene {
   _buildObjects() {
     const C = FORK_CONFIG.COLORS;
 
-    const terminal = new Terminal(this, 180, 220, {
+    const terminal = new Terminal(this, 185, 235, {
       id: 'terminal_main', label: 'TERMINAL',
       puzzleManager: this.puzzleManager,
       dialogManager: this.dialogManager,
@@ -622,9 +687,9 @@ class GameScene extends Phaser.Scene {
     });
     this._objects.push(terminal);
 
-    const door = new InteractiveObject(this, 780, 250, {
+    const door = new InteractiveObject(this, 775, 280, {
       id: 'door_security', type: FORK_CONFIG.OBJECT_TYPES.DOOR,
-      label: GameState.get('door_unlocked') ? 'PORTA // ABERTA' : 'PORTA // BLOQUEADA',
+      label: GameState.get('door_unlocked') ? 'PORTA // 0731 // ABERTA' : 'PORTA // BLOQUEADA',
       width: 84, height: 30,
       visual: 'door',
       color: GameState.get('door_unlocked') ? C.ACCENT : 0x36424c,
@@ -632,7 +697,7 @@ class GameScene extends Phaser.Scene {
     });
     this._objects.push(door);
 
-    const server = new InteractiveObject(this, 750, 130, {
+    const server = new InteractiveObject(this, 720, 145, {
       id: 'server_main', type: FORK_CONFIG.OBJECT_TYPES.SERVER,
       label: 'SERVER A', width: 36, height: 52,
       enabled: GameState.get('door_unlocked'),
@@ -641,7 +706,7 @@ class GameScene extends Phaser.Scene {
     });
     this._objects.push(server);
 
-    const panel = new InteractiveObject(this, 820, 130, {
+    const panel = new InteractiveObject(this, 835, 145, {
       id: 'panel_sequence', type: FORK_CONFIG.OBJECT_TYPES.PANEL,
       label: 'PANEL', width: 28, height: 28,
       enabled: GameState.get('door_unlocked'),
@@ -650,7 +715,7 @@ class GameScene extends Phaser.Scene {
     });
     this._objects.push(panel);
 
-    const file = new InteractiveObject(this, 140, 460, {
+    const file = new InteractiveObject(this, 150, 500, {
       id: 'file_notes', type: FORK_CONFIG.OBJECT_TYPES.FILE,
       label: 'NOTES.txt', width: 20, height: 26,
       color: C.ACCENT_DIM,
@@ -658,7 +723,7 @@ class GameScene extends Phaser.Scene {
     });
     this._objects.push(file);
 
-    const entity = new InteractiveObject(this, 160, 510, {
+    const entity = new InteractiveObject(this, 255, 535, {
       id: 'entity', type: FORK_CONFIG.OBJECT_TYPES.OBJECT,
       label: '???', width: 16, height: 16,
       color: 0x113311,
@@ -666,7 +731,7 @@ class GameScene extends Phaser.Scene {
     });
     this._objects.push(entity);
 
-    const cam = new InteractiveObject(this, 855, 70, {
+    const cam = new InteractiveObject(this, 850, 112, {
       id: 'camera_01', type: FORK_CONFIG.OBJECT_TYPES.CAMERA,
       label: 'CAM-01', width: 44, height: 32,
       visual: 'camera',
@@ -678,12 +743,12 @@ class GameScene extends Phaser.Scene {
     // Elementos sem importância narrativa: servem para a simulação parecer
     // habitada e são os primeiros a desaparecer com CLEAR.
     const decor = [
-      ['cabinet_01', 330, 115, 'ARMÁRIO A', 46, 64, 'cabinet'],
-      ['cabinet_02', 410, 115, 'ARMÁRIO B', 46, 64, 'cabinet'],
-      ['monitor_01', 330, 190, 'MONITOR 01', 46, 30, 'monitor'],
-      ['monitor_02', 410, 190, 'MONITOR 02', 46, 30, 'monitor'],
-      ['rack_01', 300, 500, 'RACK AUX', 50, 56, 'rack'],
-      ['monitor_03', 390, 500, 'MONITOR 03', 46, 30, 'monitor'],
+      ['cabinet_01', 330, 150, 'ARMÁRIO A', 46, 64, 'cabinet'],
+      ['cabinet_02', 430, 150, 'ARMÁRIO B', 46, 64, 'cabinet'],
+      ['monitor_01', 330, 250, 'MONITOR 01', 46, 30, 'monitor'],
+      ['monitor_02', 430, 250, 'MONITOR 02', 46, 30, 'monitor'],
+      ['rack_01', 340, 505, 'RACK AUX', 50, 56, 'rack'],
+      ['monitor_03', 440, 505, 'MONITOR 03', 46, 30, 'monitor'],
     ];
 
     decor.forEach(([id, x, y, label, width, height, visual]) => {
@@ -723,7 +788,7 @@ class GameScene extends Phaser.Scene {
     if (this._objects.some(o => o.id === 'secret_file')) return;
     if (!GameState.get('server_rebooted') || !GameState.get('log07_deleted')) return;
 
-    const secret = new InteractiveObject(this, 700, 490, {
+    const secret = new InteractiveObject(this, 735, 455, {
       id: 'secret_file',
       type: FORK_CONFIG.OBJECT_TYPES.FILE,
       label: 'PROJECT_B.enc',
@@ -750,7 +815,7 @@ class GameScene extends Phaser.Scene {
   _spawnMemoryPanel() {
     if (this._objects.some(o => o.id === 'memory_panel')) return;
 
-    const memory = new InteractiveObject(this, 500, 480, {
+    const memory = new InteractiveObject(this, 500, 430, {
       id: 'memory_panel',
       type: FORK_CONFIG.OBJECT_TYPES.PANEL,
       label: 'MEMORY PANEL',
@@ -765,7 +830,7 @@ class GameScene extends Phaser.Scene {
 
   _spawnObserverObjects() {
     if (!this._objects.some(o => o.id === 'observer_terminal')) {
-      const observer = new InteractiveObject(this, 720, 350, {
+      const observer = new InteractiveObject(this, 775, 405, {
         id: 'observer_terminal',
         type: FORK_CONFIG.OBJECT_TYPES.TERMINAL,
         label: 'OBSERVER',
@@ -778,7 +843,7 @@ class GameScene extends Phaser.Scene {
     }
 
     if (!this._objects.some(o => o.id === 'identity_terminal')) {
-      const identity = new InteractiveObject(this, 620, 350, {
+      const identity = new InteractiveObject(this, 700, 405, {
         id: 'identity_terminal',
         type: FORK_CONFIG.OBJECT_TYPES.FILE,
         label: 'IDENTITY',
@@ -827,29 +892,83 @@ class GameScene extends Phaser.Scene {
   _showCodePuzzle() {
     if (!GameState.get('log07_deleted')) {
       this.dialogManager.show([
-        'CONTROL SERVER // ACESSO NEGADO',
-        'O protocolo de abertura está oculto.',
+        'SERVER ROOM // ACCESS DENIED',
+        'A alteração necessária ainda não aconteceu.',
         '',
-        'O sistema registrou uma alteração no LOG_07.',
-        'Descubra o que mudou antes de tentar a porta novamente.',
-      ], { title: 'CONTROL SERVER // GATE' });
+        'LOG_07 precisa desaparecer antes que o relógio revele a chave.',
+        '// The system will not accept the door code yet.',
+      ], { title: 'SERVER SECURITY' });
       return;
     }
 
     this.dialogManager.show([
-      'CONTROL SERVER // HANDSHAKE',
+      'SERVER ROOM // SECURITY GATE',
       '',
-      'O código numérico não é mais aceito.',
-      'A porta exige quatro operações em sequência.',
+      'NUMERIC ACCESS REQUIRED.',
+      'Four digits.',
       '',
-      'TRACE precisa acontecer antes de AUTH.',
-      'AUTH precisa acontecer antes de SYNC.',
-      'OPEN sempre encerra o handshake.',
-      '',
-      '// Reproduza a sequência para liberar o acesso.',
+      'The clock anchor was recorded when LOG_07 disappeared.',
+      '// Enter the access code.',
     ], {
-      title: 'PORTA DE SEGURANÇA // PROTOCOLO',
-      onClose: () => this._showDoorSequence(),
+      title: 'PORTA DE SEGURANÇA',
+      onClose: () => this.uiManager.openCodeInput({
+        title: '// SERVER ROOM // ACCESS CODE',
+        length: 4,
+        validator: value => this.puzzleManager.checkAnswer(
+          FORK_CONFIG.PUZZLES.DOOR_CODE,
+          value
+        ),
+        onSuccess: () => {
+          this._unlockServerRoom();
+        },
+      }),
+    });
+  }
+
+  _unlockServerRoom() {
+    if (window.AudioManagerInstance) window.AudioManagerInstance.playDoor();
+
+    GameState.save();
+
+    if (this._controlRoomGate) {
+      this.tweens.add({
+        targets: this._controlRoomGate,
+        alpha: 0,
+        scaleX: 0.05,
+        duration: 420,
+        ease: 'Power2',
+        onComplete: () => {
+          if (this._controlRoomGate.body) this._controlRoomGate.body.enable = false;
+          this._controlRoomGate.setVisible(false);
+        },
+      });
+    }
+
+    const doorObj = this._objects.find(o => o.id === 'door_security');
+    if (doorObj) {
+      doorObj._label.setText('PORTA // 0731 // ABERTA');
+      doorObj._body.clear();
+      doorObj._drawVisual(84, 30, FORK_CONFIG.COLORS.ACCENT);
+      doorObj.setEnabled(true);
+    }
+
+    ['server_main', 'panel_sequence'].forEach(id => {
+      const obj = this._objects.find(o => o.id === id);
+      if (obj) obj.setEnabled(true);
+    });
+
+    this.animationManager.doorOpen(775, 280);
+    this.cameras.main.flash(180, 90, 220, 255, false);
+    this.cameras.main.shake(220, 0.004);
+    this._setSystemMessage('ACCESS GRANTED // 0731 // SERVER ROOM OPEN');
+    this.time.delayedCall(450, () => {
+      this.dialogManager.show([
+        'ACCESS GRANTED.',
+        '0731 accepted.',
+        'The Server Room is now open.',
+        '',
+        '// SERVER A is waiting inside.',
+      ], { title: 'SERVER ROOM // ACCESS GRANTED' });
     });
   }
 
@@ -893,7 +1012,7 @@ class GameScene extends Phaser.Scene {
           if (obj) obj.setEnabled(true);
         });
 
-        this.animationManager.doorOpen(780, 250);
+        this.animationManager.doorOpen(775, 280);
         this.cameras.main.flash(180, 90, 220, 255, false);
         this.cameras.main.shake(220, 0.004);
         this._setSystemMessage('HANDSHAKE ACEITO // CONTROL SERVER LIBERADO');
@@ -1118,10 +1237,15 @@ class GameScene extends Phaser.Scene {
         ),
         onSuccess: () => {
           this._setSystemMessage('OBSERVER ROOM — ACCESS GRANTED');
+          GameState.save();
+          this._spawnObserverObjects();
           this.dialogManager.show([
             'MEMORY ACCEPTED.',
             'The system did not generate this memory.',
             'Something else left it for you.',
+            '',
+            'OBSERVER // ONLINE',
+            '// Someone has been watching every loop.',
           ], { title: 'OBSERVER ACCESS' });
         },
       }),
