@@ -120,74 +120,91 @@ class InteractiveObject {
     }
 
     if (this.visual === 'door') {
-      // Porta embutida: moldura metálica, painel central e leitura luminosa.
-      const frameX = x - 4;
-      const frameY = y - 5;
-      const frameW = w + 8;
-      const frameH = h + 10;
+      const frameX = x - 5;
+      const frameY = y - 6;
+      const frameW = w + 10;
+      const frameH = h + 12;
       const unlocked = color === C.ACCENT;
 
-      g.fillStyle(0x0a1117, 0.98);
-      g.fillRoundedRect(frameX, frameY, frameW, frameH, 5);
-      g.lineStyle(1.5, unlocked ? C.ACCENT_DIM : 0x394752, 0.95);
-      g.strokeRoundedRect(frameX, frameY, frameW, frameH, 5);
+      // Heavy frame.
+      g.fillStyle(0x080f14, 0.99);
+      g.fillRoundedRect(frameX, frameY, frameW, frameH, 6);
+      g.lineStyle(1.5, unlocked ? C.ACCENT : 0x566570, 0.95);
+      g.strokeRoundedRect(frameX, frameY, frameW, frameH, 6);
 
-      g.fillStyle(unlocked ? 0x14252b : 0x111920, 1);
+      // Sliding door leaves.
+      g.fillGradientStyle(
+        unlocked ? 0x17343e : 0x1a242c,
+        unlocked ? 0x0c1b22 : 0x0c1217,
+        unlocked ? 0x10262e : 0x111a20,
+        0x070c10, 1, 1, 1, 1
+      );
       g.fillRoundedRect(x, y, w, h, 3);
 
-      // Divisão central e barras da porta.
-      g.lineStyle(1, unlocked ? 0x3e8fa8 : 0x36434d, 0.9);
+      g.lineStyle(1, unlocked ? 0x4b9ab1 : 0x465660, 0.8);
       g.lineBetween(this.x, y + 3, this.x, y + h - 3);
-      g.lineBetween(x + 7, y + 5, x + w - 7, y + 5);
-      g.lineBetween(x + 7, y + h - 5, x + w - 7, y + h - 5);
-
-      // Indicador de acesso.
-      g.fillStyle(unlocked ? C.ACCENT_BRIGHT : 0x687781, 0.9);
-      g.fillCircle(x + w - 7, this.y, 2);
-      g.lineStyle(1, unlocked ? C.ACCENT : 0x45525b, 0.55);
-      g.strokeCircle(x + w - 7, this.y, 4);
-
-      // Pequenas ranhuras dão volume sem virar um bloco colorido.
-      g.lineStyle(1, unlocked ? 0x2b6476 : 0x27333b, 0.65);
       for (let i = 0; i < 4; i++) {
-        const rx = x + 9 + i * ((w - 24) / 3);
-        g.lineBetween(rx, y + 8, rx, y + h - 8);
+        const rx = x + 10 + i * ((w - 28) / 3);
+        g.lineBetween(rx, y + 7, rx, y + h - 7);
       }
+
+      // Access reader.
+      const readerX = x + w - 14;
+      g.fillStyle(0x0b1319, 1);
+      g.fillRoundedRect(readerX - 5, y + 5, 10, h - 10, 2);
+      g.lineStyle(1, unlocked ? C.ACCENT_BRIGHT : 0x5a6973, 0.85);
+      g.strokeRoundedRect(readerX - 5, y + 5, 10, h - 10, 2);
+      g.fillStyle(unlocked ? 0x55e6a5 : 0xffaa00, 0.95);
+      g.fillCircle(readerX, this.y, 1.8);
+
+      // Keypad hint.
+      g.fillStyle(0x26343d, 0.9);
+      g.fillRect(x + 7, y + h - 7, 16, 2);
+      g.fillStyle(unlocked ? 0x55e6a5 : 0xffaa00, 0.75);
+      g.fillRect(x + 7, y + h - 7, unlocked ? 16 : 7, 2);
       return;
     }
 
     if (this.visual === 'camera') {
-      // Câmera de segurança com suporte e lente, em vez de um quadrado azul.
-      const bodyW = w - 8;
-      const bodyH = h - 10;
+      const bodyW = w - 4;
+      const bodyH = h - 8;
       const bx = this.x - bodyW / 2;
-      const by = this.y - bodyH / 2 - 2;
+      const by = this.y - bodyH / 2 + 1;
 
-      g.fillStyle(0x111a21, 0.98);
-      g.fillRoundedRect(bx, by, bodyW, bodyH, 7);
-      g.lineStyle(1.5, 0x5b6b77, 0.9);
-      g.strokeRoundedRect(bx, by, bodyW, bodyH, 7);
+      // Mounting plate.
+      g.fillStyle(0x18232b, 1);
+      g.fillRoundedRect(this.x - 7, by - 9, 14, 5, 2);
+      g.fillStyle(0x0c1217, 1);
+      g.fillRoundedRect(this.x - 3, by - 14, 6, 7, 2);
 
-      // Aba superior e braço de fixação.
-      g.fillStyle(0x1c2932, 1);
-      g.fillRoundedRect(this.x - 10, by - 5, 20, 5, 2);
-      g.fillRect(this.x - 2, by - 10, 4, 7);
-      g.fillStyle(0x2d3b45, 1);
-      g.fillRoundedRect(this.x - 8, by - 12, 16, 4, 2);
+      // Camera shell.
+      g.fillGradientStyle(0x2a3944, 0x101920, 0x17242c, 0x080e13, 1, 1, 1, 1);
+      g.fillRoundedRect(bx, by, bodyW, bodyH, 8);
+      g.lineStyle(1.5, 0x6f818d, 0.9);
+      g.strokeRoundedRect(bx, by, bodyW, bodyH, 8);
 
-      // Lente.
-      g.fillStyle(0x071018, 1);
-      g.fillCircle(this.x, this.y - 1, 7);
-      g.lineStyle(1, 0x7392a3, 0.85);
-      g.strokeCircle(this.x, this.y - 1, 7);
+      // Lens hood.
+      g.fillStyle(0x0a1116, 1);
+      g.fillRoundedRect(this.x - 13, by + 5, 26, 17, 8);
+      g.lineStyle(1, 0x7c8f9b, 0.8);
+      g.strokeRoundedRect(this.x - 13, by + 5, 26, 17, 8);
+
+      // Lens glass.
+      g.fillStyle(0x061018, 1);
+      g.fillCircle(this.x, by + 13, 7);
+      g.lineStyle(1, 0x5b8ca2, 0.9);
+      g.strokeCircle(this.x, by + 13, 7);
       g.fillStyle(0x8fe8ff, 0.85);
-      g.fillCircle(this.x + 2, this.y - 3, 2);
-      g.fillStyle(0x0b1015, 1);
-      g.fillCircle(this.x + 2, this.y - 3, 0.9);
+      g.fillCircle(this.x - 2, by + 10, 2);
+      g.fillStyle(0x00060a, 1);
+      g.fillCircle(this.x + 2, by + 15, 2);
 
-      // LED discreto de gravação.
+      // Recording LED + side screws.
       g.fillStyle(0xff7b88, 0.95);
-      g.fillCircle(bx + bodyW - 5, by + 5, 1.5);
+      g.fillCircle(bx + bodyW - 7, by + 6, 1.6);
+      g.fillStyle(0x6d7e88, 0.75);
+      g.fillCircle(bx + 7, by + 6, 1.2);
+      g.fillCircle(bx + 7, by + bodyH - 6, 1.2);
       return;
     }
 
