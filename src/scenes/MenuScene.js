@@ -676,7 +676,7 @@ class MenuScene extends Phaser.Scene {
         'MÚLTIPLOS FINAIS',
         'Existem cinco finais. Suas ações e descobertas',
         'determinam qual consequência será revelada.'
-      ].join('\\n'),
+      ].join('\n'),
       returnToSettings
     );
   }
@@ -715,7 +715,7 @@ class MenuScene extends Phaser.Scene {
         'APOIO DE IA',
         'ChatGPT / OpenAI apoiou brainstorming, programação,',
         'depuração, arquitetura, narrativa, puzzles e documentação.'
-      ].join('\\n'),
+      ].join('\n'),
       returnToSettings
     );
   }
@@ -755,7 +755,7 @@ class MenuScene extends Phaser.Scene {
         'Esta versão representa o estado atual do projeto',
         'para a Game Jam e ainda pode receber ajustes de',
         'gameplay, narrativa, arte e interface.'
-      ].join('\\n'),
+      ].join('\n'),
       returnToSettings
     );
   }
