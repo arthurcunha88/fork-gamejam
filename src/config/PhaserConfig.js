@@ -8,12 +8,14 @@ const config = {
   width: FORK_CONFIG.WIDTH,
   height: FORK_CONFIG.HEIGHT,
   backgroundColor: '#070b10',
-  pixelArt: false,
+  pixelArt: true,
+  roundPixels: true,
   parent: document.body,
   // FIX 404: desabilita loader de textura padrão
   loader: {
     baseURL: '',
     crossOrigin: 'anonymous',
+    maxParallelDownloads: 4,
   },
   physics: {
     default: 'arcade',

@@ -60,7 +60,7 @@ const FORK_CONFIG = {
   },
 
   // Velocidade do player
-  PLAYER_SPEED: 160,
+  PLAYER_SPEED: 90,
 
   // Interação
   INTERACT_RANGE: 80,       // pixels de distância para interagir

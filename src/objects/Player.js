@@ -51,12 +51,12 @@ class Player {
       ['player_idle_right_down', 'player_idle_right_down', 0, 5, 1],
       ['player_idle_right_up', 'player_idle_right_up', 0, 5, 1],
 
-      ['player_walk_down', 'player_walk_down', 0, 5, 6],
-      ['player_walk_up', 'player_walk_up', 0, 5, 6],
-      ['player_walk_left_down', 'player_walk_left_down', 0, 5, 6],
-      ['player_walk_left_up', 'player_walk_left_up', 0, 5, 6],
-      ['player_walk_right_down', 'player_walk_right_down', 0, 5, 6],
-      ['player_walk_right_up', 'player_walk_right_up', 0, 5, 6],
+      ['player_walk_down', 'player_walk_down', 0, 5, 4],
+      ['player_walk_up', 'player_walk_up', 0, 5, 4],
+      ['player_walk_left_down', 'player_walk_left_down', 0, 5, 4],
+      ['player_walk_left_up', 'player_walk_left_up', 0, 5, 4],
+      ['player_walk_right_down', 'player_walk_right_down', 0, 5, 4],
+      ['player_walk_right_up', 'player_walk_right_up', 0, 5, 4],
     ];
 
     animations.forEach(([key, texture, start, end, frameRate]) => {

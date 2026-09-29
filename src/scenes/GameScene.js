@@ -51,8 +51,8 @@ class GameScene extends Phaser.Scene {
       'assets/tilemap/CosmicLilac_Tiles.png',
       { frameWidth: 16, frameHeight: 16 }
     );
-    this.load.image('fork_lab_props', 'assets/fork-lab-props.svg');
-    this.load.image('fork_emblem', 'assets/fork-emblem.svg');
+    this.load.image('fork_lab_props', 'assets/fork-lab-props.png');
+    this.load.image('fork_emblem', 'assets/fork-emblem.png');
   }
 
   create() {
