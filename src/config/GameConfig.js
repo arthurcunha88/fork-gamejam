@@ -12,7 +12,7 @@ const FORK_CONFIG = {
   LOOP_DURATION: 451,       // relógio inicial: 07:31
   LOOP_WARNING_TIME: 120,   // alerta de tempo, sem reiniciar o loop
   LOOP_CRITICAL_TIME: 60,   // alerta crítico, sem reiniciar o loop
-  MAX_LOOPS: 10,            // segurança para loop eterno
+  MAX_LOOPS: 5,             // segurança para loop eterno
 
   // Cores (paleta FORK — green hacker)
   COLORS: {
