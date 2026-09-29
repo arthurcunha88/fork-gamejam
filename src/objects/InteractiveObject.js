@@ -86,150 +86,265 @@ class InteractiveObject {
     const y = this.y - h / 2;
 
     if (this.visual === 'cabinet') {
-      g.fillGradientStyle(0x26313b, 0x121a22, 0x1a222b, 0x0b1015, 1, 1, 1, 1);
-      g.fillRoundedRect(x, y, w, h, 5);
-      g.lineStyle(1, 0x718294, 0.75);
-      g.strokeRoundedRect(x, y, w, h, 5);
-      g.lineStyle(1, 0x0a0e13, 0.9);
-      g.strokeRect(x + 5, y + 8, w - 10, h - 16);
-      g.fillStyle(0x4d5b68, 1);
-      g.fillRoundedRect(this.x - 3, y + 15, 2, 2, 1);
-      g.fillRoundedRect(this.x - 3, y + 31, 2, 2, 1);
-      g.fillStyle(0x79a7c4, 0.75);
-      g.fillRect(this.x - 7, y + 13, 14, 1);
-      g.fillRect(this.x - 7, y + 29, 14, 1);
+      g.fillStyle(0x131d25, 1);
+      g.fillRect(x, y, w, h);
+      g.lineStyle(1.5, 0x647681, 0.85);
+      g.strokeRect(x, y, w, h);
+      g.fillStyle(0x1d2a33, 1);
+      g.fillRect(x + 5, y + 7, w - 10, h - 14);
+      for (let row = 0; row < 2; row++) {
+        const ry = y + 12 + row * 22;
+        g.fillStyle(0x0b1218, 1);
+        g.fillRect(x + 8, ry, w - 16, 14);
+        g.fillStyle(row ? C.PURPLE : C.ACCENT, 0.28);
+        g.fillRect(x + 12, ry + 4, w - 24, 3);
+        g.fillStyle(C.MAGENTA, 0.38);
+        g.fillRect(x + w - 12, ry + 4, 3, 3);
+      }
+      g.fillStyle(0x738793, 0.8);
+      g.fillRect(this.x - 2, y + h - 7, 4, 2);
       return;
     }
 
     if (this.visual === 'monitor') {
-      g.fillStyle(0x1c2731, 1);
-      g.fillRoundedRect(x, y, w, h, 4);
-      g.lineStyle(1, 0x66798a, 0.9);
-      g.strokeRoundedRect(x, y, w, h, 4);
-      g.fillGradientStyle(0x102331, 0x071018, 0x0a1822, 0x03080d, 1, 1, 1, 1);
-      g.fillRoundedRect(x + 3, y + 3, w - 6, h - 8, 2);
-      g.lineStyle(1, 0x5aa6c7, 0.4);
-      g.lineBetween(x + 5, y + 8, x + w - 5, y + 8);
-      g.lineBetween(x + 5, y + 13, x + w - 12, y + 13);
-      g.fillStyle(0x77c9e8, 0.8);
-      g.fillCircle(x + w - 6, y + h - 4, 1.5);
-      g.fillStyle(0x26343e, 1);
-      g.fillRect(this.x - 5, y + h, 10, 3);
-      g.fillRect(this.x - 2, y + h + 3, 4, 2);
+      g.fillStyle(0x111b22, 1);
+      g.fillRect(x, y, w, h);
+      g.lineStyle(1.5, 0x6b7f8b, 0.9);
+      g.strokeRect(x, y, w, h);
+      g.fillStyle(0x07131b, 1);
+      g.fillRect(x + 3, y + 3, w - 6, h - 9);
+      g.fillStyle(C.ACCENT, 0.28);
+      g.fillRect(x + 6, y + 7, w - 12, 2);
+      g.fillStyle(C.PURPLE, 0.25);
+      g.fillRect(x + 6, y + 13, w - 20, 2);
+      g.fillStyle(C.MAGENTA, 0.40);
+      g.fillRect(x + 6, y + 19, Math.max(8, w - 28), 2);
+      g.fillStyle(C.GREEN, 0.85);
+      g.fillRect(x + w - 8, y + h - 7, 3, 3);
+      g.fillStyle(0x27343d, 1);
+      g.fillRect(this.x - 6, y + h, 12, 3);
+      g.fillRect(this.x - 2, y + h + 3, 4, 3);
+      return;
+    }
+
+    if (this.visual === 'server') {
+      g.fillStyle(0x0c151c, 1);
+      g.fillRect(x, y, w, h);
+      g.lineStyle(1.5, 0x647984, 0.9);
+      g.strokeRect(x, y, w, h);
+      for (let row = 0; row < 6; row++) {
+        const ry = y + 4 + row * ((h - 10) / 6);
+        g.fillStyle(0x18262f, 1);
+        g.fillRect(x + 4, ry, w - 8, 7);
+        g.fillStyle(row % 2 ? C.ACCENT : C.PURPLE, 0.62);
+        g.fillRect(x + 7, ry + 2, Math.max(6, w - 20), 2);
+        g.fillStyle(row % 3 === 0 ? C.GREEN : C.MAGENTA, 0.8);
+        g.fillRect(x + w - 9, ry + 2, 3, 3);
+      }
+      return;
+    }
+
+    if (this.visual === 'panel') {
+      g.fillStyle(0x0d171e, 1);
+      g.fillRect(x, y, w, h);
+      g.lineStyle(1.5, 0x627985, 0.9);
+      g.strokeRect(x, y, w, h);
+      g.fillStyle(0x16242d, 1);
+      g.fillRect(x + 4, y + 4, w - 8, h - 8);
+      g.fillStyle(C.PURPLE, 0.30);
+      g.fillRect(x + 7, y + 7, w - 14, 4);
+      for (let i = 0; i < 3; i++) {
+        g.fillStyle(i === 0 ? C.ACCENT : (i === 1 ? C.MAGENTA : C.GREEN), 0.65);
+        g.fillRect(x + 8, y + 15 + i * 6, 5, 3);
+        g.fillStyle(0x4d6570, 0.8);
+        g.fillRect(x + 17, y + 15 + i * 6, Math.max(7, w - 26), 3);
+      }
+      return;
+    }
+
+    if (this.visual === 'file') {
+      // Arquivo físico: papel/cartão com pixels de "fita" e etiqueta.
+      g.fillStyle(0x0a1117, 0.95);
+      g.fillRect(x + 2, y + 2, w - 1, h - 1);
+      g.fillStyle(0xd4d8dc, 0.96);
+      g.fillRect(x, y, w - 4, h - 3);
+      g.lineStyle(1, 0x74828a, 0.9);
+      g.strokeRect(x, y, w - 4, h - 3);
+      g.fillStyle(C.PURPLE, 0.72);
+      g.fillRect(x + 3, y + 4, w - 10, 4);
+      g.fillStyle(C.MAGENTA, 0.55);
+      g.fillRect(x + 3, y + 11, w - 12, 2);
+      g.fillStyle(0x65747b, 0.8);
+      for (let i = 0; i < 3; i++) g.fillRect(x + 3, y + 16 + i * 4, w - 11 - i * 3, 2);
+      return;
+    }
+
+    if (this.visual === 'entity') {
+      // Pequeno objeto desconhecido, deliberadamente mais "sprite" que UI.
+      g.fillStyle(0x080c12, 1);
+      g.fillRect(x + 3, y + 3, w - 6, h - 6);
+      g.lineStyle(1.5, C.PURPLE, 0.9);
+      g.strokeRect(x + 3, y + 3, w - 6, h - 6);
+      g.fillStyle(C.MAGENTA, 0.22);
+      g.fillRect(x + 6, y + 6, w - 12, h - 12);
+      g.fillStyle(C.PURPLE, 0.9);
+      g.fillRect(this.x - 3, this.y - 3, 6, 6);
+      g.fillStyle(C.ACCENT_BRIGHT, 0.9);
+      g.fillRect(this.x - 1, this.y - 1, 2, 2);
+      g.fillStyle(0x0a1016, 1);
+      g.fillRect(x + 2, y + 2, 3, 3);
+      g.fillRect(x + w - 5, y + 2, 3, 3);
+      return;
+    }
+
+    if (this.visual === 'memory') {
+      g.fillStyle(0x0b141b, 1);
+      g.fillRect(x, y, w, h);
+      g.lineStyle(1.5, C.WARNING, 0.78);
+      g.strokeRect(x, y, w, h);
+      g.fillStyle(0x18232b, 1);
+      g.fillRect(x + 4, y + 4, w - 8, h - 8);
+      for (let i = 0; i < 4; i++) {
+        g.fillStyle(i % 2 ? C.PURPLE : C.ACCENT, 0.5);
+        g.fillRect(x + 7 + i * 7, y + 8, 4, h - 16);
+      }
+      g.fillStyle(C.WARNING, 0.9);
+      g.fillRect(x + 7, y + 4, w - 14, 3);
+      g.fillStyle(C.MAGENTA, 0.65);
+      g.fillRect(x + w - 9, y + h - 8, 4, 4);
+      return;
+    }
+
+    if (this.visual === 'observer') {
+      g.fillStyle(0x0a1219, 1);
+      g.fillRect(x, y, w, h);
+      g.lineStyle(1.5, C.ACCENT_BRIGHT, 0.85);
+      g.strokeRect(x, y, w, h);
+      g.fillStyle(0x16242d, 1);
+      g.fillRect(x + 4, y + 4, w - 8, h - 16);
+      g.fillStyle(C.PURPLE, 0.30);
+      g.fillRect(x + 7, y + 7, w - 14, 5);
+      for (let i = 0; i < 3; i++) {
+        g.fillStyle(i === 1 ? C.MAGENTA : C.ACCENT, 0.72);
+        g.fillRect(x + 8 + i * 12, y + 17, 7, 5);
+      }
+      g.fillStyle(0x526a75, 0.8);
+      g.fillRect(x + 7, y + h - 9, w - 14, 3);
       return;
     }
 
     if (this.visual === 'door') {
-      const frameX = x - 5;
-      const frameY = y - 6;
-      const frameW = w + 10;
-      const frameH = h + 12;
+      const frameX = x - 7;
+      const frameY = y - 7;
+      const frameW = w + 14;
+      const frameH = h + 14;
       const unlocked = color === C.ACCENT;
 
-      // Heavy frame.
-      g.fillStyle(0x080f14, 0.99);
-      g.fillRoundedRect(frameX, frameY, frameW, frameH, 6);
-      g.lineStyle(1.5, unlocked ? C.ACCENT : 0x566570, 0.95);
-      g.strokeRoundedRect(frameX, frameY, frameW, frameH, 6);
+      // Moldura grossa, recuada, para a porta parecer parte da arquitetura.
+      g.fillStyle(0x050a0f, 1);
+      g.fillRect(frameX, frameY, frameW, frameH);
+      g.lineStyle(2, unlocked ? C.ACCENT : 0x65747c, 0.98);
+      g.strokeRect(frameX, frameY, frameW, frameH);
+      g.lineStyle(1, unlocked ? C.PURPLE : 0x303d45, 0.72);
+      g.strokeRect(frameX + 4, frameY + 4, frameW - 8, frameH - 8);
 
-      // Sliding door leaves.
+      // Porta dupla com leitura de "elevador/airlock".
       g.fillGradientStyle(
-        unlocked ? 0x17343e : 0x1a242c,
-        unlocked ? 0x0c1b22 : 0x0c1217,
-        unlocked ? 0x10262e : 0x111a20,
-        0x070c10, 1, 1, 1, 1
+        unlocked ? 0x17363f : 0x18232a,
+        unlocked ? 0x0b1a22 : 0x0c1217,
+        unlocked ? 0x102832 : 0x111a20,
+        0x060b10, 1, 1, 1, 1
       );
-      g.fillRoundedRect(x, y, w, h, 3);
+      g.fillRect(x, y, w, h);
 
-      g.lineStyle(1, unlocked ? 0x4b9ab1 : 0x465660, 0.8);
-      g.lineBetween(this.x, y + 3, this.x, y + h - 3);
-      for (let i = 0; i < 4; i++) {
-        const rx = x + 10 + i * ((w - 28) / 3);
-        g.lineBetween(rx, y + 7, rx, y + h - 7);
-      }
+      g.lineStyle(1, unlocked ? C.ACCENT_BRIGHT : 0x52626b, 0.82);
+      g.strokeRect(x, y, w, h);
 
-      // Access reader.
-      const readerX = x + w - 14;
-      g.fillStyle(0x0b1319, 1);
-      g.fillRoundedRect(readerX - 5, y + 5, 10, h - 10, 2);
-      g.lineStyle(1, unlocked ? C.ACCENT_BRIGHT : 0x5a6973, 0.85);
-      g.strokeRoundedRect(readerX - 5, y + 5, 10, h - 10, 2);
-      g.fillStyle(unlocked ? 0x55e6a5 : 0xffaa00, 0.95);
-      g.fillCircle(readerX, this.y, 1.8);
+      // Trilhos e folhas deslizantes.
+      g.lineStyle(1, unlocked ? C.PURPLE : 0x43525a, 0.7);
+      g.lineBetween(x + 7, this.y - 6, x + w - 7, this.y - 6);
+      g.lineBetween(x + 7, this.y + 6, x + w - 7, this.y + 6);
+      g.lineStyle(2, unlocked ? C.ACCENT : 0x35434b, 0.9);
+      g.lineBetween(this.x, y + 4, this.x, y + h - 4);
 
-      // Keypad hint.
-      g.fillStyle(0x26343d, 0.9);
-      g.fillRect(x + 7, y + h - 7, 16, 2);
-      g.fillStyle(unlocked ? 0x55e6a5 : 0xffaa00, 0.75);
-      g.fillRect(x + 7, y + h - 7, unlocked ? 16 : 7, 2);
+      // Leitor vertical.
+      const readerX = x + w - 10;
+      g.fillStyle(0x091118, 1);
+      g.fillRect(readerX - 3, y + 5, 6, h - 10);
+      g.lineStyle(1, unlocked ? C.ACCENT_BRIGHT : C.WARNING, 0.85);
+      g.strokeRect(readerX - 3, y + 5, 6, h - 10);
+      g.fillStyle(unlocked ? C.GREEN : C.WARNING, 0.95);
+      g.fillRect(readerX - 1, this.y - 8, 2, 4);
+      g.fillStyle(0x52646e, 0.9);
+      g.fillRect(readerX - 1, this.y, 2, 4);
+      g.fillRect(readerX - 1, this.y + 8, 2, 4);
+
+      // Faixa de piso/threshold.
+      g.fillStyle(unlocked ? C.ACCENT : C.WARNING, 0.20);
+      g.fillRect(x - 4, y + h + 4, w + 8, 4);
       return;
     }
 
     if (this.visual === 'camera') {
-      const bodyW = w - 4;
+      const bodyW = w - 6;
       const bodyH = h - 8;
       const bx = this.x - bodyW / 2;
-      const by = this.y - bodyH / 2 + 1;
+      const by = this.y - bodyH / 2 + 2;
 
-      // Mounting plate.
-      g.fillStyle(0x18232b, 1);
-      g.fillRoundedRect(this.x - 7, by - 9, 14, 5, 2);
-      g.fillStyle(0x0c1217, 1);
-      g.fillRoundedRect(this.x - 3, by - 14, 6, 7, 2);
+      // Suporte em dois degraus, como sprite de equipamento.
+      g.fillStyle(0x151f27, 1);
+      g.fillRect(this.x - 8, by - 12, 16, 5);
+      g.fillStyle(0x080e13, 1);
+      g.fillRect(this.x - 3, by - 18, 6, 8);
 
-      // Camera shell.
-      g.fillGradientStyle(0x2a3944, 0x101920, 0x17242c, 0x080e13, 1, 1, 1, 1);
-      g.fillRoundedRect(bx, by, bodyW, bodyH, 8);
-      g.lineStyle(1.5, 0x6f818d, 0.9);
-      g.strokeRoundedRect(bx, by, bodyW, bodyH, 8);
+      g.fillStyle(0x202e37, 1);
+      g.fillRect(bx, by, bodyW, bodyH);
+      g.lineStyle(1.5, 0x6d808a, 0.92);
+      g.strokeRect(bx, by, bodyW, bodyH);
 
-      // Lens hood.
-      g.fillStyle(0x0a1116, 1);
-      g.fillRoundedRect(this.x - 13, by + 5, 26, 17, 8);
-      g.lineStyle(1, 0x7c8f9b, 0.8);
-      g.strokeRoundedRect(this.x - 13, by + 5, 26, 17, 8);
+      // Visor e lente.
+      g.fillStyle(0x0a1218, 1);
+      g.fillRect(this.x - 15, by + 6, 30, 18);
+      g.lineStyle(1, C.PURPLE, 0.78);
+      g.strokeRect(this.x - 15, by + 6, 30, 18);
+      g.fillStyle(0x02070b, 1);
+      g.fillRect(this.x - 8, by + 10, 16, 10);
+      g.fillStyle(C.ACCENT_BRIGHT, 0.88);
+      g.fillRect(this.x - 4, by + 11, 3, 3);
+      g.fillStyle(C.MAGENTA, 0.65);
+      g.fillRect(this.x + 2, by + 16, 3, 3);
 
-      // Lens glass.
-      g.fillStyle(0x061018, 1);
-      g.fillCircle(this.x, by + 13, 7);
-      g.lineStyle(1, 0x5b8ca2, 0.9);
-      g.strokeCircle(this.x, by + 13, 7);
-      g.fillStyle(0x8fe8ff, 0.85);
-      g.fillCircle(this.x - 2, by + 10, 2);
-      g.fillStyle(0x00060a, 1);
-      g.fillCircle(this.x + 2, by + 15, 2);
-
-      // Recording LED + side screws.
-      g.fillStyle(0xff7b88, 0.95);
-      g.fillCircle(bx + bodyW - 7, by + 6, 1.6);
-      g.fillStyle(0x6d7e88, 0.75);
-      g.fillCircle(bx + 7, by + 6, 1.2);
-      g.fillCircle(bx + 7, by + bodyH - 6, 1.2);
+      // LED de gravação e parafusos.
+      g.fillStyle(C.DANGER, 0.95);
+      g.fillRect(bx + bodyW - 7, by + 5, 3, 3);
+      g.fillStyle(0x7b8b93, 0.7);
+      g.fillRect(bx + 5, by + 5, 2, 2);
+      g.fillRect(bx + 5, by + bodyH - 7, 2, 2);
       return;
     }
 
     if (this.visual === 'rack') {
-      g.fillStyle(0x151c24, 1);
-      g.fillRoundedRect(x, y, w, h, 3);
-      g.lineStyle(1, 0x657788, 0.85);
-      g.strokeRoundedRect(x, y, w, h, 3);
+      g.fillStyle(0x111a21, 1);
+      g.fillRect(x, y, w, h);
+      g.lineStyle(1.5, 0x667983, 0.85);
+      g.strokeRect(x, y, w, h);
       for (let row = 0; row < 5; row++) {
         const ry = y + 5 + row * 9;
-        g.fillStyle(0x202d38, 1);
+        g.fillStyle(0x202d36, 1);
         g.fillRect(x + 4, ry, w - 8, 6);
-        g.fillStyle(row % 2 ? 0x70b7d4 : 0x86d4a4, 0.8);
-        g.fillCircle(x + w - 8, ry + 3, 1.5);
-        g.fillStyle(0x566a7a, 0.8);
-        g.fillRect(x + 8, ry + 2, 12, 1);
+        g.fillStyle(row % 2 ? C.ACCENT : C.PURPLE, 0.7);
+        g.fillRect(x + 8, ry + 2, 12, 2);
+        g.fillStyle(row % 3 ? C.GREEN : C.MAGENTA, 0.8);
+        g.fillRect(x + w - 9, ry + 2, 3, 3);
       }
       return;
     }
 
-    // Visual padrão para objetos narrativos.
+    // Visual padrão.
     g.fillStyle(color, 0.85);
-    g.fillRoundedRect(x, y, w, h, 4);
+    g.fillRect(x, y, w, h);
     g.lineStyle(1, C.ACCENT_DIM, 0.9);
-    g.strokeRoundedRect(x, y, w, h, 4);
+    g.strokeRect(x, y, w, h);
   }
 
   update(playerX, playerY, selectedObject = null) {
