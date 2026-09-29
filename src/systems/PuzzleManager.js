@@ -416,21 +416,6 @@ class PuzzleManager {
       // ── PUZZLE 2: Handshake da Porta ───────────────────────
       // CADEIA: LOG_07 removido → protocolo de acesso é exposto →
       // jogador precisa reproduzir o handshake do Control Server.
-      [FORK_CONFIG.PUZZLES.EXIT_CODE]: {
-        id: FORK_CONFIG.PUZZLES.EXIT_CODE,
-        type: 'code',
-        requires: { door_unlocked: true, system_notes_read: true },
-        validator: answer => {
-          const now = new Date();
-          const localTime = String(now.getHours()).padStart(2, '0') +
-            String(now.getMinutes()).padStart(2, '0');
-          return answer.trim() === localTime;
-        },
-        consequences: [
-          { key: 'escape_attempted', value: true },
-        ],
-      },
-
       [FORK_CONFIG.PUZZLES.DOOR_SEQUENCE]: {
         id:    FORK_CONFIG.PUZZLES.DOOR_SEQUENCE,
         type:  'sequence',
