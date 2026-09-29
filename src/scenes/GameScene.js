@@ -1777,21 +1777,30 @@ class GameScene extends Phaser.Scene {
     const overlay = this.add.rectangle(0, 0, W, H, 0x000000, 0.94)
       .setOrigin(0, 0).setDepth(300).setScrollFactor(0);
 
-    const title = this.add.text(W / 2, H / 2 - 110, 'SYSTEM CORRUPTED', {
-      fontFamily: F.FAMILY_TITLE, fontSize: '34px', color: '#ff9aa6',
+    // Layout fixo: cada bloco possui uma área própria para impedir
+    // sobreposição mesmo quando a tela é redimensionada pelo navegador.
+    const title = this.add.text(W / 2, H / 2 - 150, 'SYSTEM CORRUPTED', {
+      fontFamily: F.FAMILY_TITLE,
+      fontSize: '34px',
+      color: '#ff9aa6',
       shadow: { offsetX: 0, offsetY: 0, color: '#ff6678', blur: 16, fill: true },
     }).setOrigin(0.5).setDepth(301).setScrollFactor(0);
 
-    const body = this.add.text(W / 2, H / 2 - 40, [
-      'CRITICAL INTEGRITY FAILURE',
-      '',
+    const status = this.add.text(W / 2, H / 2 - 92, 'CRITICAL INTEGRITY FAILURE', {
+      fontFamily: F.FAMILY_TITLE,
+      fontSize: '18px',
+      color: F.COLOR_DANGER,
+      align: 'center',
+    }).setOrigin(0.5).setDepth(301).setScrollFactor(0);
+
+    const body = this.add.text(W / 2, H / 2 - 18, [
       'The simulation can no longer be restored.',
       'No recovery save exists.',
       '',
       'ALL SESSION STATE HAS BEEN LOST.',
       '',
       '// RESTART THE GAME TO BEGIN AGAIN.',
-    ].join('\n'), {
+    ].join('\\n'), {
       fontFamily: F.FAMILY,
       fontSize: '13px',
       color: F.COLOR_SYSTEM,
@@ -1800,11 +1809,11 @@ class GameScene extends Phaser.Scene {
       wordWrap: { width: 650 },
     }).setOrigin(0.5).setDepth(301).setScrollFactor(0);
 
-    const restart = this.add.text(W / 2, H / 2 + 110, '[ REINICIAR JOGO ]', {
+    const restart = this.add.text(W / 2, H / 2 + 128, '[ REINICIAR JOGO ]', {
       fontFamily: F.FAMILY,
       fontSize: '15px',
       color: F.COLOR_PRIMARY,
-    }).setOrigin(0.5).setDepth(301).setScrollFactor(0).setInteractive({ useHandCursor: true });
+    }).setOrigin(0.5).setDepth(301).setScrollFactor(0).setInteractive({ useHandCursor: true);
 
     restart.on('pointerover', () => restart.setColor(F.COLOR_WHITE).setScale(1.05));
     restart.on('pointerout', () => restart.setColor(F.COLOR_PRIMARY).setScale(1));
