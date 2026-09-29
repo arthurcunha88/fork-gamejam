@@ -270,6 +270,8 @@ class PuzzleManager {
                 '──────────────────────────────',
                 'SECURITY DOOR — ACCESS PROTOCOL',
                 'Format: 4-digit numeric code.',
+                'BOOT ACCESS // 07:31',
+                '// The same anchor opens the restricted wing.',
                 '──────────────────────────────',
               ];
 
@@ -423,8 +425,9 @@ class PuzzleManager {
       [FORK_CONFIG.PUZZLES.EXIT_CODE]: {
         id:    FORK_CONFIG.PUZZLES.EXIT_CODE,
         type:  'code',
-        requires: { door_unlocked: true, system_notes_read: true },
+        requires: { door_unlocked: true },
         validator: answer => {
+          if (!GameState.get('butterfly_steps').includes('read_notes')) return false;
           const now = new Date();
           const currentHHMM =
             String(now.getHours()).padStart(2, '0') +
