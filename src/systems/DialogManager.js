@@ -86,8 +86,10 @@ class DialogManager {
 
     this._container.add([overlay, boxBg, titleBg, this._titleText, this._text, this._prompt, this._closeBtn]);
 
+    // Clique na área do diálogo tem o mesmo comportamento de E:
+    // avança a mensagem atual em vez de fechar toda a narrativa.
     overlay.setInteractive();
-    overlay.on('pointerdown', () => this.close());
+    overlay.on('pointerdown', () => this._advance());
 
     // Input do teclado para avançar
     this._keyE = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
