@@ -20,6 +20,11 @@ class PuzzleManager {
   checkAnswer(id, answer) {
     const p = this._puzzles[id];
     if (!p) return false;
+
+    // A UI não deve ser a única barreira: um puzzle só pode ser
+    // validado depois que seus pré-requisitos narrativos forem cumpridos.
+    if (p.requires && !this._checkRequires(p.requires)) return false;
+
     const correct = p.validator(answer);
     if (correct) {
       GameState.solvePuzzle(id);
