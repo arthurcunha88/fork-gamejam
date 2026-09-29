@@ -556,11 +556,12 @@ class GameScene extends Phaser.Scene {
     addWall(900, 166, 12, 228);      // direita
     addWall(650, 99, 12, 94);        // esquerda — acima da porta
     addWall(650, 250, 12, 60);       // esquerda — abaixo da porta
-    addWall(700, 280, 100, 12);      // base — antes da porta do Storage
-    addWall(850, 280, 100, 12);      // base — depois da porta do Storage
+    addWall(700, 280, 50, 12);       // base — antes da porta do Storage
+    addWall(825, 280, 75, 12);       // base — depois da porta do Storage
 
     // STORAGE: fechado, com uma única passagem no topo para o Server Room.
-    addWall(775, 328, 250, 12);      // topo
+    addWall(700, 328, 100, 12);      // topo — antes da passagem
+    addWall(850, 328, 50, 12);       // topo — depois da passagem
     addWall(775, 580, 250, 12);      // base
     addWall(650, 454, 12, 252);      // esquerda
     addWall(900, 454, 12, 252);      // direita
@@ -780,6 +781,7 @@ class GameScene extends Phaser.Scene {
     this.physics.add.existing(this._controlRoomGate, true);
     this._controlRoomGate.body.setSize(50, 76);
     this._controlRoomGate.body.enable = gateLocked;
+    this._wallRects.push(this._controlRoomGate);
 
     const terminal = new Terminal(this, 185, 235, {
       id: 'terminal_main', label: 'TERMINAL',
@@ -805,8 +807,9 @@ class GameScene extends Phaser.Scene {
       0x050a0f, 0
     ).setVisible(false);
     this.physics.add.existing(this._storageGate, true);
-    this._storageGate.body.setSize(80, 48);
+    this._storageGate.body.setSize(50, 48);
     this._storageGate.body.enable = storageGateLocked;
+    this._wallRects.push(this._storageGate);
 
     const storageDoor = new InteractiveObject(this, 775, 304, {
       id: 'storage_gate', type: FORK_CONFIG.OBJECT_TYPES.DOOR,
