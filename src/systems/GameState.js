@@ -241,7 +241,8 @@ const GameState = {
 
     // FINAL 1 — ESCAPE
     // Rota "normal" exige a cadeia principal completa até a saída.
-    if (p.boot_code_found &&
+    if (p.escape_attempted &&
+        p.boot_code_found &&
         p.log07_deleted &&
         p.door_unlocked &&
         p.server_rebooted &&
