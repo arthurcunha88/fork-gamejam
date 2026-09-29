@@ -399,8 +399,6 @@ class PuzzleManager {
       },
 
       // ── PUZZLE 1B: Código físico da porta do servidor ───────
-      // O segundo código é a hora local do computador do jogador, em HHMM.
-      // Assim, a mesma chave não funciona para todas as pessoas nem em todos os momentos.
       [FORK_CONFIG.PUZZLES.DOOR_CODE]: {
         id: FORK_CONFIG.PUZZLES.DOOR_CODE,
         type: 'code',
@@ -411,6 +409,24 @@ class PuzzleManager {
           { key: 'phase', value: FORK_CONFIG.PHASES.INFILTRATION },
           { butterfly: 'unlock_door' },
         ],
+      },
+
+
+      // ── PUZZLE 1C: Senha da saída ─────────────────────────
+      // A senha é a hora local do computador no momento da tentativa.
+      // O jogador deve digitar HHMM; o horário nunca é exibido pelo puzzle.
+      [FORK_CONFIG.PUZZLES.EXIT_CODE]: {
+        id:    FORK_CONFIG.PUZZLES.EXIT_CODE,
+        type:  'code',
+        requires: { door_unlocked: true, system_notes_read: true },
+        validator: answer => {
+          const now = new Date();
+          const currentHHMM =
+            String(now.getHours()).padStart(2, '0') +
+            String(now.getMinutes()).padStart(2, '0');
+          return answer.trim() === currentHHMM;
+        },
+        consequences: [],
       },
 
       // ── PUZZLE 2: Handshake da Porta ───────────────────────
