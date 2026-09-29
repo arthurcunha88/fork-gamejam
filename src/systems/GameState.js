@@ -213,7 +213,13 @@ const GameState = {
   checkEndingConditions() {
     const p = this.persistent;
 
-    // FINAL 5 — exige a cadeia secreta completa.
+    // FINAL 4 — VOCÊ ESTÁ SENDO CONTROLADO
+    // Ramo deliberado: descobrir sua identidade antes de concluir o protocolo Observer.
+    if (p.system_awareness >= 4 && p.player_identity_known && p.identity_fragment_found) {
+      return FORK_CONFIG.ENDINGS.CONTROLLED;
+    }
+
+    // FINAL 5 — exige a cadeia secreta completa sem revelar a identidade.
     if (p.butterfly_steps.includes('delete_log07') &&
         p.butterfly_steps.includes('reboot_server') &&
         p.butterfly_steps.includes('find_project') &&
@@ -226,11 +232,6 @@ const GameState = {
     // FINAL 3 — LOOP ETERNO
     if (p.loop_count >= FORK_CONFIG.MAX_LOOPS) {
       return FORK_CONFIG.ENDINGS.ETERNAL_LOOP;
-    }
-
-    // FINAL 4 — VOCÊ ESTÁ SENDO CONTROLADO
-    if (p.system_awareness >= 4 && p.player_identity_known && p.identity_fragment_found) {
-      return FORK_CONFIG.ENDINGS.CONTROLLED;
     }
 
     // FINAL 2 — RESET
