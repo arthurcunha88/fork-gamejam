@@ -1015,35 +1015,36 @@ class GameScene extends Phaser.Scene {
       return;
     }
 
-    // A saída usa o relógio local no momento da interação.
-    // O jogador nunca precisa digitar o horário.
-    const now = new Date();
-    const localTime = String(now.getHours()).padStart(2, '0') +
-      String(now.getMinutes()).padStart(2, '0');
-
-    GameState.set('escape_attempted', true);
-
     this.dialogManager.show([
       'SAÍDA // ACCESS PROTOCOL',
       'A porta reconhece o evento de entrada.',
-      'A referência temporal foi aceita.',
+      'A referência temporal deve coincidir com o momento presente.',
       '',
-      '// A referência temporal coincide com o momento presente.',
+      '// Quatro dígitos. HHMM.',
     ], {
       title: 'PORTA DE SAÍDA',
-      onClose: () => {
-        if (window.AudioManagerInstance) window.AudioManagerInstance.playDoor();
-        this.cameras.main.flash(220, 90, 220, 255, false);
-        const ending = GameState.checkEndingConditions();
-        if (ending) this.finalManager.trigger(ending);
-        else {
-          this.dialogManager.show([
-            'EXIT PROTOCOL ACCEPTED.',
-            'A última camada foi removida.',
-            '// A saída ainda não terminou o processo.',
-          ], { title: 'SYSTEM EXIT' });
-        }
-      },
+      onClose: () => this.uiManager.openCodeInput({
+        title: '// CURRENT LOCAL TIME // EXIT',
+        length: 4,
+        validator: value => this.puzzleManager.checkAnswer(
+          FORK_CONFIG.PUZZLES.EXIT_CODE,
+          value
+        ),
+        onSuccess: () => {
+          GameState.set('escape_attempted', true);
+          if (window.AudioManagerInstance) window.AudioManagerInstance.playDoor();
+          this.cameras.main.flash(220, 90, 220, 255, false);
+          const ending = GameState.checkEndingConditions();
+          if (ending) this.finalManager.trigger(ending);
+          else {
+            this.dialogManager.show([
+              'EXIT PROTOCOL ACCEPTED.',
+              'A última camada foi removida.',
+              '// A saída ainda não terminou o processo.',
+            ], { title: 'SYSTEM EXIT' });
+          }
+        },
+      }),
     });
   }
 
