@@ -423,71 +423,7 @@ class GameScene extends Phaser.Scene {
     this.add.text(674, 66, '// SERVER ROOM', labelStyle).setDepth(2);
     this.add.text(674, 342, '// STORAGE // RESTRICTED', labelStyle).setDepth(2);
 
-    this.add.text(92, 91, 'PRIMARY WORKSPACE // NODE 01', {
-      fontFamily: F.FAMILY, fontSize: '9px', color: '#55717f'
-    }).setDepth(2);
 
-    this.add.text(674, 91, 'CONTROL NODE // A', {
-      fontFamily: F.FAMILY, fontSize: '9px', color: '#55717f'
-    }).setDepth(2);
-
-    this.add.text(674, 367, 'ARCHIVE // PROJECT CACHE', {
-      fontFamily: F.FAMILY, fontSize: '9px', color: '#55717f'
-    }).setDepth(2);
-
-    // Acesso físico claramente legível: a porta conecta o MAIN LAB
-    // ao conjunto de salas restritas (SERVER ROOM + STORAGE).
-    this.add.text(625, 132, 'SECURITY ACCESS', {
-      fontFamily: F.FAMILY_TITLE,
-      fontSize: '10px',
-      color: '#657f8c',
-      shadow: { offsetX: 0, offsetY: 0, color: '#2e718b', blur: 7, fill: true },
-    }).setOrigin(0.5, 1).setDepth(3);
-
-    this.add.text(625, 238, 'SERVER → STORAGE', {
-      fontFamily: F.FAMILY,
-      fontSize: '8px',
-      color: '#496773',
-    }).setOrigin(0.5, 0).setDepth(3);
-
-    this.add.text(625, 185, '0731', {
-      fontFamily: F.FAMILY_TITLE,
-      fontSize: '14px',
-      color: GameState.get('door_unlocked') ? '#55e6a5' : '#ffaa00',
-      shadow: {
-        offsetX: 0,
-        offsetY: 0,
-        color: GameState.get('door_unlocked') ? '#55e6a5' : '#ff8b00',
-        blur: 8,
-        fill: true,
-      },
-    }).setOrigin(0.5).setDepth(4);
-
-    this.add.text(78, 555, 'NET // SYNCHRONIZED', {
-      fontFamily: F.FAMILY,
-      fontSize: '9px',
-      color: '#3c7888'
-    }).setDepth(2);
-
-    this.add.text(872, 555, 'CAM GRID // ACTIVE', {
-      fontFamily: F.FAMILY,
-      fontSize: '9px',
-      color: '#3c7888'
-    }).setOrigin(1, 0).setDepth(2);
-
-    this._mapStatus = this.add.text(480, 565, 'SIMULATION FLOOR // STABLE', {
-      fontFamily: F.FAMILY,
-      fontSize: '9px',
-      color: '#4b7582'
-    }).setOrigin(0.5).setDepth(2);
-
-    this.tweens.add({
-      targets: this._mapStatus,
-      alpha: { from: 1, to: 0.42 },
-      duration: 1100,
-      yoyo: true,
-      repeat: -1,
-    });
   }
 
   _drawRoomConnector(gfx) {
@@ -543,11 +479,6 @@ class GameScene extends Phaser.Scene {
     gfx.fillRect(635, 210, 8, 2);
     gfx.fillRect(641, 207, 2, 8);
 
-    this.add.text(625, 151, 'RESTRICTED WING', {
-      fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE,
-      fontSize: '9px',
-      color: '#587887',
-    }).setOrigin(0.5).setDepth(3);
   }
 
   _buildMapDynamics() {
@@ -804,6 +735,14 @@ class GameScene extends Phaser.Scene {
   _buildObjects() {
     const C = FORK_CONFIG.COLORS;
 
+    // Barreira física real: a partícula não atravessa a porta enquanto o código não for aceito.
+    this._controlRoomGate = this.add.rectangle(
+      625, 185, 48, 40,
+      0x050a0f, 0.98
+    ).setStrokeStyle(2, C.ACCENT_DIM, 0.9).setDepth(4);
+    this.physics.add.existing(this._controlRoomGate, true);
+    this._controlRoomGate.body.setSize(48, 40);
+
     const terminal = new Terminal(this, 185, 235, {
       id: 'terminal_main', label: 'TERMINAL',
       puzzleManager: this.puzzleManager,
@@ -814,7 +753,7 @@ class GameScene extends Phaser.Scene {
 
     const door = new InteractiveObject(this, 625, 185, {
       id: 'door_security', type: FORK_CONFIG.OBJECT_TYPES.DOOR,
-      label: GameState.get('door_unlocked') ? 'PORTA // RESTRICTED WING // ABERTA' : 'PORTA // 0731 // BLOQUEADA',
+      label: 'PORTA',
       width: 48, height: 40,
       visual: 'door',
       color: GameState.get('door_unlocked') ? C.ACCENT : 0x36424c,
@@ -889,11 +828,7 @@ class GameScene extends Phaser.Scene {
         height,
         visual,
         color: 0x26313b,
-        onInteract: () => this.dialogManager.show([
-          label,
-          'Equipamento auxiliar.',
-          'Nenhuma função relevante detectada.',
-        ], { title: 'EQUIPAMENTO' }),
+        showLabel: false,
       });
       this._objects.push(object);
     });
@@ -1078,7 +1013,7 @@ class GameScene extends Phaser.Scene {
 
     const doorObj = this._objects.find(o => o.id === 'door_security');
     if (doorObj) {
-      doorObj._label.setText('PORTA // RESTRICTED WING // ABERTA');
+      doorObj._label.setText('PORTA');
       doorObj._body.clear();
       doorObj._drawVisual(48, 40, FORK_CONFIG.COLORS.ACCENT);
       doorObj.setEnabled(true);
@@ -1134,7 +1069,7 @@ class GameScene extends Phaser.Scene {
 
         const doorObj = this._objects.find(o => o.id === 'door_security');
         if (doorObj) {
-          doorObj._label.setText('PORTA // RESTRICTED WING // ABERTA');
+          doorObj._label.setText('PORTA');
           doorObj._body.clear();
           doorObj._drawVisual(48, 40, FORK_CONFIG.COLORS.ACCENT);
           doorObj.setEnabled(true);
