@@ -21,13 +21,17 @@ const NARRATIVE = {
   loopStart: loop => ['FORK OS // LOOP ' + String(loop).padStart(2,'0'), loop === 1 ? 'Ambiente carregado.' : 'A simulação lembra do que você fez.','// Algumas consequências chegam antes da causa.'],
   playerIntro: [
     'Eu estava brincando com alguns servidores.',
-    'Era para ser só um teste. Eu estava explorando os limites da simulação.',
-    'Em algum momento, alguma coisa mudou.',
-    'Quando percebi, eu já estava preso dentro da própria Matrix.',
-    'O pior é que os servidores parecem ter sido modificados.',
-    'Há processos e alterações aqui que eu não reconheço como minhas.',
-    'Se alguém mexeu neste sistema, talvez tenha mexido também na saída.',
-    'Preciso descobrir o que aconteceu antes que o sistema perceba que eu acordei.'
+    'Era só um teste. Eu estava explorando os limites da simulação.',
+    'Então alguma coisa mudou — e eu fiquei preso dentro da própria Matrix.',
+    '',
+    'Quando consegui olhar ao redor, percebi que o sistema não estava igual.',
+    'Existem alterações que não foram feitas por mim.',
+    'Há processos suspeitos rodando nos servidores.',
+    '',
+    'E tem uma coisa pior: a própria saída pode ter sido modificada.',
+    'Se alguém conseguiu alterar o caminho de saída, talvez também esteja controlando o que eu encontro.',
+    '',
+    'Preciso investigar o sistema antes que ele perceba que eu acordei.'
   ],
   systemReactions: {
     both: ['O sistema detectou duas alterações persistentes.','// A cadeia de consequências está se acumulando.'],
@@ -40,19 +44,19 @@ class GameScene extends Phaser.Scene {
   constructor() { super({ key: 'GameScene' }); }
 
   preload() {
-    this.load.spritesheet('player_idle_down', 'player/Idle/idle_down.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('player_idle_up', 'player/Idle/idle_up.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('player_idle_left_down', 'player/Idle/idle_left_down.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('player_idle_left_up', 'player/Idle/idle_left_up.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('player_idle_right_down', 'player/Idle/idle_right_down.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('player_idle_right_up', 'player/Idle/idle_right_up.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('player_idle_down', 'player/Idle/idle_down.png', { frameWidth: 48, frameHeight: 64 });
+    this.load.spritesheet('player_idle_up', 'player/Idle/idle_up.png', { frameWidth: 48, frameHeight: 64 });
+    this.load.spritesheet('player_idle_left_down', 'player/Idle/idle_left_down.png', { frameWidth: 48, frameHeight: 64 });
+    this.load.spritesheet('player_idle_left_up', 'player/Idle/idle_left_up.png', { frameWidth: 48, frameHeight: 64 });
+    this.load.spritesheet('player_idle_right_down', 'player/Idle/idle_right_down.png', { frameWidth: 48, frameHeight: 64 });
+    this.load.spritesheet('player_idle_right_up', 'player/Idle/idle_right_up.png', { frameWidth: 48, frameHeight: 64 });
 
-    this.load.spritesheet('player_walk_down', 'player/Walk/walk_down.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('player_walk_up', 'player/Walk/walk_up.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('player_walk_left_down', 'player/Walk/walk_left_down.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('player_walk_left_up', 'player/Walk/walk_left_up.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('player_walk_right_down', 'player/Walk/walk_right_down.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('player_walk_right_up', 'player/Walk/walk_right_up.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('player_walk_down', 'player/Walk/walk_down.png', { frameWidth: 48, frameHeight: 64 });
+    this.load.spritesheet('player_walk_up', 'player/Walk/walk_up.png', { frameWidth: 48, frameHeight: 64 });
+    this.load.spritesheet('player_walk_left_down', 'player/Walk/walk_left_down.png', { frameWidth: 48, frameHeight: 64 });
+    this.load.spritesheet('player_walk_left_up', 'player/Walk/walk_left_up.png', { frameWidth: 48, frameHeight: 64 });
+    this.load.spritesheet('player_walk_right_down', 'player/Walk/walk_right_down.png', { frameWidth: 48, frameHeight: 64 });
+    this.load.spritesheet('player_walk_right_up', 'player/Walk/walk_right_up.png', { frameWidth: 48, frameHeight: 64 });
 
     // Tilemap pixel-art fornecido para enriquecer o ambiente sem substituir
     // a arquitetura procedural atual do mapa.
@@ -104,8 +108,9 @@ class GameScene extends Phaser.Scene {
     this.cameras.main.roundPixels = true;
 
     this._setupLoopCallbacks();
-    this.loopManager.start();
-    this._showLoopStart();
+    // O primeiro loop só começa depois da apresentação inicial.
+    // Isso garante que a lore seja lida antes da exploração e que o tempo não corra durante a abertura.
+    this._showLoopStart(() => this.loopManager.start());
 
     this.input.keyboard.addCapture([
       Phaser.Input.Keyboard.KeyCodes.P
@@ -1862,7 +1867,7 @@ class GameScene extends Phaser.Scene {
       .on('onReset',    (reason) => { this.scene.start('ResetScene', { reason }); });
   }
 
-  _showLoopStart() {
+  _showLoopStart(onComplete = null) {
     const loopNum  = GameState.get('loop_count');
     const deleted  = GameState.get('log07_deleted');
     const rebooted = GameState.get('server_rebooted');
@@ -1885,7 +1890,12 @@ class GameScene extends Phaser.Scene {
     }
 
     this.time.delayedCall(400, () => {
-      this.dialogManager.show(msgs, { title: `LOOP ${String(loopNum).padStart(2,'0')}` });
+      this.dialogManager.show(msgs, {
+        title: loopNum === 1 ? 'AWAKENING // PRIMEIRO CONTATO' : `LOOP ${String(loopNum).padStart(2,'0')}`,
+        onClose: () => {
+          if (onComplete) onComplete();
+        },
+      });
     });
   }
 }
