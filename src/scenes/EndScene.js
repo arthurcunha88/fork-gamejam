@@ -239,7 +239,8 @@ class EndScene extends Phaser.Scene {
       letterSpacing: 2,
     }).setOrigin(0.5);
 
-    // Área segura inferior: os controles ficam separados da mensagem final.  }
+    // Área segura inferior: os controles ficam separados da mensagem final.
+  }
 
   _createChoices() {
     const W = FORK_CONFIG.WIDTH;
