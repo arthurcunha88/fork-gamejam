@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="64" shape-rendering="crispEdges">
+<rect width="256" height="64" fill="none"/>
+<!-- floor panel -->
+<g transform="translate(0 0)">
+<rect x="2" y="2" width="60" height="60" fill="#0b151d" stroke="#29404d" stroke-width="2"/>
+<path d="M8 18h48M8 32h48M8 46h48M20 8v48M40 8v48" stroke="#172a35" stroke-width="2"/>
+<path d="M8 8h12M40 8h16M8 56h12M40 56h16" stroke="#59d8ff" stroke-width="2"/>
+</g>
+<!-- storage crate -->
+<g transform="translate(64 0)">
+<rect x="8" y="8" width="48" height="48" fill="#121c23" stroke="#40515f" stroke-width="3"/>
+<rect x="14" y="14" width="36" height="36" fill="#172832" stroke="#263d49" stroke-width="2"/>
+<path d="M14 22h36M14 42h36M22 14v36M42 14v36" stroke="#2e718b" stroke-width="2"/>
+<rect x="27" y="27" width="10" height="10" fill="#59d8ff"/>
+</g>
+<!-- terminal -->
+<g transform="translate(128 0)">
+<rect x="7" y="7" width="50" height="38" rx="2" fill="#09131a" stroke="#40515f" stroke-width="3"/>
+<rect x="12" y="12" width="40" height="25" fill="#0b2029" stroke="#2e718b" stroke-width="2"/>
+<path d="M16 18h16M16 23h28M16 28h21M16 33h12" stroke="#59d8ff" stroke-width="2"/>
+<path d="M26 45v7M38 45v7M20 52h24" stroke="#40515f" stroke-width="3"/>
+</g>
+<!-- wall conduit -->
+<g transform="translate(192 0)">
+<rect x="6" y="10" width="52" height="44" fill="#0b151d" stroke="#263d49" stroke-width="3"/>
+<path d="M12 18h40v12H12zM12 38h40" fill="none" stroke="#2e718b" stroke-width="2"/>
+<circle cx="18" cy="24" r="3" fill="#59d8ff"/>
+<circle cx="28" cy="24" r="3" fill="#72d2ee"/>
+<circle cx="38" cy="24" r="3" fill="#40515f"/>
+<path d="M18 42h28" stroke="#59d8ff" stroke-width="2"/>
+</g>
+</svg>
