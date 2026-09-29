@@ -164,7 +164,7 @@ class PuzzleManager {
                 return [
                   '> ERROR: LOG_07.txt — FILE NOT FOUND',
                   '  Last known entry: LOOP ' + (GameState.get('loop_count') - 1),
-                  '  Deletion timestamp: 07:31',
+                  '  The system recorded the moment of deletion.',
                   '  // The file is gone. But the timestamp remains.',
                 ];
               }
@@ -205,7 +205,7 @@ class PuzzleManager {
                 '> Deleting LOG_07.txt...',
                 '> File removed.',
                 '> WARNING: Deletion event logged by system.',
-                '  Timestamp: 07:31',
+                '  The system recorded the moment of deletion.',
                 '// The file is gone.',
                 '// But the system saw what you did.',
                 '// And it remembers the time.',
@@ -217,8 +217,7 @@ class PuzzleManager {
                 GameState.executeCommand('DELETE_LOG_07');
                 GameState.addButterflyStep('delete_log07');
                 GameState.solvePuzzle(FORK_CONFIG.PUZZLES.LOG_FILE);
-                // Efeito borboleta: a hora do delete (07:31) vira a senha
-                // O jogador vai encontrar essa pista no próximo loop
+                // O momento da ação permanece como a referência da saída.
               }
             },
           },
@@ -269,17 +268,16 @@ class PuzzleManager {
                 '> SYSTEM_NOTES.txt',
                 '──────────────────────────────',
                 'SECURITY DOOR — ACCESS PROTOCOL',
-                'Format: 4-digit numeric code.',
-                'BOOT ACCESS // 07:31',
-                '// The same anchor opens the restricted wing.',
+                'A resposta está ligada ao momento desta consulta.',
+                'BOOT ACCESS // A HORA É AGORA.',
+                '// O mesmo momento abre a ala restrita.',
                 '──────────────────────────────',
               ];
 
               if (deleted) {
                 lines.push('ANOMALY DETECTED: LOG_07 removed.');
-                lines.push('Deletion event timestamp: 07:31');
-                lines.push('// The system recorded when you acted.');
-                lines.push('// What time did it happen?');
+                lines.push('O sistema registrou o momento da sua ação.');
+                lines.push('// A hora é agora.');
               } else {
                 lines.push('Access code: classified.');
                 lines.push('// Find what the system is hiding.');
@@ -296,9 +294,11 @@ class PuzzleManager {
             },
             onExecute: () => {
               GameState.executeCommand('READ_SYSTEM_NOTES');
-              if (!GameState.get('filesystem_wiped') || GameState.get('system_notes_read')) {
-                GameState.set('system_notes_read', true);
-              }
+              const now = new Date();
+              const anchor = String(now.getHours()).padStart(2, '0') +
+                String(now.getMinutes()).padStart(2, '0');
+              GameState.set('exit_code_anchor', anchor);
+              GameState.set('system_notes_read', true);
             },
           },
 
@@ -420,19 +420,15 @@ class PuzzleManager {
 
 
       // ── PUZZLE 1C: Senha da saída ─────────────────────────
-      // A senha é a hora local do computador no momento da tentativa.
-      // O jogador deve digitar HHMM; o horário nunca é exibido pelo puzzle.
+      // A senha permanece vinculada ao momento em que as notas foram lidas.
       [FORK_CONFIG.PUZZLES.EXIT_CODE]: {
         id:    FORK_CONFIG.PUZZLES.EXIT_CODE,
         type:  'code',
         requires: { door_unlocked: true },
         validator: answer => {
           if (!GameState.get('butterfly_steps').includes('read_notes')) return false;
-          const now = new Date();
-          const currentHHMM =
-            String(now.getHours()).padStart(2, '0') +
-            String(now.getMinutes()).padStart(2, '0');
-          return answer.trim() === currentHHMM;
+          const anchor = GameState.get('exit_code_anchor');
+          return Boolean(anchor) && answer.trim() === anchor;
         },
         consequences: [],
       },
