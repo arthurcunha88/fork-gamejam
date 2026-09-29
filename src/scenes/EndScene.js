@@ -19,7 +19,6 @@ class EndScene extends Phaser.Scene {
 
   create() {
     const W = FORK_CONFIG.WIDTH;
-    const H = FORK_CONFIG.HEIGHT;
     const C = FORK_CONFIG.COLORS;
 
     this.add.rectangle(0, 0, W, H, C.BG, 1).setOrigin(0, 0);
@@ -240,10 +239,7 @@ class EndScene extends Phaser.Scene {
       letterSpacing: 2,
     }).setOrigin(0.5);
 
-    // Área segura inferior: os controles ficam separados da mensagem final.
-    // H é usado aqui apenas para deixar explícito que o layout respeita a altura da tela.
-    const choiceY = H - 62;
-  }
+    // Área segura inferior: os controles ficam separados da mensagem final.  }
 
   _createChoices() {
     const W = FORK_CONFIG.WIDTH;
