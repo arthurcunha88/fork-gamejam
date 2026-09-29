@@ -30,6 +30,16 @@ class GameScene extends Phaser.Scene {
   constructor() { super({ key: 'GameScene' }); }
 
   preload() {
+    this.load.spritesheet('player_idle_down', 'player/Idle/idle_down.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('player_idle_up', 'player/Idle/idle_up.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('player_idle_left_down', 'player/Idle/idle_left_down.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('player_idle_right_down', 'player/Idle/idle_right_down.png', { frameWidth: 64, frameHeight: 64 });
+
+    this.load.spritesheet('player_walk_down', 'player/Walk/walk_down.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('player_walk_up', 'player/Walk/walk_up.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('player_walk_left_down', 'player/Walk/walk_left_down.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('player_walk_right_down', 'player/Walk/walk_right_down.png', { frameWidth: 64, frameHeight: 64 });
+
     // Tilemap pixel-art fornecido para enriquecer o ambiente sem substituir
     // a arquitetura procedural atual do mapa.
     this.load.spritesheet(
