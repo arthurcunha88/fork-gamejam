@@ -1074,7 +1074,7 @@ class GameScene extends Phaser.Scene {
     this.animationManager.doorOpen(625, 185);
     this.cameras.main.flash(180, 90, 220, 255, false);
     this.cameras.main.shake(220, 0.004);
-    this._setSystemMessage('ACCESS GRANTED // 0731 // RESTRICTED WING OPEN');
+    this._setSystemMessage('ACCESS GRANTED // LOCAL TIME ACCEPTED // RESTRICTED WING OPEN');
     this.time.delayedCall(450, () => {
       this.dialogManager.show([
         'ACCESS GRANTED.',
@@ -1234,6 +1234,9 @@ class GameScene extends Phaser.Scene {
         '',
         'CLOCK ANCHOR // 07:31',
         'BOOT ACCESS // ALREADY VERIFIED',
+        '',
+        '“fugir é a complexidade da existencia, deixe tudo para tras.',
+        ' se existe uma hora, a hora é agora.”',
         '─────────────────────────────────',
       ], { title: 'NOTES' });
       return;
@@ -1249,6 +1252,9 @@ class GameScene extends Phaser.Scene {
       '',
       'CLOCK ANCHOR // 07:31',
       '// O horário está sendo usado como chave.',
+      '',
+      '“fugir é a complexidade da existencia, deixe tudo para tras.',
+      ' se existe uma hora, a hora é agora.”',
       '─────────────────────────────────',
     ], {
       title: 'NOTES // BOOT ACCESS',
@@ -1341,13 +1347,12 @@ class GameScene extends Phaser.Scene {
 
     this.dialogManager.show([
       'PROJECT_B.enc — ENCRYPTED',
-      'A coordinate was left in the fragment:',
+      'Um exploit estava sendo sugerido no fragmento:',
       '',
-      'COORDINATE',
       '-15.7939 / -47.8828',
       '',
-      '// The key is the place.',
-      '// Do not enter the coordinates.',
+      '// A disposição dos números não parece acidental.',
+      '// Talvez você já saiba o que eles estão sugerindo.',
     ], {
       title: 'SECRET FILE',
       onClose: () => this.uiManager.openWordInput({
@@ -1362,7 +1367,7 @@ class GameScene extends Phaser.Scene {
           this._setSystemMessage('PROJECT BUTTERFLY — FILE DECRYPTED');
           this.dialogManager.show([
             'LOCATION IDENTIFIED.',
-            'BRASÍLIA // -15.7939 / -47.8828',
+            'BRASÍLIA IDENTIFICADA.',
             'A hidden directory has been mounted.',
             '// The system did not expect you to look outside the simulation.',
           ], { title: 'PROJECT_B.enc' });
