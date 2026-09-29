@@ -1024,7 +1024,7 @@ class GameScene extends Phaser.Scene {
   _showCodePuzzle() {
     if (!GameState.get('log07_deleted')) {
       this.dialogManager.show([
-        'SERVER ROOM // ACCESS DENIED',
+        'RESTRICTED WING // ACCESS DENIED',
         'A alteração necessária ainda não aconteceu.',
         '',
         'LOG_07 precisa desaparecer antes que o relógio revele a chave.',
@@ -1034,7 +1034,7 @@ class GameScene extends Phaser.Scene {
     }
 
     this.dialogManager.show([
-      'SERVER ROOM // SECURITY GATE',
+      'RESTRICTED WING // SECURITY GATE',
       '',
       'NUMERIC ACCESS REQUIRED.',
       'Four digits.',
@@ -1044,7 +1044,7 @@ class GameScene extends Phaser.Scene {
     ], {
       title: 'PORTA DE SEGURANÇA',
       onClose: () => this.uiManager.openCodeInput({
-        title: '// SERVER ROOM // ACCESS CODE',
+        title: '// RESTRICTED WING // ACCESS CODE',
         length: 4,
         validator: value => this.puzzleManager.checkAnswer(
           FORK_CONFIG.PUZZLES.DOOR_CODE,
@@ -1101,7 +1101,7 @@ class GameScene extends Phaser.Scene {
         'SERVER ROOM → STORAGE',
         '',
         '// SERVER A is waiting inside.',
-      ], { title: 'SERVER ROOM // ACCESS GRANTED' });
+      ], { title: 'RESTRICTED WING // ACCESS GRANTED' });
     });
   }
 
