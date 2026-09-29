@@ -16,7 +16,9 @@ A proposta nasceu de uma pergunta simples:
 
 Em vez de transformar o tema em uma representação literal de uma borboleta, o projeto utiliza a ideia de causa e consequência como parte da própria estrutura do jogo.
 
-O jogador acorda dentro de uma simulação aparentemente controlada, explora um laboratório digital, encontra arquivos, terminais e sistemas de segurança e precisa interpretar pistas para descobrir como avançar.
+O jogador acorda dentro de uma simulação aparentemente controlada, depois de ficar preso na própria Matrix enquanto testava servidores. Ele percebe que existem alterações que não foram feitas por ele, processos suspeitos no sistema e indícios de que até a saída pode ter sido modificada.
+
+A abertura do jogo apresenta essa situação diretamente ao jogador antes do início da exploração. A partir daí, ele encontra arquivos, terminais e sistemas de segurança e precisa interpretar pistas para descobrir como avançar.
 
 Ao longo da experiência, as decisões do jogador alteram o estado da simulação e podem levar a **cinco finais diferentes**.
 
@@ -229,7 +231,7 @@ O jogo foi desenvolvido principalmente com:
 - **Web Audio API**
 - **Git / GitHub**
 
-O **Phaser 3** foi utilizado como framework principal para a criação do jogo. Phaser é um framework 2D para jogos HTML5, com suporte a renderização via WebGL e Canvas e execução diretamente no navegador. citeturn0search0
+O **Phaser 3** foi utilizado como framework principal para a criação do jogo. Phaser é um framework 2D para jogos HTML5, com suporte a renderização via WebGL e Canvas e execução diretamente no navegador.
 
 A estrutura do projeto utiliza cenas, objetos interativos, sistemas independentes e um estado central para separar as principais responsabilidades do jogo.
 
@@ -369,13 +371,21 @@ Utilize a extensão **Live Server** e abra o projeto através de **Go Live**.
 ### Desenvolvimento
 
 **Arthur Andrade Cunha**  
-Programação, arquitetura, sistemas de jogo, integração, design de mecânicas e processo criativo.
-
-**Andre Rangel**  
-Desenvolvimento e colaboração na construção do projeto.
+Design e desenvolvimento. Responsável pela direção de design, programação, arquitetura, sistemas de jogo, integração e decisões de implementação.
 
 **Pedro Andrade**  
-Desenvolvimento e colaboração na construção do projeto.
+Desenvolvimento. Responsável pela programação e colaboração na implementação dos sistemas do jogo.
+
+**Andre Rangel**  
+Design. Responsável pela colaboração na direção visual e construção de elementos de design.
+
+### Colaboradores
+
+**Gustavo Maia**  
+Colaborador.
+
+**Maria Eduarda Lombardi**  
+Colaboradora.
 
 ---
 
@@ -411,7 +421,7 @@ Agradecemos aos criadores dos recursos utilizados no desenvolvimento de FORK.
 **Asset:** Cosmic Lilac! Sci-Fi Tileset  
 **Fonte:** itch.io
 
-O tileset foi utilizado para complementar a ambientação sci-fi do laboratório. O autor permite o uso em projetos comerciais ou gratuitos mediante as condições apresentadas na página do asset, incluindo a atribuição de crédito. citeturn1search11
+O tileset foi utilizado para complementar a ambientação sci-fi do laboratório. O autor permite o uso em projetos comerciais ou gratuitos mediante as condições apresentadas na página do asset, incluindo a atribuição de crédito.
 
 ### UI — Sci Fi Game UI collection FREE version
 
@@ -419,7 +429,7 @@ O tileset foi utilizado para complementar a ambientação sci-fi do laboratório
 **Asset:** Sci Fi Game UI collection FREE version  
 **Fonte:** itch.io
 
-O pacote fornece elementos de interface e recursos visuais de temática sci-fi. A versão gratuita é disponibilizada sob **Creative Commons Attribution 4.0 International**, com exigência de atribuição ao autor. citeturn1search1
+O pacote fornece elementos de interface e recursos visuais de temática sci-fi. A versão gratuita é disponibilizada sob **Creative Commons Attribution 4.0 International**, com exigência de atribuição ao autor.
 
 ### Character — The Adventurer - Male
 
@@ -427,7 +437,7 @@ O pacote fornece elementos de interface e recursos visuais de temática sci-fi. 
 **Asset:** The Adventurer - Male  
 **Fonte:** itch.io
 
-Recurso utilizado como base visual para o personagem do jogo. citeturn1search10
+Recurso utilizado como base visual para o personagem do jogo.
 
 ---
 
@@ -436,7 +446,7 @@ Recurso utilizado como base visual para o personagem do jogo. citeturn1sea
 **Phaser**
 
 Framework utilizado para a construção do jogo 2D e execução no navegador.  
-Documentação oficial: https://docs.phaser.io/ citeturn0search0
+Documentação oficial: https://docs.phaser.io/
 
 **ChatGPT / OpenAI**
 
