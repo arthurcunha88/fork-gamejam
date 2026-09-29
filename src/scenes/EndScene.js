@@ -1,188 +1,370 @@
 // ============================================================
 // FORK — EndScene.js
-// Cinco desfechos com revelações diferentes.
+// Tela final estática: o jogador escolhe explicitamente o próximo passo.
 // ============================================================
 
 class EndScene extends Phaser.Scene {
-  constructor() { super({ key: 'EndScene' }); }
+  constructor() {
+    super({ key: 'EndScene' });
+  }
 
   init(data) {
     this.endingId = data.endingId || FORK_CONFIG.ENDINGS.RESET;
+    this.selectedIndex = 0;
+  }
+
+  preload() {
+    this.load.image('fork_emblem_end', 'assets/fork-emblem.svg');
   }
 
   create() {
     const W = FORK_CONFIG.WIDTH;
     const H = FORK_CONFIG.HEIGHT;
+    const C = FORK_CONFIG.COLORS;
 
-    this.add.rectangle(0, 0, W, H, 0x000000, 1).setOrigin(0, 0);
+    this.add.rectangle(0, 0, W, H, C.BG, 1).setOrigin(0, 0);
 
-    const endings = {
-      [FORK_CONFIG.ENDINGS.ESCAPE]: () => this._endingEscape(),
-      [FORK_CONFIG.ENDINGS.RESET]: () => this._endingReset(),
-      [FORK_CONFIG.ENDINGS.ETERNAL_LOOP]: () => this._endingEternalLoop(),
-      [FORK_CONFIG.ENDINGS.CONTROLLED]: () => this._endingControlled(),
-      [FORK_CONFIG.ENDINGS.BUTTERFLY]: () => this._endingButterfly(),
+    // Moldura fixa da tela final.
+    const frame = this.add.graphics();
+    frame.lineStyle(1, C.ACCENT_DIM, 0.55);
+    frame.strokeRect(42, 38, W - 84, H - 76);
+    frame.lineStyle(1, C.GRID, 0.75);
+    frame.strokeRect(56, 52, W - 112, H - 104);
+
+    if (this.textures.exists('fork_emblem_end')) {
+      this.add.image(W / 2, 126, 'fork_emblem_end')
+        .setScale(0.48)
+        .setAlpha(0.34);
+    }
+
+    const ending = this._getEndingData();
+    this._drawEnding(ending);
+    this._createChoices();
+
+    this._keyHandler = (event) => {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        this._select(-1);
+      } else if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+        event.preventDefault();
+        this._select(1);
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        this._activateSelection();
+      } else if (event.key === '1' || event.key === '2' || event.key === '3') {
+        event.preventDefault();
+        this.selectedIndex = Number(event.key) - 1;
+        this._refreshChoices();
+        this._activateSelection();
+      }
     };
 
-    (endings[this.endingId] || endings[FORK_CONFIG.ENDINGS.RESET])();
-  }
+    this.input.keyboard.on('keydown', this._keyHandler);
 
-  _endingEscape() {
-    this._sequence([
-      ['ACCESS GRANTED.', '#00ff41', 0, '22px'],
-      ['SECURITY LAYER BYPASSED.', '#00cc33', 900, '14px'],
-      ['Você finalmente atravessou a porta.', '#33aa33', 1900, '14px'],
-      ['...', '#1a4d1a', 3100, '16px'],
-      ['SYSTEM USERS: 2', '#ff2244', 4300, '20px'],
-      ['// Você escapou. Mas alguém saiu junto.', '#ff2244', 5200, '13px'],
-    ], 'FINAL 1 — ESCAPE');
-  }
-
-  _endingReset() {
-    this._sequence([
-      ['ACCESS DENIED.', '#ff2244', 0, '22px'],
-      ['ESCAPE ATTEMPT LOGGED.', '#ffaa00', 900, '14px'],
-      ['SYSTEM RESETTING...', '#ff2244', 1800, '18px'],
-      ['I REMEMBER YOU.', '#ff2244', 3100, '22px'],
-      ['// Você tentou sair antes de entender o sistema.', '#33aa33', 4300, '13px'],
-      ['// Agora o sistema lembra da tentativa.', '#00cc33', 5100, '13px'],
-    ], 'FINAL 2 — RESET');
-  }
-
-  _endingEternalLoop() {
-    const n = 8472913 + GameState.get('loop_count');
-
-    this._sequence([
-      ['ARCHIVE ACCESS GRANTED.', '#00cc33', 0, '16px'],
-      ['HISTORICAL LOOP COUNT:', '#33aa33', 1000, '13px'],
-      ['' + n.toLocaleString(), '#ffaa00', 1800, '30px'],
-      ['Isso não começou com você.', '#33aa33', 3000, '14px'],
-      ['Você apenas entrou no ciclo.', '#33aa33', 3900, '14px'],
-      ['LOOP COUNT: ' + (n + 1).toLocaleString(), '#ff2244', 5200, '18px'],
-      ['// E o sistema continua.', '#ff2244', 6100, '13px'],
-    ], 'FINAL 3 — ETERNAL LOOP');
-  }
-
-  _endingControlled() {
-    this._sequence([
-      ['IDENTITY CONFIRMED.', '#ffaa00', 0, '18px'],
-      ['SUBJECT: YOU', '#ff2244', 1000, '22px'],
-      ['BEHAVIORAL PREDICTION: 97.3%', '#ffaa00', 2100, '16px'],
-      ['A escolha de deletar.', '#33aa33', 3200, '13px'],
-      ['A escolha de reiniciar.', '#33aa33', 3900, '13px'],
-      ['A escolha de escapar.', '#33aa33', 4600, '13px'],
-      ['Todas previstas.', '#ff2244', 5400, '20px'],
-      ['WHO IS REALLY PLAYING?', '#ff2244', 6500, '22px'],
-    ], 'FINAL 4 — CONTROLLED');
-  }
-
-  _endingButterfly() {
-    this._sequence([
-      ['PROJECT BUTTERFLY', '#00ff41', 0, '28px'],
-      ['CASCADE COMPLETE.', '#00cc33', 900, '16px'],
-      ['ACTION → CONSEQUENCE → NEW ACTION', '#33aa33', 1800, '13px'],
-      ['The simulation predicted the chain.', '#33aa33', 2900, '14px'],
-      ['It predicted the system.', '#33aa33', 3800, '14px'],
-      ['It predicted the player.', '#33aa33', 4700, '14px'],
-      ['VARIABLE NOT PREDICTED:', '#ffaa00', 5900, '15px'],
-      ['THE DECISION TO UNDERSTAND.', '#00ff41', 6800, '20px'],
-      ['Você não escapou da simulação.', '#00ff41', 8000, '14px'],
-      ['Você mudou o que ela significava.', '#00ff41', 8700, '16px'],
-    ], 'FINAL 5 — PROJECT BUTTERFLY');
-  }
-
-  _sequence(lines, label) {
-    const W = FORK_CONFIG.WIDTH;
-    const H = FORK_CONFIG.HEIGHT;
-
-    const lineHeight = 34;
-    const startY = H / 2 - ((lines.length - 1) * lineHeight) / 2;
-
-    lines.forEach(([text, color, delay, size], index) => {
-      this.time.delayedCall(delay, () => {
-        const t = this.add.text(W / 2, startY + index * lineHeight, text, {
-          fontFamily: FORK_CONFIG.FONT.FAMILY,
-          fontSize: size,
-          color,
-          align: 'center',
-          wordWrap: { width: W - 140 },
-          shadow: { offsetX: 0, offsetY: 0, color, blur: 8, fill: true },
-        }).setOrigin(0.5);
-
-        t.setAlpha(0);
-        t.setScale(0.96);
-        this.tweens.add({
-          targets: t,
-          alpha: 1,
-          scale: 1,
-          duration: 260,
-          ease: 'Power2',
-        });
-
-        if (window.AudioManagerInstance) window.AudioManagerInstance.playType();
-      });
+    this.events.once('shutdown', () => {
+      if (this._keyHandler) {
+        this.input.keyboard.off('keydown', this._keyHandler);
+      }
     });
-
-    const endDelay = Math.max(...lines.map(line => line[2])) + 1500;
-    this.time.delayedCall(endDelay, () => this._showEndButtons(label));
   }
 
-  _showEndButtons(label) {
-    const W = FORK_CONFIG.WIDTH;
-    const H = FORK_CONFIG.HEIGHT;
+  _getEndingData() {
+    const E = FORK_CONFIG.ENDINGS;
 
-    this.add.text(W / 2, H - 92, label, {
+    const endings = {
+      [E.ESCAPE]: {
+        code: 'FINAL 1',
+        title: 'ESCAPE',
+        accent: '#59d8ff',
+        lines: [
+          'ACCESS GRANTED.',
+          'SECURITY LAYER BYPASSED.',
+          'Você finalmente atravessou a porta.',
+          '',
+          'SYSTEM USERS: 2',
+          '// Você escapou. Mas alguém saiu junto.',
+        ],
+      },
+
+      [E.RESET]: {
+        code: 'FINAL 2',
+        title: 'RESET',
+        accent: '#ff6678',
+        lines: [
+          'ACCESS DENIED.',
+          'ESCAPE ATTEMPT LOGGED.',
+          'SYSTEM RESETTING...',
+          '',
+          'I REMEMBER YOU.',
+          '// Você tentou sair antes de entender o sistema.',
+          '// Agora o sistema lembra da tentativa.',
+        ],
+      },
+
+      [E.ETERNAL_LOOP]: {
+        code: 'FINAL 3',
+        title: 'ETERNAL LOOP',
+        accent: '#ff9aa6',
+        lines: [
+          'ARCHIVE ACCESS GRANTED.',
+          'HISTORICAL LOOP COUNT:',
+          String(8472913 + GameState.get('loop_count')),
+          '',
+          'Isso não começou com você.',
+          'Você apenas entrou no ciclo.',
+          '',
+          'LOOP COUNT: ' + (8472914 + GameState.get('loop_count')),
+          '// E o sistema continua.',
+        ],
+      },
+
+      [E.CONTROLLED]: {
+        code: 'FINAL 4',
+        title: 'CONTROLLED',
+        accent: '#ffb34d',
+        lines: [
+          'IDENTITY CONFIRMED.',
+          'SUBJECT: YOU',
+          'BEHAVIORAL PREDICTION: 97.3%',
+          '',
+          'A escolha de deletar.',
+          'A escolha de reiniciar.',
+          'A escolha de escapar.',
+          'Todas previstas.',
+          '',
+          'WHO IS REALLY PLAYING?',
+        ],
+      },
+
+      [E.BUTTERFLY]: {
+        code: 'FINAL 5',
+        title: 'PROJECT BUTTERFLY',
+        accent: '#9be8ff',
+        lines: [
+          'PROJECT BUTTERFLY',
+          'CASCADE COMPLETE.',
+          'ACTION → CONSEQUENCE → NEW ACTION',
+          '',
+          'The simulation predicted the chain.',
+          'It predicted the system.',
+          'It predicted the player.',
+          '',
+          'VARIABLE NOT PREDICTED:',
+          'THE DECISION TO UNDERSTAND.',
+          '',
+          'Você não escapou da simulação.',
+          'Você mudou o que ela significava.',
+        ],
+      },
+    };
+
+    return endings[this.endingId] || endings[E.RESET];
+  }
+
+  _drawEnding(ending) {
+    const W = FORK_CONFIG.WIDTH;
+    const C = FORK_CONFIG.COLORS;
+
+    this.add.text(W / 2, 72, ending.code, {
       fontFamily: FORK_CONFIG.FONT.FAMILY,
       fontSize: '11px',
       color: FORK_CONFIG.FONT.COLOR_DIM,
+      letterSpacing: 2,
     }).setOrigin(0.5);
 
-    const again = this.add.text(W / 2 - 95, H - 52, '[ NOVO JOGO ]', {
-      fontFamily: FORK_CONFIG.FONT.FAMILY,
-      fontSize: '12px',
-      color: FORK_CONFIG.FONT.COLOR_PRIMARY,
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    this.add.text(W / 2, 158, ending.title, {
+      fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE,
+      fontSize: '26px',
+      color: ending.accent,
+      shadow: {
+        offsetX: 0,
+        offsetY: 0,
+        color: ending.accent,
+        blur: 8,
+        fill: true,
+      },
+    }).setOrigin(0.5);
 
-    const menu = this.add.text(W / 2 + 95, H - 52, '[ MENU ]', {
+    const panel = this.add.graphics();
+    panel.fillStyle(0x071018, 0.94);
+    panel.fillRect(150, 205, FORK_CONFIG.WIDTH - 300, 330);
+    panel.lineStyle(1, C.ACCENT_DIM, 0.38);
+    panel.strokeRect(150, 205, FORK_CONFIG.WIDTH - 300, 330);
+
+    const startY = 235;
+    ending.lines.forEach((line, index) => {
+      let color = C.TEXT_MID;
+      let size = '14px';
+
+      if (index === 0) {
+        color = ending.accent;
+        size = '17px';
+      } else if (line.startsWith('//')) {
+        color = C.TEXT_DIM;
+        size = '12px';
+      } else if (line === 'THE DECISION TO UNDERSTAND.') {
+        color = ending.accent;
+        size = '17px';
+      }
+
+      this.add.text(W / 2, startY + index * 25, line, {
+        fontFamily: FORK_CONFIG.FONT.FAMILY,
+        fontSize: size,
+        color,
+        align: 'center',
+        wordWrap: { width: FORK_CONFIG.WIDTH - 360 },
+      }).setOrigin(0.5);
+    });
+
+    this.add.text(W / 2, 566, 'SELECIONE UMA OPÇÃO', {
+      fontFamily: FORK_CONFIG.FONT.FAMILY,
+      fontSize: '10px',
+      color: C.TEXT_DIM,
+      letterSpacing: 2,
+    }).setOrigin(0.5);
+  }
+
+  _createChoices() {
+    const W = FORK_CONFIG.WIDTH;
+    const H = FORK_CONFIG.HEIGHT;
+
+    this._choices = [
+      this._makeChoice(0, W / 2 - 205, H - 62, '[ 1 ] NOVO JOGO', () => this._newGame()),
+      this._makeChoice(1, W / 2, H - 62, '[ 2 ] VOLTAR AO LOOP', () => this._nextLoop()),
+      this._makeChoice(2, W / 2 + 205, H - 62, '[ 3 ] MENU', () => this._menu()),
+    ];
+
+    this._refreshChoices();
+  }
+
+  _makeChoice(index, x, y, label, callback) {
+    const text = this.add.text(x, y, label, {
       fontFamily: FORK_CONFIG.FONT.FAMILY,
       fontSize: '12px',
       color: FORK_CONFIG.FONT.COLOR_DIM,
+      align: 'center',
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    again.on('pointerdown', () => {
-      GameState.persistent = {
-        loop_count: 0,
-        phase: FORK_CONFIG.PHASES.AWAKENING,
-        boot_code_found: false,
-        log07_deleted: false,
-        server_rebooted: false,
-        door_unlocked: false,
-        secret_area_found: false,
-        entity_trust: 0,
-        system_awareness: 0,
-        butterfly_steps: [],
-        player_identity_known: false,
-        escape_attempted: false,
-        memory_code_found: false,
-        observer_unlocked: false,
-        identity_fragment_found: false,
-        fork_sequence_complete: false,
-        commands_executed: [],
-        puzzles_solved: [],
-        ending_flags: {},
-        clear_count: 0,
-        corruption_level: 0,
-        filesystem_wiped: false,
-        system_notes_read: false,
-        restore_requested: false,
-        system_restored: false,
-        loop_error_count: 0,
-        last_loop_error: null,
-      };
-      GameState.clearSave();
-      this.scene.start('MenuScene');
+    text.on('pointerover', () => {
+      this.selectedIndex = index;
+      this._refreshChoices();
     });
 
-    menu.on('pointerdown', () => this.scene.start('MenuScene'));
+    text.on('pointerdown', callback);
+    return text;
+  }
+
+  _refreshChoices() {
+    if (!this._choices) return;
+
+    this._choices.forEach((choice, index) => {
+      const selected = index === this.selectedIndex;
+      choice.setColor(
+        selected
+          ? FORK_CONFIG.FONT.COLOR_PRIMARY
+          : FORK_CONFIG.FONT.COLOR_DIM
+      );
+      choice.setText(
+        selected
+          ? choice.text.replace(/^\[ [123] \]/, '▶')
+          : choice.text.replace(/^▶/, index === 0 ? '[ 1 ]' : index === 1 ? '[ 2 ]' : '[ 3 ]')
+      );
+    });
+  }
+
+  _select(direction) {
+    this.selectedIndex =
+      (this.selectedIndex + direction + this._choices.length) % this._choices.length;
+    this._refreshChoices();
+  }
+
+  _activateSelection() {
+    const choice = this._choices[this.selectedIndex];
+    if (choice) choice.emit('pointerdown');
+  }
+
+  _resetAllState() {
+    GameState.persistent = {
+      loop_count: 0,
+      phase: FORK_CONFIG.PHASES.AWAKENING,
+      boot_code_found: false,
+      memory_code_found: false,
+      observer_unlocked: false,
+      identity_fragment_found: false,
+      fork_sequence_complete: false,
+      log07_deleted: false,
+      server_rebooted: false,
+      door_unlocked: false,
+      secret_area_found: false,
+      entity_trust: 0,
+      system_awareness: 0,
+      butterfly_steps: [],
+      player_identity_known: false,
+      escape_attempted: false,
+      commands_executed: [],
+      puzzles_solved: [],
+      ending_flags: {},
+      clear_count: 0,
+      corruption_level: 0,
+      filesystem_wiped: false,
+      system_notes_read: false,
+      restore_requested: false,
+      system_restored: false,
+      loop_error_count: 0,
+      last_loop_error: null,
+    };
+
+    GameState.resetVolatile();
+    GameState.clearSave();
+  }
+
+  _resetLoopProgress() {
+    const loopCount = GameState.get('loop_count');
+    const awareness = GameState.get('system_awareness');
+
+    GameState.persistent.phase = FORK_CONFIG.PHASES.AWAKENING;
+    GameState.persistent.boot_code_found = false;
+    GameState.persistent.memory_code_found = false;
+    GameState.persistent.observer_unlocked = false;
+    GameState.persistent.identity_fragment_found = false;
+    GameState.persistent.fork_sequence_complete = false;
+    GameState.persistent.log07_deleted = false;
+    GameState.persistent.server_rebooted = false;
+    GameState.persistent.door_unlocked = false;
+    GameState.persistent.secret_area_found = false;
+    GameState.persistent.entity_trust = 0;
+    GameState.persistent.butterfly_steps = [];
+    GameState.persistent.player_identity_known = false;
+    GameState.persistent.escape_attempted = false;
+    GameState.persistent.commands_executed = [];
+    GameState.persistent.puzzles_solved = [];
+    GameState.persistent.ending_flags = {};
+    GameState.persistent.clear_count = 0;
+    GameState.persistent.corruption_level = 0;
+    GameState.persistent.filesystem_wiped = false;
+    GameState.persistent.system_notes_read = false;
+    GameState.persistent.restore_requested = false;
+    GameState.persistent.system_restored = false;
+    GameState.persistent.loop_error_count = 0;
+    GameState.persistent.last_loop_error = null;
+    GameState.persistent.loop_count = loopCount;
+    GameState.persistent.system_awareness = awareness;
+
+    GameState.resetVolatile();
+  }
+
+  _newGame() {
+    this._resetAllState();
+    this.scene.start('GameScene');
+  }
+
+  _nextLoop() {
+    this._resetLoopProgress();
+    GameState.nextLoop();
+    this.scene.start('GameScene');
+  }
+
+  _menu() {
+    this.scene.start('MenuScene');
   }
 }
