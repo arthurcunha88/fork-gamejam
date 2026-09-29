@@ -12,6 +12,7 @@ class InteractiveObject {
     this.id = config.id || 'object_' + Math.random().toString(36).slice(2);
     this.type = config.type || FORK_CONFIG.OBJECT_TYPES.OBJECT;
     this.label = config.label || 'OBJECT';
+    this.showLabel = config.showLabel !== false;
     this.enabled = config.enabled !== undefined ? config.enabled : true;
     this.onInteract = config.onInteract || null;
     this.visual = config.visual || null;
@@ -29,7 +30,7 @@ class InteractiveObject {
       fontSize: this.visual ? '14px' : '17px',
       color: labelColor,
       shadow: { offsetX: 0, offsetY: 0, color: this.visual ? '#4b647a' : '#4ac8ff', blur: 6, fill: true },
-    }).setOrigin(0.5, 1).setDepth(6);
+    }).setOrigin(0.5, 1).setDepth(6).setVisible(this.showLabel);
 
     this._icon = scene.add.text(x, y, this.visual ? '' : this._getTypeIcon(), {
       fontFamily: FORK_CONFIG.FONT.FAMILY_TITLE,
