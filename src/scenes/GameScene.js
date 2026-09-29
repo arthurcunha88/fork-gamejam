@@ -1093,17 +1093,6 @@ class GameScene extends Phaser.Scene {
       return;
     }
 
-    if (!GameState.get('boot_code_found')) {
-      this.dialogManager.show([
-        'PORTA DE SEGURANÇA',
-        'O acesso ainda não foi inicializado.',
-        '',
-        '// O sistema espera a chave de BOOT antes deste protocolo.',
-        '// Consulte NOTES.txt e confirme 07:31 primeiro.',
-      ], { title: 'SERVER SECURITY' });
-      return;
-    }
-
     this.dialogManager.show(NARRATIVE.door.locked_has_clue, {
       title: 'PORTA DE SEGURANÇA',
       onClose: () => this.uiManager.openCodeInput({
@@ -1308,64 +1297,28 @@ class GameScene extends Phaser.Scene {
   }
 
   _interactFile() {
+    const now = new Date();
+    const localTime =
+      String(now.getHours()).padStart(2, '0') +
+      ':' +
+      String(now.getMinutes()).padStart(2, '0');
+
     GameState.set('system_notes_read', true);
     GameState.addButterflyStep('read_notes');
-
-    if (GameState.get('boot_code_found')) {
-      this.dialogManager.show([
-        'NOTES.txt',
-        '─────────────────────────────────',
-        '"A porta nunca abre na primeira vez.',
-        ' Mas sempre abre na segunda."',
-        '',
-        '"Delete o que o sistema não quer que você veja."',
-        '',
-        'CLOCK ANCHOR // 07:31',
-        'BOOT ACCESS // ALREADY VERIFIED',
-        '',
-        '“fugir é a complexidade da existencia, deixe tudo para tras.',
-        ' se existe uma hora, a hora é agora.”',
-        '─────────────────────────────────',
-      ], { title: 'NOTES' });
-      return;
-    }
 
     this.dialogManager.show([
       'NOTES.txt',
       '─────────────────────────────────',
-      '"A porta nunca abre na primeira vez.',
-      ' Mas sempre abre na segunda."',
-      '',
-      '"Delete o que o sistema não quer que você veja."',
-      '',
-      'CLOCK ANCHOR // 07:31',
-      '// O horário será usado na saída.',
+      'LOCAL TIME // ' + localTime,
       '',
       '“fugir é a complexidade da existencia, deixe tudo para tras.',
       ' se existe uma hora, a hora é agora.”',
+      '',
+      '// O sistema registrou o momento presente.',
+      '// Use esta referência quando chegar à saída.',
       '─────────────────────────────────',
-    ], {
-      title: 'NOTES // BOOT ACCESS',
-      onClose: () => this.uiManager.openCodeInput({
-        title: '// SYSTEM BOOT // KEY',
-        length: 4,
-        validator: value => this.puzzleManager.checkAnswer(
-          FORK_CONFIG.PUZZLES.BOOT_CODE,
-          value
-        ),
-        onSuccess: () => {
-          this._setSystemMessage('BOOT ACCESS GRANTED // 07:31');
-          this.dialogManager.show([
-            'BOOT ACCESS ACCEPTED.',
-            '07:31 was not only a timestamp.',
-            'It is the first anchor of the simulation.',
-            '// Something will remain after the next loop.',
-          ], { title: 'SYSTEM BOOT' });
-        },
-      }),
-    });
+    ], { title: 'NOTES' });
   }
-
   _interactEntity() {
     const trust   = GameState.get('entity_trust');
     const deleted = GameState.get('log07_deleted');
