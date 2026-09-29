@@ -29,6 +29,16 @@ const NARRATIVE = {
 class GameScene extends Phaser.Scene {
   constructor() { super({ key: 'GameScene' }); }
 
+  preload() {
+    // Tilemap pixel-art fornecido para enriquecer o ambiente sem substituir
+    // a arquitetura procedural atual do mapa.
+    this.load.spritesheet(
+      'cosmic_tiles',
+      'assets/tilemap/CosmicLilac_Tiles.png',
+      { frameWidth: 16, frameHeight: 16 }
+    );
+  }
+
   create() {
     const W = FORK_CONFIG.WIDTH;
     const H = FORK_CONFIG.HEIGHT;
@@ -385,6 +395,7 @@ class GameScene extends Phaser.Scene {
     this._drawRoom(gfx, 650, 52, 250, 228, true);
     this._drawRoom(gfx, 650, 328, 250, 252, true);
     this._drawRoomConnector(gfx);
+    this._buildPixelFloorAccents();
 
     this._drawDigitalRain(0, 28, W, H - 50);
 
@@ -425,6 +436,34 @@ class GameScene extends Phaser.Scene {
     this.add.text(674, 342, '// STORAGE // RESTRICTED', labelStyle).setDepth(2);
 
 
+  }
+
+  _buildPixelFloorAccents() {
+    // O tileset tem uma identidade lilás forte. Em vez de cobrir o mapa,
+    // usamos pequenos módulos como detalhes de piso/infraestrutura e os
+    // deixamos com baixa opacidade para conversar com a paleta FORK.
+    if (!this.textures.exists('cosmic_tiles')) return;
+
+    const accents = [
+      // MAIN LAB — módulos de piso próximos às áreas de trabalho.
+      [112, 104, 4], [128, 104, 4], [144, 104, 4],
+      [112, 120, 4], [128, 120, 4], [144, 120, 4],
+
+      // SERVER ROOM — painéis técnicos.
+      [692, 92, 14], [708, 92, 14], [724, 92, 14],
+      [692, 108, 14], [708, 108, 14], [724, 108, 14],
+
+      // STORAGE — placas de piso mais claras.
+      [690, 366, 20], [706, 366, 20],
+      [690, 382, 20], [706, 382, 20],
+    ];
+
+    accents.forEach(([x, y, frame]) => {
+      this.add.sprite(x, y, 'cosmic_tiles', frame)
+        .setOrigin(0.5)
+        .setAlpha(0.18)
+        .setDepth(0.35);
+    });
   }
 
   _drawRoomConnector(gfx) {
