@@ -1028,7 +1028,7 @@ class GameScene extends Phaser.Scene {
       'A porta reconhece o evento de entrada.',
       'A referência temporal foi aceita.',
       '',
-      '// LOCAL TIME // ' + localTime,
+      '// A referência temporal coincide com o momento presente.',
     ], {
       title: 'PORTA DE SAÍDA',
       onClose: () => {
